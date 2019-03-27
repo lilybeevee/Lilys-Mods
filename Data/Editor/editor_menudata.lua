@@ -16,16 +16,14 @@ menufuncs =
 				y = y + tilesize
 				
 				createbutton("settings",x,y,2,8,1,langtext("settings"),name,3,2,buttonid)
+
+				y = y + tilesize
 				
-				if (build == "debug") then
-					y = y + tilesize
-					
-					createbutton("custom",x,y,2,8,1,langtext("main_custom"),name,3,2,buttonid,disable)
-					
-					y = y + tilesize
-					
-					createbutton("editor",x,y,2,8,1,langtext("main_editor"),name,3,2,buttonid,disable)
-				end
+				createbutton("custom",x,y,2,8,1,langtext("main_custom"),name,3,2,buttonid,disable)
+				
+				y = y + tilesize
+				
+				createbutton("editor",x,y,2,8,1,langtext("main_editor"),name,3,2,buttonid,disable)
 				
 				y = y + tilesize
 				
@@ -45,18 +43,7 @@ menufuncs =
 			end,
 		structure =
 		{
-			n = {
-				{{"start"},},
-				{{"settings"},},
-				{{"credits"},},
-			},
 			{
-				{{"start"},},
-				{{"settings"},},
-				{{"credits"},},
-				{{"quit"},},
-			},
-			debug = {
 				{{"start"},},
 				{{"settings"},},
 				{{"custom"},},
