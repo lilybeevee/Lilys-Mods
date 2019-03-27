@@ -130,6 +130,15 @@ function ending(enddataid)
 			for i,unit in ipairs(changethese) do
 				MF_particles("bling",unit.values[XPOS],unit.values[YPOS],10,0,3,1,1)
 				unit.values[FLOAT] = 0
+				
+				local tileid = unit.values[XPOS] + unit.values[YPOS] * roomsizex
+				if (unitmap[tileid] ~= nil) then
+					for a,b in ipairs(unitmap[tileid]) do
+						if (b == unit.fixed) then
+							table.remove(unitmap[tileid], a)
+						end
+					end
+				end
 			end
 			
 			if (#blossoms == 0) then

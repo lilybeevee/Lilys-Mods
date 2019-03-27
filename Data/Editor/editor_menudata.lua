@@ -192,20 +192,21 @@ menufuncs =
 				
 				y = y + tilesize
 				
+				--[[
 				local zoom = MF_read("settings","settings","zoom")
 				s,c = gettoggle(zoom)
 				createbutton("zoom",x,y,2,16,1,langtext("settings_zoom"),name,3,2,buttonid,nil,s)
+				]]--
 				
-				--[[
-				writetext(langtext("settings_zoom") .. ":",0,x - tilesize * 10,y,name,false,2,true)
+				writetext(langtext("settings_zoom") .. ":",0,x - tilesize * 11,y,name,false,2,true)
 				
-				local zoom = MF_read("settings","settings","zoom")
-				createbutton("zoom1",x - tilesize * 2.7,y,2,5,1,langtext("zoom1"),name,3,2,buttonid,nil)
+				local zoom = tonumber(MF_read("settings","settings","zoom"))
+				print(zoom)
+				createbutton("zoom1",x - tilesize * 3.7,y,2,5,1,langtext("zoom1"),name,3,2,buttonid,nil)
 				createbutton("zoom2",x + tilesize * 2.3,y,2,5,1,langtext("zoom2"),name,3,2,buttonid,nil)
-				createbutton("zoom3",x + tilesize * 7.3,y,2,5,1,langtext("zoom3"),name,3,2,buttonid,nil)
+				createbutton("zoom3",x + tilesize * 8.3,y,2,5,1,langtext("zoom3"),name,3,2,buttonid,nil)
 				
 				makeselection({"zoom2","zoom1","zoom3"},tonumber(zoom) + 1)
-				]]
 				
 				y = y + tilesize
 				
@@ -224,7 +225,7 @@ menufuncs =
 				{{"wobble"},},
 				{{"contrast"},},
 				{{"restartask"},},
-				{{"zoom"},},
+				{{"zoom1"},{"zoom2"},{"zoom3"},},
 				{{"return"},},
 			},
 			n = {
@@ -236,7 +237,7 @@ menufuncs =
 				{{"wobble"},},
 				{{"contrast"},},
 				{{"restartask"},},
-				{{"zoom"},},
+				{{"zoom1"},{"zoom2"},{"zoom3"},},
 				{{"return"},},
 			},
 		}

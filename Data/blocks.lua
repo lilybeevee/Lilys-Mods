@@ -17,6 +17,8 @@ function statusblock(ids,undoing_)
 		local name = getname(unit)
 		
 		if (undoing == false) then
+			local oldfloat = unit.values[FLOAT]
+			local newfloat = 0
 			if (unit.values[FLOAT] < 2) then
 				unit.values[FLOAT] = 0
 			end
@@ -29,6 +31,11 @@ function statusblock(ids,undoing_)
 			
 			if (isfloat ~= nil) then
 				unit.values[FLOAT] = 1
+				newfloat = 1
+			end
+			
+			if (oldfloat ~= newfloat) then
+				addundo({"float",name,unit.values[ID],oldfloat,newfloat})
 			end
 			
 			if (issleep(unit.fixed) == false) then

@@ -19,6 +19,8 @@ PUSHED = 19
 MOVED = 20
 ID = 21
 POSITIONING = 22
+MISC_A = 23
+MISC_B = 24
 
 -- Object Strings
 NAME = 1

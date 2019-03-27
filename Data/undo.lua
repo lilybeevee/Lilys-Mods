@@ -238,6 +238,14 @@ function undo()
 							unit.visible = false
 						end
 					end
+				elseif (style == "float") then
+					local uid = line[3]
+					
+					if (paradox[uid] == nil) then
+						local unitid = getunitid(line[3])
+						local unit = mmf.newObject(unitid)
+						unit.values[FLOAT] = tonumber(line[4])
+					end
 				elseif (style == "levelupdate") then
 					MF_setroomoffset(line[2],line[3])
 					mapdir = line[6]

@@ -36,6 +36,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	movelist = {}
 	effecthistory = {}
 	notfeatures = {}
+	pushedunits = {}
 	
 	generaldata.values[CURRID] = 0
 	updatecode = 1
@@ -45,6 +46,8 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	maprotation = 0
 	mapdir = 3
 	levelconversions = {}
+	
+	HACK_MOVES = 0
 	
 	generatetiles()
 end
@@ -137,11 +140,14 @@ function clearunits()
 	deleted = {}
 	effecthistory = {}
 	notfeatures = {}
+	pushedunits = {}
 	
 	generaldata.values[CURRID] = 0
 	updateundo = true
 	hiddenmap = nil
 	levelconversions = {}
+	
+	HACK_MOVES = 0
 	
 	newundo()
 	
@@ -155,6 +161,9 @@ function smallclear()
 	deleted = {}
 	updatelist = {}
 	movelist = {}
+	pushedunits = {}
+	
+	HACK_MOVES = 0
 end
 
 function clear()
@@ -170,6 +179,7 @@ function clear()
 	movelist = {}
 	effecthistory = {}
 	notfeatures = {}
+	pushedunits = {}
 	
 	updatecode = 1
 	updateundo = false
@@ -177,6 +187,8 @@ function clear()
 	levelconversions = {}
 	maprotation = 0
 	mapdir = 3
+	
+	HACK_MOVES = 0
 	
 	print("clear")
 	

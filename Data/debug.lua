@@ -126,3 +126,13 @@ end
 function timedmessage(text)
 	writetext(text,-1,tilesize * 0.5,tilesize * 0.75,"timedmessage",false,3)
 end
+
+function debugpoint(x,y)
+	local tileid = x + y * roomsizex
+	
+	if (unitmap[tileid] ~= nil) then
+		for i,v in ipairs(unitmap[tileid]) do
+			MF_alert(tostring(v) .. ", " .. tostring(type(v)))
+		end
+	end
+end
