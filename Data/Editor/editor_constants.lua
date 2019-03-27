@@ -1,0 +1,78 @@
+-- Editor Strings
+WORLD = 2
+MENU = 3
+LEVELFILE = 4
+THEME = 5
+PATHOBJECT = 6
+CHANGEDOBJECTS = 7
+
+-- Editor Values
+STATE = 2
+LAYER = 9
+EDITORDIR = 10
+SCROLLAREA = 11
+SCROLLAMOUNT = 12
+EDITTARGET = 13
+NAMEFLAG = 16
+PATHSTYLE = 17
+LEVELTYPE = 18
+UNLOCKCOUNT = 19
+TARGETSPRITE = 20
+COLOURSETUPTYPE = 21
+OBJECTSETUPTYPE = 22
+PATHGATE = 23
+PATHREQUIREMENT = 24
+
+-- Editor2 Values
+MENU_XDIM = 4
+MENU_YDIM = 5
+
+-- Editor2 Strings
+CUSTOMPARENT = 1
+CUSTOMPARENTNAME = 2
+
+-- Button Strings
+BUTTONFUNC = 1
+BUTTONID = 2
+BUTTONNAME = 3
+
+-- Button Values
+BUTTON_DISABLED = 13
+BUTTON_TIMER = 14
+BUTTON_PRESSED = 15
+BUTTON_SELECTED = 17
+
+-- UI Element Values
+YORIGIN = 16
+
+-- UI Element Strings
+UI_CUSTOMCOLOUR = 4
+
+-- UI Element Flags
+NOSCROLL = 9
+
+-- Unit Grid Unit Values
+GRID_X = 19
+GRID_Y = 20
+GRID_TILE = 10
+
+-- Editor_levelnum Flags
+SPECIAL = 1
+
+-- Editor_levelnum Values
+LEVELNUMBER = 2
+LEVELSTYLE = 3
+
+-- Slider Values
+SLIDER_CURR = 6
+SLIDER_MIN = 7
+SLIDER_MAX = 8
+
+-- Slider Knob Values
+SLIDERKNOB_OWNER = 2
+
+-- Editor_levelplacer Values
+ACTUALX = 6
+ACTUALY = 7
+
+OBJECTID = 2
