@@ -67,6 +67,9 @@ function delunit(unitid)
 		updatecode = 1
 	end
 	
+	x = math.floor(x)
+	y = math.floor(y)
+	
 	if (unitlist ~= nil) then
 		for i,v in pairs(unitlist) do
 			if (v == unitid) then

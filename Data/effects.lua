@@ -307,8 +307,8 @@ function levelparticles(name)
 				local unit = mmf.newObject(unitid)
 				
 				unit.values[ONLINE] = 1
-				unit.x = Xoffset + math.random(0, roomsizex * tilesize * spritedata.values[TILEMULT] - 1)
-				unit.y = Yoffset + math.random(0, roomsizey * tilesize * spritedata.values[TILEMULT] - 1)
+				unit.x = Xoffset + math.random(0, screenw - 1)
+				unit.y = Yoffset + math.random(0, screenh - 1)
 				unit.layer = 1
 				
 				unit.values[XPOS] = unit.x

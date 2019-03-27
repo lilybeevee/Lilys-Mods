@@ -270,14 +270,14 @@ function docode(firstwords)
 									wordtile = true
 									
 									if secondaryfound then
-										if (string.len(tilename) == 1) then
+										--if (string.len(tilename) == 1) then
 											local prevdata = sent[wordid-1]
 											--MF_alert(prevdata[1] .. " added to firstwords A" .. ", " .. tostring(wordid))
 											table.insert(firstwords, {prevdata[3], dir})
-										else
+										--else
 											--MF_alert(tilename .. " added to firstwords B" .. ", " .. tostring(wordid))
-											table.insert(firstwords, {tileid, dir})
-										end
+											--table.insert(firstwords, {tileid, dir})
+										--end
 									end
 									
 									--MF_alert(letterword .. ", " .. lword .. ", " .. tostring(ltype) .. ", " .. tostring(found) .. ", " .. tostring(secondaryfound))
@@ -353,7 +353,7 @@ function docode(firstwords)
 										end
 									elseif (stage == 2) then
 										if (wordid ~= #sentences) then
-											if (tiletype == 1) and (notstatus == 0) and ((prevstage ~= 4) or doingcond or (stage3reached == false)) then
+											if (tiletype == 1) and (prevtiletype ~= 4) and ((prevstage ~= 4) or doingcond or (stage3reached == false)) then
 												stage2reached = true
 												prevstage = stage
 												stage = 3
@@ -437,7 +437,7 @@ function docode(firstwords)
 										notstatus = tileid
 									end
 								else
-									if (stop == false) then
+									if (stop == false) and (tiletype ~= 0) then
 										notstatus = 0
 									end
 								end

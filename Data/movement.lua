@@ -393,6 +393,7 @@ function movecommand(ox,oy,dir_,playerid_)
 								end
 								
 								for c,pobs in ipairs(finalpullobs) do
+									pushedunits = {}
 									dopush(pobs,ox,oy,dir,true,x,y,data.reason,data.unitid)
 								end
 								
@@ -418,6 +419,7 @@ function movecommand(ox,oy,dir_,playerid_)
 									
 									if (result == 1) then
 										for c,pushobs in ipairs(finalpushobs) do
+											pushedunits = {}
 											dopush(pushobs,ox,oy,dir,false,x,y,data.reason)
 										end
 										result = 0
@@ -820,6 +822,7 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 end
 
 function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
+	pushedunits[unitid] = 1
 	local x,y = 0,0
 	local unit = {}
 	local name = ""
@@ -881,117 +884,126 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 	end
 
 	local hm = 0
-	local hmlist,hms,specials = check(unitid,x,y,dir,false,reason)
-	local pullhmlist,pullhms,pullspecials = check(unitid,x,y,dir,true,reason)
-	local result = 0
 	
-	local weak = hasfeature(name,"is","weak",unitid,x_,y_)
-	
-	--MF_alert(name .. " is looking... (" .. tostring(unitid) .. ")" .. ", " .. tostring(pulling))
-	for i,obs in pairs(hmlist) do
-		local done = false
-		while (done == false) do
-			if (obs == 0) then
-				result = math.max(0, result)
-				done = true
-			elseif (obs == 1) or (obs == -1) then
-				if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
-					result = math.max(2, result)
-					done = true
-				else
+	if (HACK_MOVES < 10000) then
+		local hmlist,hms,specials = check(unitid,x,y,dir,false,reason)
+		local pullhmlist,pullhms,pullspecials = check(unitid,x,y,dir,true,reason)
+		local result = 0
+		
+		local weak = hasfeature(name,"is","weak",unitid,x_,y_)
+		
+			--MF_alert(name .. " is looking... (" .. tostring(unitid) .. ")" .. ", " .. tostring(pulling))
+		for i,obs in pairs(hmlist) do
+			local done = false
+			while (done == false) do
+				if (obs == 0) then
 					result = math.max(0, result)
 					done = true
-				end
-			else
-				if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
-					result = math.max(1, result)
-					done = true
+				elseif (obs == 1) or (obs == -1) then
+					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
+						result = math.max(2, result)
+						done = true
+					else
+						result = math.max(0, result)
+						done = true
+					end
 				else
-					result = math.max(0, result)
-					done = true
+					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
+						result = math.max(1, result)
+						done = true
+					else
+						result = math.max(0, result)
+						done = true
+					end
 				end
 			end
 		end
-	end
-	
-	local finaldone = false
-	
-	while (finaldone == false) do
-		if (result == 0) then
-			table.insert(movelist, {unitid,ox,oy,dir,specials})
-			--move(unitid,ox,oy,dir,specials)
-			pushsound = true
-			finaldone = true
+			
+		local finaldone = false
+		
+		while (finaldone == false) and (HACK_MOVES < 10000) do
+			if (result == 0) then
+				table.insert(movelist, {unitid,ox,oy,dir,specials})
+				--move(unitid,ox,oy,dir,specials)
+				pushsound = true
+				finaldone = true
+				hm = 0
+				
+				if (pulling == false) then
+					for i,obs in ipairs(pullhmlist) do
+						if (obs < -1) or (obs > 1) and (obs ~= pusherid) then
+							if (obs ~= 2) then
+								table.insert(movelist, {obs,ox,oy,dir,pullspecials})
+								pushsound = true
+								--move(obs,ox,oy,dir,specials)
+							end
+							
+							if (pushedunits[obs] == nil) then
+								pushedunits[obs] = 1
+								hm = dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid)
+							end
+						end
+					end
+				end
+			elseif (result == 1) then
+				for i,v in ipairs(hmlist) do
+					if (v ~= -1) and (v ~= 0) and (v ~= 1) then
+						if (pulling == false) or (pulling and (hms[i] ~= pusherid)) and (pushedunits[v] == nil) then
+							pushedunits[v] = 1
+							hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid)
+						end
+					end
+				end
+				
+				if (hm == 0) then
+					result = 0
+				else
+					result = 2
+				end
+			elseif (result == 2) then
+				hm = 1
+				
+				if (weak ~= nil) then
+					delete(unitid,x,y)
+					
+					local pmult,sound = checkeffecthistory("weak")
+					setsoundname("removal",1,sound)
+					generaldata.values[SHAKE] = 3
+					MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
+					result = 0
+					hm = 0
+				end
+				
+				finaldone = true
+			end
+		end
+		
+		if pulling and (HACK_MOVES < 10000) then
+			hmlist,hms,specials = check(unitid,x,y,dir,pulling,reason)
 			hm = 0
 			
-			if (pulling == false) then
-				for i,obs in ipairs(pullhmlist) do
-					if (obs < -1) or (obs > 1) and (obs ~= pusherid) then
-						if (obs ~= 2) then
-							table.insert(movelist, {obs,ox,oy,dir,pullspecials})
-							pushsound = true
-							--move(obs,ox,oy,dir,specials)
-						end
-						
-						hm = dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid)
+			for i,obs in pairs(hmlist) do
+				if (obs < -1) or (obs > 1) then
+					if (obs ~= 2) then
+						table.insert(movelist, {obs,ox,oy,dir,specials})
+						pushsound = true
+						--move(obs,ox,oy,dir,specials)
+					end
+					
+					if (pushedunits[obs] == nil) then
+						pushedunits[obs] = 1
+						hm = dopush(obs,ox,oy,dir,pulling,x-ox,y-oy,reason,unitid)
 					end
 				end
 			end
-		elseif (result == 1) then
-			for i,v in ipairs(hmlist) do
-				if (v ~= -1) and (v ~= 0) and (v ~= 1) then
-					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
-						hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid)
-					end
-				end
-			end
-			
-			if (hm == 0) then
-				result = 0
-			else
-				result = 2
-			end
-		elseif (result == 2) then
-			hm = 1
-			
-			if (weak ~= nil) then
-				delete(unitid,x,y)
-				
-				local pmult,sound = checkeffecthistory("weak")
-				setsoundname("removal",1,sound)
-				generaldata.values[SHAKE] = 3
-				MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
-				done = true
-				result = 0
-				hm = 0
-			end
-			
-			finaldone = true
 		end
-	end
-	
-	if pulling then
-		hmlist,hms,specials = check(unitid,x,y,dir,pulling,reason)
-		hm = 0
 		
-		for i,obs in pairs(hmlist) do
-			if (obs < -1) or (obs > 1) then
-				if (obs ~= 2) then
-					table.insert(movelist, {obs,ox,oy,dir,specials})
-					pushsound = true
-					--move(obs,ox,oy,dir,specials)
-				end
-				
-				if (obs ~= -1) then
-					hm = dopush(obs,ox,oy,dir,pulling,x-ox,y-oy,reason,unitid)
-				end
-			end
+		if pushsound and (generaldata2.strings[TURNSOUND] == "") then
+			setsoundname("turn",5)
 		end
 	end
 	
-	if pushsound and (generaldata2.strings[TURNSOUND] == "") then
-		setsoundname("turn",5)
-	end
+	HACK_MOVES = HACK_MOVES + 1
 	
 	return hm
 end
