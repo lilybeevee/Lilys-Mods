@@ -1,1 +1,15 @@
+*.dat
+*.exe
+*.dll
+gamecontrollerdb.txt
+
+Data/Languages/
+Data/Music
+Data/Palettes/
 Data/Worlds/baba/
+
+Data/Sprites/*
+!Data/Sprites/text_bait*
+!Data/Sprites/text_lure*
+!Data/Sprites/text_means*
+!Data/Sprites/text_sticky*
