@@ -1,3 +1,5 @@
+require("Data/babaprint")
+
 function movecommand(ox,oy,dir_,playerid_)
 	statusblock()
 	movelist = {}
@@ -398,6 +400,7 @@ function movecommand(ox,oy,dir_,playerid_)
 										local paobs = pullallobs[c]
 										
 										local hm = trypush(paobs,ox,oy,dir,true,x,y,data.reason,data.unitid)
+										babaprint("pull: " .. hm)
 										if (hm == 0) then
 											table.insert(finalpullobs, paobs)
 										end
@@ -428,6 +431,7 @@ function movecommand(ox,oy,dir_,playerid_)
 									
 									for c,pushobs in ipairs(pushobslist) do
 										local hm = trypush(pushobs,ox,oy,dir,false,x,y,data.reason)
+										babaprint("push: " .. hm)
 										if (hm == 0) then
 											table.insert(finalpushobs, pushobs)
 										elseif (hm == 1) or (hm == -1) then
@@ -1300,3 +1304,78 @@ function getlured(unitid)
 	return -1
 end
 -- BAIT AND LURE END
+
+function getallattached(unitid,dir,pulling,alreadychecked)
+	local pushlist = {}
+	local fulllist = {}
+	local result = 0
+
+	if alreadychecked == nil then
+		alreadychecked = {}
+	end
+
+	if unitid == -1 then
+		return pushlist,fulllist,result
+	end
+
+	local unit = mmf.newObject(unitid)
+	local x,y = unit.values[XPOS],unit.values[YPOS]
+	local name = getname(unit)
+
+	local isstop = hasfeature(name,"is","stop",unitid,x_,y_)
+	local ispush = hasfeature(name,"is","push",unitid,x_,y_)
+	local ispull = hasfeature(name,"is","pull",unitid,x_,y_)
+	local sticky = hasfeature(name,"is","sticky",unitid,x,y)
+
+	if sticky == nil then
+		return pushlist,fulllist,result
+	end
+
+	if (isstop and not ispush and not ispull) then
+		result = 2
+	end
+
+	table.insert(alreadychecked, unitid)
+	table.insert(fulllist, {unitid, {x, y}})
+
+	local ispushobj = false
+	for i=1,4 do
+		local ndrs = ndirs[i]
+		local ox,oy = ndrs[1],ndrs[2]
+		local obs = findobstacle(x+ox,y+oy)
+		local foundnone = true
+		for _,id in ipairs(obs) do
+			local ignore = false
+			for _,checked in ipairs(alreadychecked) do
+				if checked == id then
+					ignore = true
+					foundnone = false
+					break
+				end
+			end
+			if not ignore then
+				local pushlist_,fulllist_,result_ = getallattached(id,dir,pulling,alreadychecked)
+				if #fulllist_ > 0 then
+					foundnone = false
+				end
+				for _,v in ipairs(pushlist_) do
+					table.insert(pushlist, v)
+				end
+				for _,v in ipairs(fulllist_) do
+					table.insert(fulllist, v)
+				end
+				result = math.max(result, result_)
+			end
+		end
+		if foundnone and ((pulling and i-1 == dir) or (not pulling and i-1 == rotate(dir))) then
+			table.insert(pushlist, {unitid, {x, y}})
+			ispushobj = true
+		end
+	end
+
+	if not ispushobj and (not isstop and not ispush and not ispull) then
+		table.insert(pushlist, {unitid, {x, y}})
+	end
+
+	return pushlist,fulllist,result
+end
