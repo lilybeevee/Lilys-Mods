@@ -38,6 +38,17 @@ colours = {
 	},
 }
 
+colourtiles = {
+	{"red", {2, 2}},
+	{"blue", {1, 3}},
+	{"yellow", {2, 4}},
+	{"orange", {2, 3}},
+	{"green", {5, 2}},
+	{"pink", {4, 2}},
+	{"purple", {3, 3}},
+	{"white", {0, 3}},
+}
+
 operators = 
 {
 	all = {},
@@ -1852,4 +1863,64 @@ tileslist =
 		grid = {10, 1},
 		layer = 20,
 	},
+	--
+	-- CUSTOM BLOCKS START
+	--
+	object120 =
+	{
+		name = "text_bait",
+		sprite = "text_bait",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {3, 2},
+		active = {3, 3},
+		tile = {1, 12},
+		grid = {11, 1},
+		layer = 20,
+	},
+	object121 =
+	{
+		name = "text_lure",
+		sprite = "text_lure",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {2, 2},
+		active = {2, 3},
+		tile = {2, 12},
+		grid = {11, 2},
+		layer = 20,
+	},
+	object122 =
+	{
+		name = "text_means",
+		sprite = "text_means",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 8,
+		operatortype = "verb_all",
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {0, 12},
+		grid = {11, 0},
+		layer = 20,
+	},
+	--[[object123 =   I WILL DO THIS EVENTUALLY AAAA
+	{
+		name = "text_sticky",
+		sprite = "text_sticky",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {5, 1},
+		active = {5, 3},
+		tile = {3, 13},
+		grid = {12, 3},
+		layer = 20,
+	},]]
 }

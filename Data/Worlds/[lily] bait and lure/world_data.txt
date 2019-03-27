@@ -1,0 +1,8 @@
+[general]
+start=2level
+firstlevel=5level
+name=(lily) bait and lure
+
+[levels]
+levelid=5
+

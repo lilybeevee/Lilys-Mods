@@ -15,7 +15,21 @@ function code()
 				end
 			end
 		end
+
+		if meansidentifier ~= nil then
+			prevmeansidentifier = meansidentifier
+		else
+			prevmeansidentifier = ""
+		end
+		if altfeatures == nil then
+			altfeatures = {}
+		end
+		if notaltfeatures == nil then
+			notaltfeatures = {}
+		end
 		
+		sentencecount = 0
+		sentencemap = {}
 		features = {}
 		featureindex = {}
 		visualfeatures = {}
@@ -80,6 +94,7 @@ function code()
 			
 			docode(firstwords,wordunits)
 			grouprules()
+			altfeatures,notaltfeatures,meansidentifier = meansrules()
 			postrules()
 			updatecode = 0
 			
@@ -87,17 +102,18 @@ function code()
 			
 			--MF_alert("ID comparison: " .. newwordidentifier .. " - " .. wordidentifier)
 			
-			if (newwordidentifier ~= wordidentifier) then
+			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1
 				code()
 			else
+				codeloops = 0
 				domaprotation()
 			end
 		end
 	end
 end
 
---[[
+
 function dumpobj(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -110,7 +126,6 @@ function dumpobj(o)
       return tostring(o)
    end
 end
-]]--
 
 function docode(firstwords)
 	local donefirstwords = {}
@@ -806,7 +821,92 @@ function codecheck(unitid,ox,oy)
 	return result
 end
 
-function addoption(option,conds_,ids,visible,notrule)
+-- MEANS START
+function iteratealtoptions(newoptions,fulltable,itable,index)
+	for i,v in ipairs(newoptions[index]) do
+		local newtable = {}
+		for j=1,#itable do
+			newtable[j] = itable[j]
+		end
+		table.insert(newtable, v)
+		if index == #newoptions then
+			table.insert(fulltable, newtable)
+		else
+			iteratealtoptions(newoptions,fulltable,newtable,index+1)
+		end
+	end
+end
+
+function applyaltfeatures(option,conds,ids,visible,notrule)
+	local newoptions = {}
+	local hasmeans = false
+	local validoption = true
+	for i=1,#option do
+		newoptions[i] = {}
+		local validfeatures,hasfeatures = getaltfeatures(option[i])
+		if hasfeatures then
+			newoptions[i] = validfeatures
+			hasmeans = true
+		else
+			newoptions[i] = {option[i]}
+		end
+	end
+	local newconds = {}
+	if conds ~= nil then
+		for _,cond in ipairs(conds) do
+			local targets = cond[2]
+
+			local alreadyadded = {}
+			local newtargets = {}
+
+			for i=1,#targets do
+				local validfeatures,hasfeatures = getaltfeatures(targets[i])
+				if hasfeatures then
+					for _,newtarget in ipairs(validfeatures) do
+						if not alreadyadded[newtarget] then
+							table.insert(newtargets, newtarget)
+							alreadyadded[newtarget] = true
+						end
+					end
+					hasmeans = true
+				elseif not alreadyadded[targets[i]] then
+					table.insert(newtargets, targets[i])
+					alreadyadded[targets[i]] = true
+				end
+			end
+			if #targets > 0 and #newtargets == 0 then
+				validoption = false
+			end
+
+			table.insert(newconds, {cond[1],newtargets})
+		end
+	end
+	if hasmeans then
+		local alttable = {}
+		iteratealtoptions(newoptions,alttable,{},1)
+		for _,nopt in ipairs(alttable) do
+			if #nopt == 0 then
+				validoption = false
+			end
+			if validoption then
+				addoption(nopt,newconds,ids,visible,notrule,true)
+			end
+		end
+		return true
+	end
+	return false
+end
+
+function addoption(option,conds_,ids,visible,notrule,ignoremeans)
+	if not ignoremeans and #option == 3 then
+		local hasmeans = applyaltfeatures(option,conds_,ids,visible,notrule)
+
+		if hasmeans then
+			return
+		end
+	end
+	-- MEANS END
+
 	--MF_alert(option[1] .. ", " .. option[2] .. ", " .. option[3])
 	
 	local visual = true
@@ -829,6 +929,18 @@ function addoption(option,conds_,ids,visible,notrule)
 		local target = option[1]
 		local verb = option[2]
 		local effect = option[3]
+
+		if option[2] ~= "means" then
+			sentencecount = sentencecount + 1
+			for _,idlist in ipairs(ids) do
+				for _,id in ipairs(idlist) do
+					if sentencemap[id] == nil then
+						sentencemap[id] = {}
+					end
+					table.insert(sentencemap[id], sentencecount)
+				end
+			end
+		end
 	
 		if (featureindex[effect] == nil) then
 			featureindex[effect] = {}
@@ -920,7 +1032,7 @@ function addoption(option,conds_,ids,visible,notrule)
 					for a,b in ipairs(conds) do
 						table.insert(newconds, b)
 					end
-					addoption(rule,newconds,ids,false,{effect,#featureindex[effect]})
+					addoption(rule,newconds,ids,false,{effect,#featureindex[effect]},true)
 				end
 			end
 		end
@@ -934,7 +1046,7 @@ function addoption(option,conds_,ids,visible,notrule)
 						for a,b in ipairs(conds) do
 							table.insert(newconds, b)
 						end
-						addoption(rule,newconds,ids,false)
+						addoption(rule,newconds,ids,false,nil,true)
 					end
 				end
 			end
@@ -948,7 +1060,7 @@ function addoption(option,conds_,ids,visible,notrule)
 					for a,b in ipairs(conds) do
 						table.insert(newconds, b)
 					end
-					addoption(rule,newconds,ids,false)
+					addoption(rule,newconds,ids,false,nil,true)
 				end
 			end
 		end
@@ -1684,3 +1796,389 @@ function getsentencevariant(sentences,combo)
 	
 	return result
 end
+
+-- MEANS START
+function meansrules()
+	local result = {}
+	local notresult = {}
+	local identifier = ""
+	local firstmeans = {}
+	for _,unitid in ipairs(codeunits) do
+		local unit = mmf.newObject(unitid)
+		local type = unit.values[TYPE]
+
+		if type == 8 then
+			local x,y = unit.values[XPOS],unit.values[YPOS]
+			local ox,oy,nox,noy = 0,0
+			local tileid = x + y * roomsizex
+
+			setcolour(unit.fixed)
+			
+			for i=1,2 do
+				local drs = dirs[i+2]
+				local ndrs = dirs[i]
+				ox = drs[1]
+				oy = drs[2]
+				nox = ndrs[1]
+				noy = ndrs[2]
+				
+				local hm = codecheck(unitid,ox,oy)
+				local hm2 = codecheck(unitid,nox,noy)
+				
+				if (#hm > 0) and (#hm2 > 0) then
+					table.insert(firstmeans, {unitid, drs, ndrs})
+				end
+			end
+		end
+	end
+	local finals = {}
+	local notmeans = {}
+	local protects = {}
+	for _,v in ipairs(firstmeans) do
+		local unitid = v[1]
+		local allids = {}
+		local targets,targetids,isnot = buildmeanssentence(unitid, v[2], true)
+		local effects,effectids = buildmeanssentence(unitid, v[3], false)
+
+		if #targets > 0 and #effects > 0 then
+			for _,id in ipairs(targetids) do
+				table.insert(allids, {id})
+			end
+
+			for _,id in ipairs(effectids) do
+				table.insert(allids, {id})
+			end
+
+			table.insert(allids, {unitid})
+
+			for _,target in ipairs(targets) do
+				for _,effect in ipairs(effects) do
+					if isnot then
+						table.insert(notmeans, {target, effect})
+						table.insert(finals, {{target,"not means",effect},{},allids})
+					else
+						table.insert(finals, {{target,"means",effect},{},allids})
+						if target == effect and #effects == 1 and string.sub(target, 1, 4) ~= "not" then
+							table.insert(protects, #finals)
+						end
+					end
+				end
+			end
+		end
+	end
+	for _,v in ipairs(notmeans) do
+		local target = v[1]
+		local effect = v[2]
+
+		local nottarget = false
+		if (string.sub(target, 1, 3) == "not") then
+			target = string.sub(target, 5)
+			nottarget = true
+		end
+
+		for a,b in ipairs(finals) do
+			local rule = b[1]
+			local conds = b[2]
+			if rule[2] ~= "not means" and rule[3] == effect then
+				local target2 = rule[1]
+
+				local nottarget2 = false
+				if (string.sub(target2, 1, 3) == "not") then
+					target2 = string.sub(target2, 5)
+					nottarget2 = true
+				end
+
+				if (not nottarget and target == rule[1]) or (nottarget and ((not nottarget2 and target ~= target2) or (nottarget2 and target == target2))) then
+					conds = {{"never",{}}}
+					finals[a][2] = conds
+				end
+			end
+		end
+	end
+	for _,v in ipairs(protects) do
+		local prule = finals[v][1]
+		local pconds = finals[v][2]
+		local ptarget = prule[1]
+		local peffect = prule[3]
+
+		if #pconds == 0 or (#pconds > 0 and pconds[1][1] ~= "never") then
+			for a,b in ipairs(finals) do
+				local rule = b[1]
+				local conds = b[2]
+				if rule[2] ~= "not means" and rule[1] == ptarget and rule[3] ~= peffect then
+					conds = {{"never",{}}}
+					finals[a][2] = conds
+				end
+			end
+		end
+	end
+	for i,v in ipairs(finals) do
+		local visual = true
+		if #v[2] == 0 or (#v[2] > 0 and v[2][1][1] ~= "never") then
+			for _,ids in ipairs(v[1]) do
+				identifier = identifier .. ids
+			end
+			if v[1][2] == "means" then
+				table.insert(result,v[1])
+			else
+				table.insert(notresult,v[1])
+			end
+		else
+			visual = false
+		end
+		addoption(v[1],v[2],v[3],visual,nil,true)
+	end
+	return result,notresult,identifier
+end
+
+function buildmeanssentence(unitid,drs,prefix)
+	local result = {}
+	local unitids = {}
+	local idqueue = {}
+	local isnot = false
+
+	local i = 1
+	local code = codecheck(unitid,drs[1],drs[2])
+	local prevsentences = {}
+	local prevtype = 8 -- 8 = means
+	local valid = true
+
+	while valid and #code > 0 do
+		local thistype = -1
+		local alreadyfoundsentence = {}
+		local newsentences = {}
+		for _,v in ipairs(code) do
+			local unit = mmf.newObject(v)
+			local unitname = unit.strings[NAME]
+			local tiletype = unit.values[TYPE]
+
+			table.insert(idqueue, v)
+
+			if thistype == -1 then
+				thistype = tiletype
+			end
+
+			if prefix then -- ====== PREFIX CODE ======
+				local foundrepeat = false
+				if sentencemap[v] ~= nil then
+					for _,sid in ipairs(sentencemap[v]) do
+						for _,psid in ipairs(prevsentences) do
+							if sid == psid then
+								foundrepeat = true
+								break
+							end
+						end
+						if not alreadyfoundsentence[sid] then
+							table.insert(newsentences, sid)
+							alreadyfoundsentence[sid] = true
+						end
+					end
+				end
+
+				if foundrepeat then
+					valid = false
+				-- check NOT
+				elseif tiletype == 4 then -- 4 = not
+					if (prevtype == 0 or prevtype == 2 or prevtype == 4) and #result > 0 then -- 0 = noun, 2 = adjective, 4 = not
+						for _,id in ipairs(idqueue) do
+							table.insert(unitids, id)
+						end
+						local name = result[1]
+						if string.sub(name, 1, 4) == "not " then
+							name = string.sub(name, 5)
+						else
+							name = "not " .. name
+						end
+						result[1] = name
+					elseif (prevtype == 4 or prevtype == 8) and #result == 0 then -- 4 = not, 8 = means
+						isnot = not isnot
+					else
+						valid = false
+					end
+				-- check AND
+				elseif tiletype == 6 then -- 6 = and
+					if prevtype ~= 0 and prevtype ~= 2 and (prevtype ~= 4 or (prevtype == 4 and #result == 0)) then -- 0 = noun, 2 = adjective, 4 = not
+						valid = false
+					end
+				-- check NOUN/ADJ
+				elseif tiletype == 0 or tiletype == 2 then -- 0 = noun, 2 = adjective
+					if prevtype == 4 or prevtype == 6 or prevtype == 8 then -- 4 = not, 6 = and, 8 = means
+						for _,id in ipairs(idqueue) do
+							table.insert(unitids, id)
+						end
+						table.insert(result, unitname)
+					else
+						valid = false
+					end
+				else
+					valid = false
+				end
+			else -- ====== SUFFIX CODE ======
+				-- check NOT
+				--[[if tiletype == 4 then
+					if prevtype == 4 or prevtype == 6 or prevtype == 8 then -- 4 = not, 6 = and, 8 = means
+						isnot = not isnot
+					else
+						valid = false
+					end]]
+				-- check AND
+				if tiletype == 6 then -- 6 = and
+					if prevtype ~= 0 and prevtype ~= 2 then -- 0 = noun, 2 = adjective
+						valid = false
+					end
+				-- check NOUN/ADJ
+				elseif tiletype == 0 or tiletype == 2 then -- 0 = noun, 2 = adjective
+					if prevtype == 4 or prevtype == 6 or prevtype == 8 then -- 4 = not, 6 = and, 8 = means
+						for _,id in ipairs(idqueue) do
+							table.insert(unitids, id)
+						end
+						local name = unitname
+						if isnot then
+							name = "not " .. unitname
+						end
+						table.insert(result, name)
+						isnot = false
+					end
+				else
+					valid = false
+				end
+			end
+		end
+		i = i + 1
+		prevtype = thistype
+		prevsentences = newsentences
+		code = codecheck(unitid,drs[1]*i,drs[2]*i)
+	end
+	if prefix then
+		return result,unitids,isnot
+	else
+		return result,unitids
+	end
+end
+
+function findaltfeatures()
+	local result = {}
+	local alreadydone = {}
+
+	local identifier = ""
+	
+	if (featureindex["means"] ~= nil) then
+		for i,v in ipairs(featureindex["means"]) do
+			local rule = v[1]
+			local conds = v[2]
+			local ids = v[3]
+			
+			local name = rule[1]
+			local effect = rule[3]
+
+			if alreadydone[name] == nil then
+				alreadydone[name] = {}
+				alreadydone[name][effect] = false
+			end
+
+			if not alreadydone[name][effect] then
+				alreadydone[name][effect] = true
+
+				local cleanname = name
+
+				if (string.sub(name, 1, 3) == "not") then
+					cleanname = string.sub(name, 5)
+					nottarget = true
+				end
+
+				local never = false
+				if conds ~= nil and (conds[1] or {})[1] == "never" then
+					never = true
+				end
+
+				if not never then
+					local realname = unitreference["text_" .. cleanname]
+					local tile = tileslist[realname]
+
+					table.insert(result, {name, tile.type, effect})
+
+					identifier = identifier .. name .. "=" .. effect .. ","
+				end
+			end
+		end
+	end
+
+	return result,identifier
+end
+
+function getaltfeatures(target)
+	local result = {}
+	local first = {}
+	local hasmeans = false
+	for i,v in ipairs(altfeatures) do
+		local name = v[1]
+		local effect = v[3]
+
+		local notalt = false
+		if (string.sub(name, 1, 3) == "not") then
+			name = string.sub(name, 5)
+			notalt = true
+		end
+
+		local noteffect = false
+		if (string.sub(effect, 1, 3) == "not") then
+			effect = string.sub(effect, 5)
+			noteffect = true
+		end
+
+		local ntarget = target
+		local nottarget = false
+		if (string.sub(ntarget, 1, 3) == "not") then
+			ntarget = string.sub(ntarget, 5)
+			nottarget = true
+		end
+
+		local targetname = unitreference["text_" .. ntarget]
+		local targettile = tileslist[targetname]
+		local targettype = targettile.type
+
+		local mtype = unitreference["text_" .. name]
+		local mtile = tileslist[mtype]
+		local mtype = mtile.type
+
+		if (((not notalt) and ntarget == name) or (notalt and ntarget ~= name)) and (targettype == mtype) then
+			if nottarget then
+				effect = "not " .. effect
+			end
+			table.insert(first, effect)
+			hasmeans = true
+		end
+	end
+	if not hasmeans then
+		first = {target}
+	end
+	for _,effect in ipairs(first) do
+		local exclude = false
+		for i,v in ipairs(notaltfeatures) do
+			local nname = v[1]
+			local neffect = v[3]
+
+			local nnot = false
+			if (string.sub(nname, 1, 3) == "not") then
+				nname = string.sub(nname, 5)
+				nnot = true
+			end
+
+			local ntarget = target
+			if (string.sub(ntarget, 1, 3) == "not") then
+				ntarget = string.sub(ntarget, 5)
+			end
+
+			if ((not nnot and ntarget == nname) or (nnot and ntarget ~= nname)) and effect == neffect then
+				exclude = true
+				hasmeans = true
+				break
+			end
+		end
+		if not exclude then
+			table.insert(result, effect)
+		end
+	end
+	return result,hasmeans
+end
+-- MEANS END

@@ -124,6 +124,28 @@ function movecommand(ox,oy,dir_,playerid_)
 						end
 					end
 				end
+
+				-- BAIT AND LURE START
+				local lures = findallfeature(nil,"is","lure")
+
+				for i,id in ipairs(lures) do
+					local baited = getlured(id)
+
+					if (baited ~= -1) then
+						updatedir(id, baited)
+
+						if (been_seen[id] == nil) then
+							local unit = mmf.newObject(id)
+							local x,y = unit.values[XPOS],unit.values[YPOS]
+
+							table.insert(moving_units, {unitid = id, reason = "bait", state = 0, moves = 1, dir = baited, xpos = x, ypos = y})
+						else
+							local this = moving_units[been_seen[id]]
+							this.moves = this.moves + 1
+						end
+					end
+				end
+				-- BAIT AND LURE END
 			elseif (take == 3) then
 				local shifts = findallfeature(nil,"is","shift")
 				
@@ -1224,3 +1246,57 @@ function add_moving_units(rule,newdata,data,been_seen)
 	
 	return result,seen
 end
+
+-- BAIT AND LURE START
+function getlured(unitid)
+	if (unitid == 2) then
+		return -1
+	end
+
+	local unit = mmf.newObject(unitid)
+	local x,y,unitdir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
+	
+	for d=0,3 do
+		local dir = (unitdir - d) % 4
+		local ndrs = ndirs[dir+1]
+		local ox = ndrs[1]
+		local oy = ndrs[2]
+
+		local stopped = false
+
+		while not stopped do
+			local obs = findobstacle(x+ox,y+oy)
+			local emptybait = hasfeature("empty","is","bait",2,x+ox,y+oy)
+
+			if emptybait then
+				return dir
+			end
+
+			for i,id in ipairs(obs) do
+				if (id == -1) then
+					stopped = true
+				else
+					local obsunit = mmf.newObject(id)
+					local obsname = obsunit.strings[UNITNAME]
+					local obstype = obsunit.strings[UNITTYPE]
+
+					if (obstype == "text") then
+						obsname = "text"
+					end
+
+					local isbait = hasfeature(obsname,"is","bait",id)
+
+					if isbait then
+						return dir
+					end
+				end
+			end
+
+			ox = ox + ndrs[1]
+			oy = oy + ndrs[2]
+		end
+	end
+	
+	return -1
+end
+-- BAIT AND LURE END
