@@ -1,5 +1,3 @@
-require("Data/babaprint")
-
 function movecommand(ox,oy,dir_,playerid_)
 	statusblock()
 	movelist = {}
@@ -1365,7 +1363,27 @@ function getlured(unitid)
 end
 -- BAIT AND LURE END
 
-function getallattached(unitid,dir,pulling,alreadychecked)
+function findcopycats(target)
+	local result = {}
+
+	local copycats = findallfeature(nil,"copy",target)
+	for _,v in ipairs(copycats) do
+		local name = ""
+		if v ~= 2 then
+			local unit = mmf.newObject(v)
+			name = getname(unit)
+		else
+			name = "empty"
+		end
+		if target ~= name then
+			table.insert(result, v)
+		end
+	end
+
+	return result
+end
+
+--[[function getallattached(unitid,dir,pulling,alreadychecked)
 	local pushlist = {}
 	local fulllist = {}
 	local result = 0
@@ -1438,24 +1456,4 @@ function getallattached(unitid,dir,pulling,alreadychecked)
 	end
 
 	return pushlist,fulllist,result
-end
-
-function findcopycats(target)
-	local result = {}
-
-	local copycats = findallfeature(nil,"copy",target)
-	for _,v in ipairs(copycats) do
-		local name = ""
-		if v ~= 2 then
-			local unit = mmf.newObject(v)
-			name = getname(unit)
-		else
-			name = "empty"
-		end
-		if target ~= name then
-			table.insert(result, v)
-		end
-	end
-
-	return result
-end
+end]]
