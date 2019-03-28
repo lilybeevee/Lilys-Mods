@@ -234,7 +234,7 @@ function movecommand(ox,oy,dir_,playerid_)
 
 						unit.values[DIR] = dir
 					end
-					table.insert(moving_units, {unitid = v, reason = data.reason, state = data.state, moves = data.moves, dir = dir, xpos = x, ypos = y})
+					table.insert(moving_units, {unitid = v, reason = "copy", state = data.state, moves = data.moves, dir = dir, xpos = x, ypos = y})
 				end
 			end
 		end
