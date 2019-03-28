@@ -225,7 +225,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				else
 					name = "empty"
 				end
-				local copycats = findallfeature(nil,"copy",name)
+				local copycats = findcopycats(name)
 				for _,v in ipairs(copycats) do
 					local x,y = -1,-1
 					if v ~= 2 then
@@ -936,7 +936,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 		end
 	end
 
-	local copycats = findallfeature(nil,"copy",name)
+	local copycats = findcopycats(name)
 	for _,v in ipairs(copycats) do
 		if v ~= pusherid then
 			local cx,cy = -1,-1
@@ -1438,4 +1438,24 @@ function getallattached(unitid,dir,pulling,alreadychecked)
 	end
 
 	return pushlist,fulllist,result
+end
+
+function findcopycats(target)
+	local result = {}
+
+	local copycats = findallfeature(nil,"copy",target)
+	for _,v in ipairs(copycats) do
+		local name = ""
+		if v ~= 2 then
+			local unit = mmf.newObject(v)
+			name = getname(unit)
+		else
+			name = "empty"
+		end
+		if target ~= name then
+			table.insert(result, v)
+		end
+	end
+
+	return result
 end
