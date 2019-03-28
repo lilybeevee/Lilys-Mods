@@ -1909,6 +1909,21 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
+	object123 = 
+	{
+		name = "text_copy",
+		sprite = "text_copy",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 1,
+		operatortype = "verb",
+		colour = {2, 1},
+		active = {2, 2},
+		tile = {3, 12},
+		grid = {11, 3},
+		layer = 20,
+	},
 	--[[object123 =   I WILL DO THIS EVENTUALLY AAAA
 	{
 		name = "text_sticky",

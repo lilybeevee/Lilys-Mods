@@ -1,0 +1,7 @@
+[levels]
+levelid=2
+
+[general]
+name=mechanic testing
+start=1level
+firstlevel=1level

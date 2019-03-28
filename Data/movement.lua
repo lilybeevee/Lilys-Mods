@@ -213,6 +213,33 @@ function movecommand(ox,oy,dir_,playerid_)
 		end
 		
 		local unitcount = #moving_units
+
+		for i,data in ipairs(moving_units) do
+			if i <= unitcount then
+				local name = ""
+				local dir = data.dir
+				if data.unitid ~= 2 then
+					local unit = mmf.newObject(data.unitid)
+					name = getname(unit)
+					dir = unit.values[DIR]
+				else
+					name = "empty"
+				end
+				local copycats = findallfeature(nil,"copy",name)
+				for _,v in ipairs(copycats) do
+					local x,y = -1,-1
+					if v ~= 2 then
+						local unit = mmf.newObject(v)
+						x,y = unit.values[XPOS],unit.values[YPOS]
+
+						unit.values[DIR] = dir
+					end
+					table.insert(moving_units, {unitid = v, reason = data.reason, state = data.state, moves = data.moves, dir = dir, xpos = x, ypos = y})
+				end
+			end
+		end
+
+		unitcount = #moving_units
 			
 		for i,data in ipairs(moving_units) do
 			if (i <= unitcount) then
@@ -400,7 +427,7 @@ function movecommand(ox,oy,dir_,playerid_)
 										local paobs = pullallobs[c]
 										
 										local hm = trypush(paobs,ox,oy,dir,true,x,y,data.reason,data.unitid)
-										babaprint("pull: " .. hm)
+										--babaprint("pull: " .. hm)
 										if (hm == 0) then
 											table.insert(finalpullobs, paobs)
 										end
@@ -432,7 +459,7 @@ function movecommand(ox,oy,dir_,playerid_)
 									
 									for c,pushobs in ipairs(pushobslist) do
 										local hm = trypush(pushobs,ox,oy,dir,false,x,y,data.reason)
-										babaprint("push: " .. hm)
+										--babaprint("push: " .. hm)
 										if (hm == 0) then
 											table.insert(finalpushobs, pushobs)
 										elseif (hm == 1) or (hm == -1) then
@@ -904,6 +931,27 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 				if valid then
 					addaction(b,{"update",x,y,nil})
 					pushsound = true
+				end
+			end
+		end
+	end
+
+	local copycats = findallfeature(nil,"copy",name)
+	for _,v in ipairs(copycats) do
+		if v ~= pusherid then
+			local cx,cy = -1,-1
+			if v ~= 2 then
+				local cunit = mmf.newObject(v)
+				local cx,cy = cunit.values[XPOS],cunit.values[YPOS]
+
+				dopush(v,ox,oy,dir,false,cx,cy,unitid)
+			else
+				local positions = getemptytiles()
+						
+				for a,b in ipairs(positions) do
+					local cx,cy = b[1],b[2]
+
+					dopush(v,ox,oy,dir,false,cx,cy,unitid)
 				end
 			end
 		end
