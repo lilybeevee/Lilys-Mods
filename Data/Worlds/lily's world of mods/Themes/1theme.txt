@@ -1,0 +1,16 @@
+[general]
+name=lily's default
+palette=default.png
+paletteroot=1
+[tiles]
+object115_image=cat
+object115_name=cat
+object115_colour=4,2
+object115_tiling=-1
+object115_root=0
+object114_image=text_cat
+object114_name=text_cat
+object114_colour=4,1
+object114_activecolour=4,2
+object114_root=0
+changed=object115,object114,

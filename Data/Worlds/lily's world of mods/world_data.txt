@@ -1,0 +1,7 @@
+[levels]
+levelid=2
+
+[general]
+name=lily's world of mods
+start=2level
+firstlevel=1level
