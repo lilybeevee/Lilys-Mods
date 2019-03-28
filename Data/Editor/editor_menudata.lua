@@ -213,8 +213,7 @@ menufuncs =
 				
 				writetext(langtext("settings_zoom") .. ":",0,x - tilesize * 11,y,name,false,2,true)
 				
-				local zoom = tonumber(MF_read("settings","settings","zoom"))
-				print(zoom)
+				local zoom = tonumber(MF_read("settings","settings","zoom")) or 0
 				createbutton("zoom1",x - tilesize * 3.7,y,2,5,1,langtext("zoom1"),name,3,2,buttonid,nil)
 				createbutton("zoom2",x + tilesize * 2.3,y,2,5,1,langtext("zoom2"),name,3,2,buttonid,nil)
 				createbutton("zoom3",x + tilesize * 8.3,y,2,5,1,langtext("zoom3"),name,3,2,buttonid,nil)

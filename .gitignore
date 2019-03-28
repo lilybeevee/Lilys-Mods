@@ -1,6 +1,7 @@
 *.dat
 *.exe
 *.dll
+*.zip
 gamecontrollerdb.txt
 
 Data/Languages/
