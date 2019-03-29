@@ -527,6 +527,22 @@ function testcond(conds,unitid,x_,y_)
 							end
 						end
 					end
+				elseif (condtype == "with") then
+					valid = true
+
+					for a,b in ipairs(params) do
+						if not hasfeature(name,"is",b,unitid,x,y) then
+							result = false
+						end
+					end
+				elseif (condtype == "not with") then
+					valid = true
+
+					for a,b in ipairs(params) do
+						if hasfeature(name,"is",b,unitid,x,y) then
+							result = false
+						end
+					end
 				end
 			end
 			

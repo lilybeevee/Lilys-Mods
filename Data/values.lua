@@ -1924,6 +1924,22 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},
+	object124 =
+	{
+		name = "text_with",
+		sprite = "text_with",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 7,
+		operatortype = "cond_arg",
+		argtype = {2},
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {4, 12},
+		grid = {11, 4},
+		layer = 20,
+	},
 	--[[object123 =   I WILL DO THIS EVENTUALLY AAAA
 	{
 		name = "text_sticky",
