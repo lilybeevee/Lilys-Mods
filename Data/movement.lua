@@ -822,7 +822,9 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 end
 
 function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
-	pushedunits[unitid] = 1
+	local pid2 = tostring(ox + oy * roomsizex) .. tostring(unitid)
+	pushedunits[pid2] = 1
+	
 	local x,y = 0,0
 	local unit = {}
 	local name = ""
@@ -938,8 +940,10 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 								--move(obs,ox,oy,dir,specials)
 							end
 							
-							if (pushedunits[obs] == nil) then
-								pushedunits[obs] = 1
+							local pid = tostring(x-ox + (y-oy) * roomsizex) .. tostring(obs)
+							
+							if (pushedunits[pid] == nil) then
+								pushedunits[pid] = 1
 								hm = dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid)
 							end
 						end
@@ -948,8 +952,10 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 			elseif (result == 1) then
 				for i,v in ipairs(hmlist) do
 					if (v ~= -1) and (v ~= 0) and (v ~= 1) then
-						if (pulling == false) or (pulling and (hms[i] ~= pusherid)) and (pushedunits[v] == nil) then
-							pushedunits[v] = 1
+						local pid = tostring(x+ox + (y+oy) * roomsizex) .. tostring(v)
+						
+						if (pulling == false) or (pulling and (hms[i] ~= pusherid)) and (pushedunits[pid] == nil) then
+							pushedunits[pid] = 1
 							hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid)
 						end
 					end
@@ -990,8 +996,10 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 						--move(obs,ox,oy,dir,specials)
 					end
 					
-					if (pushedunits[obs] == nil) then
-						pushedunits[obs] = 1
+					local pid = tostring(x-ox + (y-oy) * roomsizex) .. tostring(obs)
+					
+					if (pushedunits[pid] == nil) then
+						pushedunits[pid] = 1
 						hm = dopush(obs,ox,oy,dir,pulling,x-ox,y-oy,reason,unitid)
 					end
 				end
