@@ -162,6 +162,7 @@ function smallclear()
 	updatelist = {}
 	movelist = {}
 	pushedunits = {}
+	levelconversions = {}
 	
 	HACK_MOVES = 0
 end

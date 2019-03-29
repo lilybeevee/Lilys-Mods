@@ -243,8 +243,12 @@ function undo()
 					
 					if (paradox[uid] == nil) then
 						local unitid = getunitid(line[3])
-						local unit = mmf.newObject(unitid)
-						unit.values[FLOAT] = tonumber(line[4])
+						
+						-- Kökkö ratkaisu!
+						if (unitid ~= nil) then
+							local unit = mmf.newObject(unitid)
+							unit.values[FLOAT] = tonumber(line[4])
+						end
 					end
 				elseif (style == "levelupdate") then
 					MF_setroomoffset(line[2],line[3])

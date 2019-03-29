@@ -467,6 +467,10 @@ function docode(firstwords)
 								else
 									table.remove(tileids, #tileids)
 									
+									if (tiletype == 0) and (prevtiletype == 0) and (notstatus ~= 0) then
+										notstatus = 0
+									end
+									
 									if (wordid < #sentences) then
 										if (wordid > 1) then
 												
