@@ -527,21 +527,33 @@ function testcond(conds,unitid,x_,y_)
 							end
 						end
 					end
-				elseif (condtype == "with") then
+				elseif (isnot == "with") then
 					valid = true
 
-					for a,b in ipairs(params) do
-						if not hasfeature(name,"is",b,unitid,x,y) then
-							result = false
-						end
+					local isfirst = false
+					if withrecursion == nil then
+						isfirst = true
+						withrecursion = {}
 					end
-				elseif (condtype == "not with") then
-					valid = true
 
-					for a,b in ipairs(params) do
-						if hasfeature(name,"is",b,unitid,x,y) then
-							result = false
+					if not withrecursion[conds] then
+						withrecursion[conds] = true
+						for a,b in ipairs(params) do
+							local badparam = not hasfeature(name,"is",b,unitid,x,y)
+							if isnot ~= condtype then
+								badparam = not badparam
+							end
+
+							if badparam then
+								result = false
+							end
 						end
+
+						if isfirst then
+							withrecursion = nil
+						end
+					else
+						result = (isnot ~= condtype)
 					end
 				end
 			end

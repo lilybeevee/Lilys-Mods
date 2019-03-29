@@ -227,12 +227,9 @@ function movecommand(ox,oy,dir_,playerid_)
 				for _,v in ipairs(copycats) do
 					local x,y = -1,-1
 					if v ~= 2 then
-						local unit = mmf.newObject(v)
-						x,y = unit.values[XPOS],unit.values[YPOS]
-
-						unit.values[DIR] = dir
+						updatedir(data.unitid, dir)
 					end
-					table.insert(moving_units, {unitid = v, reason = "copy", state = data.state, moves = data.moves, dir = dir, xpos = x, ypos = y})
+					table.insert(moving_units, {unitid = v, reason = "copy", state = 4, moves = data.moves, dir = dir, xpos = x, ypos = y, copy = data.unitid})
 				end
 			end
 		end
@@ -257,6 +254,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		local done = false
 		local state = 0
 		
+		local newdirs = {}
 		while (done == false) do
 			local smallest_state = 99
 			local delete_moving_units = {}
@@ -311,6 +309,18 @@ function movecommand(ox,oy,dir_,playerid_)
 								end
 							end
 						end
+
+						if data.reason == "copy" then
+							if newdirs[data.copy] ~= nil then
+								dir = newdirs[data.copy]
+
+								if data.unitid ~= 2 then
+									updatedir(data.unitid, dir)
+								end
+							end
+						end
+
+						newdirs[data.unitid] = dir
 						
 						local ndrs = ndirs[dir + 1]
 						local ox,oy = ndrs[1],ndrs[2]
@@ -934,25 +944,32 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid)
 		end
 	end
 
-	local copycats = findcopycats(name)
-	for _,v in ipairs(copycats) do
-		if v ~= pusherid then
-			local cx,cy = -1,-1
-			if v ~= 2 then
-				local cunit = mmf.newObject(v)
-				local cx,cy = cunit.values[XPOS],cunit.values[YPOS]
+	if not dopushcopy then
+		isfirstcopy = true
+		dopushcopy = true
 
-				dopush(v,ox,oy,dir,false,cx,cy,unitid)
-			else
-				local positions = getemptytiles()
-						
-				for a,b in ipairs(positions) do
-					local cx,cy = b[1],b[2]
+		local copycats = findcopycats(name)
+		for _,v in ipairs(copycats) do
+			if v ~= pusherid then
+				local cx,cy = -1,-1
+				if v ~= 2 then
+					local cunit = mmf.newObject(v)
+					local cx,cy = cunit.values[XPOS],cunit.values[YPOS]
 
 					dopush(v,ox,oy,dir,false,cx,cy,unitid)
+				else
+					local positions = getemptytiles()
+							
+					for a,b in ipairs(positions) do
+						local cx,cy = b[1],b[2]
+
+						dopush(v,ox,oy,dir,false,cx,cy,unitid)
+					end
 				end
 			end
 		end
+
+		dopushcopy = false
 	end
 
 	local hm = 0
@@ -1368,16 +1385,7 @@ function findcopycats(target)
 
 	local copycats = findallfeature(nil,"copy",target)
 	for _,v in ipairs(copycats) do
-		local name = ""
-		if v ~= 2 then
-			local unit = mmf.newObject(v)
-			name = getname(unit)
-		else
-			name = "empty"
-		end
-		if target ~= name then
-			table.insert(result, v)
-		end
+		table.insert(result, v)
 	end
 
 	return result
