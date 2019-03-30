@@ -1921,7 +1921,7 @@ tileslist =
 		colour = {2, 1},
 		active = {2, 2},
 		tile = {3, 12},
-		grid = {11, 3},
+		grid = {11, 4},
 		layer = 20,
 	},
 	object124 =
@@ -1937,7 +1937,7 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {4, 12},
-		grid = {11, 4},
+		grid = {11, 5},
 		layer = 20,
 	},
 	object125 = 
@@ -1951,7 +1951,7 @@ tileslist =
 		colour = {1, 3},
 		active = {1, 4},
 		tile = {5, 12},
-		grid = {11, 5},
+		grid = {11, 3},
 		layer = 20,
 	},
 }
