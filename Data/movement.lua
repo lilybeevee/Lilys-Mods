@@ -1368,6 +1368,8 @@ function getlured(unitid)
 		local stopped = false
 		local dist = 0
 
+		local newstop = 0
+
 		while not stopped do
 			local obs = findobstacle(x+ox,y+oy)
 			local emptybait = hasfeature("empty","is","bait",2,x+ox,y+oy)
@@ -1393,8 +1395,7 @@ function getlured(unitid)
 
 					local isbait = hasfeature(obsname,"is","bait",id,x+ox,y+oy)
 					local isstop = hasfeature(obsname,"is","stop",id,x+ox,y+oy) or hasfeature(obsname,"is","pull",id,x+ox,y+oy)
-
-					local newstop = 0
+					
 					if isstop then
 						newstop = 1
 					end
