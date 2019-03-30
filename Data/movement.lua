@@ -26,7 +26,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		if v ~= 2 then
 			local unit = mmf.newObject(v)
 			local turndir = unit.values[DIR]
-			turndir = (turndir + 1) % 4
+			turndir = (turndir - 1) % 4
 			updatedir(unit.fixed,turndir)
 		end
 	end
