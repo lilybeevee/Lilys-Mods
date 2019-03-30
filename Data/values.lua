@@ -1940,18 +1940,18 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},
-	--[[object123 =   I WILL DO THIS EVENTUALLY AAAA
+	object125 = 
 	{
-		name = "text_sticky",
-		sprite = "text_sticky",
+		name = "text_turn",
+		sprite = "text_turn",
 		sprite_in_root = true,
 		unittype = "text",
 		tiling = -1,
 		type = 2,
-		colour = {5, 1},
-		active = {5, 3},
-		tile = {3, 13},
-		grid = {12, 3},
+		colour = {1, 3},
+		active = {1, 4},
+		tile = {5, 12},
+		grid = {11, 5},
 		layer = 20,
-	},]]
+	},
 }

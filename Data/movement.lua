@@ -20,6 +20,16 @@ function movecommand(ox,oy,dir_,playerid_)
 		mapdir = dir_
 		updateundo = true
 	end
+
+	local turn = findallfeature(nil,"is","turn")
+	for _,v in ipairs(turn) do
+		if v ~= 2 then
+			local unit = mmf.newObject(v)
+			local turndir = unit.values[DIR]
+			turndir = (turndir + 1) % 4
+			updatedir(unit.fixed,turndir)
+		end
+	end
 	
 	while (take <= takecount) or finaltake do
 		local moving_units = {}
@@ -139,6 +149,7 @@ function movecommand(ox,oy,dir_,playerid_)
 							local x,y = unit.values[XPOS],unit.values[YPOS]
 
 							table.insert(moving_units, {unitid = id, reason = "bait", state = 0, moves = 1, dir = baited, xpos = x, ypos = y})
+							been_seen[id] = #moving_units
 						else
 							local this = moving_units[been_seen[id]]
 							this.moves = this.moves + 1
@@ -212,6 +223,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		
 		local unitcount = #moving_units
 
+		local alreadycopied = {}
 		for i,data in ipairs(moving_units) do
 			if i <= unitcount then
 				local name = ""
@@ -1341,28 +1353,36 @@ function getlured(unitid)
 	end
 
 	local unit = mmf.newObject(unitid)
+	local name = getname(unit)
 	local x,y,unitdir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
+
+	local closeststop = 1
+	local closestdist = -1
+	local closestdir = -1
 	
 	for d=0,3 do
 		local dir = (unitdir - d) % 4
 		local ndrs = ndirs[dir+1]
-		local ox = ndrs[1]
-		local oy = ndrs[2]
+		local ox,oy = 0,0
 
 		local stopped = false
+		local dist = 0
 
 		while not stopped do
 			local obs = findobstacle(x+ox,y+oy)
 			local emptybait = hasfeature("empty","is","bait",2,x+ox,y+oy)
 
 			if emptybait then
-				return dir
+				if closestdist == -1 or dist < closestdist then
+					closestdist = dist
+					closestdir = dir
+				end
 			end
 
 			for i,id in ipairs(obs) do
 				if (id == -1) then
 					stopped = true
-				else
+				elseif id ~= unitid then
 					local obsunit = mmf.newObject(id)
 					local obsname = obsunit.strings[UNITNAME]
 					local obstype = obsunit.strings[UNITTYPE]
@@ -1371,20 +1391,35 @@ function getlured(unitid)
 						obsname = "text"
 					end
 
-					local isbait = hasfeature(obsname,"is","bait",id)
+					local isbait = hasfeature(obsname,"is","bait",id,x+ox,y+oy)
+					local isstop = hasfeature(obsname,"is","stop",id,x+ox,y+oy) or hasfeature(obsname,"is","pull",id,x+ox,y+oy)
+
+					local newstop = 0
+					if isstop then
+						newstop = 1
+					end
 
 					if isbait then
-						return dir
+						if (closestdist == -1 or dist < closestdist) and newstop <= closeststop then
+							closeststop = newstop
+							closestdist = dist
+							closestdir = dir
+						end
 					end
 				end
 			end
 
 			ox = ox + ndrs[1]
 			oy = oy + ndrs[2]
+			dist = dist + 1
 		end
 	end
 	
-	return -1
+	if closestdist == 0 then
+		return -1
+	else
+		return closestdir
+	end
 end
 -- BAIT AND LURE END
 

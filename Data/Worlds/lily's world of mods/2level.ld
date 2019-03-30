@@ -1,15 +1,15 @@
 [tiles]
+object115_image=cat
 object114_name=text_cat
 object114_colour=4,1
-object114_image=text_cat
-object115_root=0
-object115_image=cat
-object114_root=0
 object115_tiling=-1
-object114_activecolour=4,2
+object114_root=0
+object115_root=0
+object114_image=text_cat
 object115_colour=4,2
+object114_activecolour=4,2
 object115_name=cat
-changed=object115,object114,
+changed=object114,object115,
 
 [general]
 name=map
@@ -20,7 +20,7 @@ levels=1
 paths=0
 specials=0
 leveltype=1
-selectorX=5
+selectorX=4
 unlockcount=0
 selectorY=4
 
@@ -30,9 +30,9 @@ selectorY=4
 0Z=0
 0colour=0,3
 0clearcolour=0,2
-0state=2
+0state=1
 0X=5
-0Y=4
+0Y=7
 0style=0
 0number=1
 0dir=0

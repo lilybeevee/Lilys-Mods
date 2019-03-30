@@ -1862,7 +1862,7 @@ function meansrules()
 						table.insert(finals, {{target,"not means",effect},{},allids})
 					else
 						table.insert(finals, {{target,"means",effect},{},allids})
-						if target == effect and #effects == 1 and string.sub(target, 1, 4) ~= "not" then
+						if target == effect and #effects == 1 then
 							table.insert(protects, #finals)
 						end
 					end
@@ -2019,14 +2019,14 @@ function buildmeanssentence(unitid,drs,prefix)
 				end
 			else -- ====== SUFFIX CODE ======
 				-- check NOT
-				--[[if tiletype == 4 then
+				if tiletype == 4 then
 					if prevtype == 4 or prevtype == 6 or prevtype == 8 then -- 4 = not, 6 = and, 8 = means
 						isnot = not isnot
 					else
 						valid = false
-					end]]
+					end
 				-- check AND
-				if tiletype == 6 then -- 6 = and
+				elseif tiletype == 6 then -- 6 = and
 					if prevtype ~= 0 and prevtype ~= 2 then -- 0 = noun, 2 = adjective
 						valid = false
 					end
@@ -2060,7 +2060,7 @@ function buildmeanssentence(unitid,drs,prefix)
 	end
 end
 
-function findaltfeatures()
+--[[function findaltfeatures()
 	local result = {}
 	local alreadydone = {}
 
@@ -2108,7 +2108,7 @@ function findaltfeatures()
 	end
 
 	return result,identifier
-end
+end]]
 
 function getaltfeatures(target)
 	local result = {}
@@ -2118,54 +2118,68 @@ function getaltfeatures(target)
 		local name = v[1]
 		local effect = v[3]
 
-		local notalt = false
-		if (string.sub(name, 1, 3) == "not") then
-			name = string.sub(name, 5)
-			notalt = true
+		local notcount = 0
+
+		local nname = name
+		local notname = false
+		if (string.sub(nname, 1, 3) == "not") then
+			nname = string.sub(nname, 5)
+			notname = true
+			notcount = notcount + 1
 		end
 
-		local noteffect = false
-		if (string.sub(effect, 1, 3) == "not") then
-			effect = string.sub(effect, 5)
-			noteffect = true
+		local neffect = effect
+		if (string.sub(neffect, 1, 3) == "not") then
+			neffect = string.sub(effect, 5)
+			notcount = notcount + 1
 		end
 
 		local ntarget = target
-		local nottarget = false
 		if (string.sub(ntarget, 1, 3) == "not") then
 			ntarget = string.sub(ntarget, 5)
-			nottarget = true
+			notcount = notcount + 1
 		end
 
-		local targetname = unitreference["text_" .. ntarget]
-		local targettile = tileslist[targetname]
-		local targettype = targettile.type
-
-		local mtype = unitreference["text_" .. name]
-		local mtile = tileslist[mtype]
-		local mtype = mtile.type
-
-		if (((not notalt) and ntarget == name) or (notalt and ntarget ~= name)) and (targettype == mtype) then
-			if nottarget then
-				effect = "not " .. effect
+		if (notname and name == target) or (not notname and nname == ntarget) then
+			local prefix = ""
+			for a=1,notcount do
+				if prefix == "" then
+					prefix = "not "
+				else
+					prefix = ""
+				end
 			end
-			table.insert(first, effect)
+			table.insert(first, prefix .. neffect)
 			hasmeans = true
 		end
 	end
 	if not hasmeans then
 		first = {target}
 	end
-	for _,effect in ipairs(first) do
+	for _,teffect in ipairs(first) do
 		local exclude = false
-		for i,v in ipairs(notaltfeatures) do
-			local nname = v[1]
-			local neffect = v[3]
 
-			local nnot = false
+		local nteffect = teffect
+		if (string.sub(nteffect, 1, 3) == "not") then
+			nteffect = string.sub(nteffect, 5)
+		end
+
+		for i,v in ipairs(notaltfeatures) do
+			local name = v[1]
+			local effect = v[3]
+
+			local nname = name
+			local notname = false
 			if (string.sub(nname, 1, 3) == "not") then
 				nname = string.sub(nname, 5)
-				nnot = true
+				notname = true
+			end
+
+			local neffect = effect
+			local noteffect = false
+			if (string.sub(neffect, 1, 3) == "not") then
+				neffect = string.sub(neffect, 5)
+				noteffect = true
 			end
 
 			local ntarget = target
@@ -2173,14 +2187,14 @@ function getaltfeatures(target)
 				ntarget = string.sub(ntarget, 5)
 			end
 
-			if ((not nnot and ntarget == nname) or (nnot and ntarget ~= nname)) and effect == neffect then
+			if (notname and target == name and effect == teffect) or (not notname and not noteffect and ntarget == nname and neffect == nteffect) then
 				exclude = true
 				hasmeans = true
 				break
 			end
 		end
 		if not exclude then
-			table.insert(result, effect)
+			table.insert(result, teffect)
 		end
 	end
 	return result,hasmeans
