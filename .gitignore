@@ -1,7 +1,15 @@
-*.dat
+#Windows Files
 *.exe
 *.dll
 *.zip
+
+#Linux Files
+run.sh
+bin32/
+bin64/
+
+*.dat
+
 gamecontrollerdb.txt
 
 Data/Languages/
