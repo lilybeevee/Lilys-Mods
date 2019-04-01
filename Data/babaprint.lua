@@ -79,7 +79,11 @@ function babadump(o)
    if type(o) == 'table' then
       local s = '('
       for k,v in pairs(o) do
-         s = s .. k..'-' .. babadump(v) .. ','
+        local ks = k..'-'
+        if type(k) == "number" then
+          ks = ''
+        end
+        s = s .. ks .. babadump(v) .. ','
       end
       return s .. ')'
    else

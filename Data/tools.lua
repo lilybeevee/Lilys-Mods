@@ -480,35 +480,45 @@ function writerules(parent,name,x_,y_)
 			
 			local conds = rules[2]
 			if (#conds > 0) then
-				for a,cond in ipairs(conds) do
-					local middlecond = true
-					
-					if (cond[2] == nil) or ((cond[2] ~= nil) and (#cond[2] == 0)) then
-						middlecond = false
+				local function writeconds(conds)
+					if string.sub(text, -2) == "& " then
+						text = string.sub(text, 1, -3)
 					end
-					
-					if middlecond then
-						text = text .. cond[1] .. " "
+					for a,cond in ipairs(conds) do
+						local middlecond = true
 						
-						if (cond[2] ~= nil) then
-							if (#cond[2] > 0) then
-								for c,d in ipairs(cond[2]) do
-									text = text .. d .. " "
-									
-									if (#cond[2] > 1) and (c ~= #cond[2]) then
-										text = text .. "& "
+						if (cond[2] == nil) or ((cond[2] ~= nil) and (#cond[2] == 0)) then
+							middlecond = false
+						end
+						
+						if middlecond then
+							text = text .. cond[1] .. " "
+							
+							if (cond[2] ~= nil) then
+								if (#cond[2] > 0) then
+									for c,d in ipairs(cond[2]) do
+										if type(d) == "table" then
+											writeconds(d)
+										else
+											text = text .. d .. " "
+											
+											if (#cond[2] > 1) and (c ~= #cond[2]) then
+												text = text .. "& "
+											end
+										end
 									end
 								end
 							end
+							
+							if (a < #conds) then
+								text = text .. "& "
+							end
+						else
+							text = cond[1] .. " " .. text
 						end
-						
-						if (a < #conds) then
-							text = text .. "& "
-						end
-					else
-						text = cond[1] .. " " .. text
 					end
 				end
+				writeconds(conds)
 			end
 			
 			text = text .. rule[2] .. " " .. rule[3]

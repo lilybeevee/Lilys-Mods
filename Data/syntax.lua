@@ -198,7 +198,7 @@ function clear()
 	HACK_MOVES = 0
 	
 	print("clear")
-	babaclear()
+	
 	collectgarbage()
 end
 

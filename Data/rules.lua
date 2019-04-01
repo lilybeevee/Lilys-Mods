@@ -428,6 +428,9 @@ function docode(firstwords)
 												doingcond = false
 												prevstage = stage
 												stage = 3
+											elseif (tiletype == 7) and doingcond then
+												prevstage = stage
+												stage = 3
 											elseif (tiletype == 6) then
 												prevstage = stage
 												stage = 4
@@ -542,6 +545,10 @@ function docode(firstwords)
 						local extraids = {}
 						local extraids_current = ""
 						local extraids_ifvalid = {}
+
+						local condstack = false
+						local doingand = false
+						local hasproperty = false
 						
 						local valid = true
 						
@@ -587,6 +594,10 @@ function docode(firstwords)
 									table.insert(extraids_ifvalid, {prefix .. wname, wtype, wid})
 									extraids_current = wname
 								end
+
+								if wtype == 6 then
+									doingand = true
+								end
 								
 								if (wcategory == 0) then
 									local allowed = false
@@ -606,6 +617,10 @@ function docode(firstwords)
 									end
 									
 									if allowed then
+										if wtype == 2 then
+											hasproperty = true
+										end
+										doingand = false
 										table.insert(group, {prefix .. wname, wtype, wid})
 									else
 										table.insert(firstwords, {wid[1], dir})
@@ -645,7 +660,7 @@ function docode(firstwords)
 												else
 													allowedwords = {0,2}
 												end
-												
+
 												stage = 1
 												local target = {prefix .. wname, wtype, wid}
 												table.insert(group_targets, {target, {}})
@@ -660,12 +675,25 @@ function docode(firstwords)
 											elseif (wtype == 7) then
 												allowedwords = argtype
 												allowedwords_extra = argextra
-												
+
+												if condstack and doingand then
+													condstack = false
+												end
+												doingand = false
+												hasproperty = false
+
 												stage = 2
 												local cond = {prefix .. wname, wtype, wid}
-												table.insert(group_conds, {cond, {}})
-												local sid = #group_conds
-												group = group_conds[sid][2]
+												if not condstack then
+													table.insert(group_conds, {cond, {}})
+													local sid = #group_conds
+													group = group_conds[sid][2]
+													condstack = true
+												else
+													table.insert(group, {cond, {}})
+													local sid = #group
+													group = group[sid][2]
+												end
 											end
 										end
 									end
@@ -691,70 +719,87 @@ function docode(firstwords)
 								end
 							end
 							--MF_alert("Testing: " .. testing)
-							
+
 							local conds = {}
 							local condids = {}
-							for c,group_cond in ipairs(group_conds) do
-								local rule_cond = group_cond[1][1]
-								--table.insert(condids, group_cond[1][3])
-								
-								condids = copytable(condids, group_cond[1][3])
-								
-								table.insert(conds, {rule_cond,{}})
-								local condgroup = conds[#conds][2]
-								
-								for e,condword in ipairs(group_cond[2]) do
-									local rule_condword = condword[1]
-									--table.insert(condids, condword[3])
+							local function docondloop(group_conds,condids)
+								local conds = {}
+								for c,group_cond in ipairs(group_conds) do
+									local rule_cond = group_cond[1][1]
+									--table.insert(condids, group_cond[1][3])
 									
-									condids = copytable(condids, condword[3])
+									condids = copytable(condids, group_cond[1][3])
 									
-									table.insert(condgroup, rule_condword)
+									table.insert(conds, {rule_cond,{}})
+									local condgroup = conds[#conds][2]
+									
+									for e,condword in ipairs(group_cond[2]) do
+										if #condword == 2 then
+											table.insert(condgroup, docondloop({condword},condids))
+										else
+											local rule_condword = condword[1]
+											--table.insert(condids, condword[3])
+											
+											condids = copytable(condids, condword[3])
+											
+											table.insert(condgroup, rule_condword)
+										end
+									end
 								end
+								return conds
 							end
+
+							conds = docondloop(group_conds,condids)
 							
-							local delconds = {}
-							
-							for c,cond in ipairs(conds) do
-								local condwords = cond[2]
+							local function cleanconds(conds)
+								local delconds = {}
 								
-								local anticondwords = {}
-								local newcondwords = {}
-								
-								for g,condword in ipairs(condwords) do
-									local isnot = string.sub(condword, 1, 3)
+								for c,cond in ipairs(conds) do
+									local condwords = cond[2]
 									
-									if (isnot == "not") then
-										table.insert(anticondwords, string.sub(condword, 5))
-									else
-										table.insert(newcondwords, condword)
+									local anticondwords = {}
+									local newcondwords = {}
+									
+									for g,condword in ipairs(condwords) do
+										if type(condword) == "table" then
+											cleanconds(condword)
+										else
+											local isnot = string.sub(condword, 1, 3)
+											
+											if (isnot == "not") then
+												table.insert(anticondwords, string.sub(condword, 5))
+											else
+												table.insert(newcondwords, condword)
+											end
+										end
+									end
+									
+									if (#anticondwords > 0) then
+										local anticond = cond[1]
+										
+										if (string.sub(anticond, 1, 3) ~= "not") then
+											anticond = "not " .. cond[1]
+										end
+										
+										local newcond = {anticond, anticondwords}
+										
+										table.insert(conds, newcond)
+										
+										if (#newcondwords > 0) then
+											cond[2] = newcondwords
+										else
+											table.insert(delconds, c)
+										end
 									end
 								end
 								
-								if (#anticondwords > 0) then
-									local anticond = cond[1]
-									
-									if (string.sub(anticond, 1, 3) ~= "not") then
-										anticond = "not " .. cond[1]
-									end
-									
-									local newcond = {anticond, anticondwords}
-									
-									table.insert(conds, newcond)
-									
-									if (#newcondwords > 0) then
-										cond[2] = newcondwords
-									else
-										table.insert(delconds, c)
-									end
+								local delcondoffset = 0
+								for c,d in ipairs(delconds) do
+									table.remove(conds, d - delcondoffset)
+									delcondoffset = delcondoffset + 1
 								end
 							end
-							
-							local delcondoffset = 0
-							for c,d in ipairs(delconds) do
-								table.remove(conds, d - delcondoffset)
-								delcondoffset = delcondoffset + 1
-							end
+							cleanconds(conds)
 							
 							for c,group_object in ipairs(group_objects) do
 								local rule_object = group_object[1]
@@ -765,10 +810,18 @@ function docode(firstwords)
 									for e,target in ipairs(group_target[2]) do
 										local rule_target = target[1]
 										
-										local finalconds = {}
-										for g,finalcond in ipairs(conds) do
-											table.insert(finalconds, {finalcond[1], finalcond[2]})
+										local function addfinalconds(conds)
+											local finalconds = {}
+											for g,finalcond in ipairs(conds) do
+												--[[if type(finalcond[2]) == "table" then
+													table.insert(finalconds, {finalcond[1], addfinalconds(finalcond[2])})
+												else]]
+													table.insert(finalconds, {finalcond[1], finalcond[2]})
+												--end
+											end
+											return finalconds
 										end
+										local finalconds = addfinalconds(conds)
 										
 										local rule = {rule_object,rule_verb,rule_target}
 										
@@ -857,33 +910,42 @@ function applyaltfeatures(option,conds,ids,visible,notrule)
 	end
 	local newconds = {}
 	if conds ~= nil then
-		for _,cond in ipairs(conds) do
-			local targets = cond[2]
+		local function applyconds(conds)
+			local newconds = {}
+			for _,cond in ipairs(conds) do
+				local targets = cond[2]
 
-			local alreadyadded = {}
-			local newtargets = {}
+				local alreadyadded = {}
+				local newtargets = {}
 
-			for i=1,#targets do
-				local validfeatures,hasfeatures = getaltfeatures(targets[i])
-				if hasfeatures then
-					for _,newtarget in ipairs(validfeatures) do
-						if not alreadyadded[newtarget] then
-							table.insert(newtargets, newtarget)
-							alreadyadded[newtarget] = true
+				for i=1,#targets do
+					if type(targets[i]) == "table" then
+						table.insert(newtargets, applyconds(targets[i]))
+					else
+						local validfeatures,hasfeatures = getaltfeatures(targets[i])
+						if hasfeatures then
+							for _,newtarget in ipairs(validfeatures) do
+								if not alreadyadded[newtarget] then
+									table.insert(newtargets, newtarget)
+									alreadyadded[newtarget] = true
+								end
+							end
+							hasmeans = true
+						elseif not alreadyadded[targets[i]] then
+							table.insert(newtargets, targets[i])
+							alreadyadded[targets[i]] = true
 						end
 					end
-					hasmeans = true
-				elseif not alreadyadded[targets[i]] then
-					table.insert(newtargets, targets[i])
-					alreadyadded[targets[i]] = true
 				end
-			end
-			if #targets > 0 and #newtargets == 0 then
-				validoption = false
-			end
+				if #targets > 0 and #newtargets == 0 then
+					validoption = false
+				end
 
-			table.insert(newconds, {cond[1],newtargets})
+				table.insert(newconds, {cond[1],newtargets})
+			end
+			return newconds
 		end
+		newconds = applyconds(conds)
 	end
 	if hasmeans then
 		local alttable = {}

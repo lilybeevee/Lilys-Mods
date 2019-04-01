@@ -1,5 +1,3 @@
-require("Data/babaprint")
-
 function movecommand(ox,oy,dir_,playerid_)
 	updatenotstill()
 	statusblock()
