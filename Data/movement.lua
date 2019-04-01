@@ -1,6 +1,10 @@
+require("Data/babaprint")
+
 function movecommand(ox,oy,dir_,playerid_)
+	updatenotstill()
 	statusblock()
 	movelist = {}
+	hasmoved = {}
 	
 	local take = 1
 	local takecount = 3
@@ -563,6 +567,7 @@ function movecommand(ox,oy,dir_,playerid_)
 			
 			if (#movelist > 0) then
 				for i,data in ipairs(movelist) do
+					table.insert(hasmoved,data[1])
 					move(data[1],data[2],data[3],data[4],data[5])
 				end
 			end
@@ -602,6 +607,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,levelpush})
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		updateundo = true
+		table.insert(hasmoved,1)
 	end
 	
 	if (levelpull >= 0) then
@@ -613,8 +619,9 @@ function movecommand(ox,oy,dir_,playerid_)
 		addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,levelpull})
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		updateundo = true
+		table.insert(hasmoved,1)
 	end
-	
+
 	doupdate()
 	code()
 	conversion()
@@ -625,6 +632,21 @@ function movecommand(ox,oy,dir_,playerid_)
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)
 	end
+end
+
+function updatenotstill()
+	if not activemod.enabled["still"] then
+		return
+	end
+	donemove = donemove + 1
+	if donemove > 1 then
+		notstill = {}
+		for _,v in ipairs(hasmoved) do
+			notstill[v] = true
+		end
+	end
+	addundo({"still",notstill,donemove-1})
+	updateundo = true
 end
 
 function check(unitid,x,y,dir,pulling_,reason)

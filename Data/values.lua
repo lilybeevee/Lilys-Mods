@@ -1,3 +1,7 @@
+activemod = {}
+activemod.enabled = {}
+activemod.enabled["still"] = true
+
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
 dirs_diagonals = {{1,0},{0,-1},{-1,0},{0,1},{1,1},{1,-1},{-1,-1},{-1,1},{0,0}}
@@ -1940,7 +1944,22 @@ tileslist =
 		grid = {11, 5},
 		layer = 20,
 	},
-	object125 = 
+	object125 =
+	{
+		name = "text_still",
+		sprite = "text_still",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 3,
+		operatortype = "cond_start",
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {5, 12},
+		grid = {11, 3},
+		layer = 20,
+	},
+	--[[object125 = 
 	{
 		name = "text_turn",
 		sprite = "text_turn",
@@ -1953,5 +1972,5 @@ tileslist =
 		tile = {5, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
+	},]]
 }

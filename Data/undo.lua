@@ -263,6 +263,9 @@ function undo()
 					MF_setcolour(unitid,line[3],line[4])
 					local unit = mmf.newObject(unitid)
 					unit.values[A] = line[5]
+				elseif (style == "still") then
+					notstill = line[2]
+					donemove = line[3]
 				end
 			end
 		end

@@ -46,6 +46,9 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	maprotation = 0
 	mapdir = 3
 	levelconversions = {}
+
+	notstill = nil
+	donemove = 0
 	
 	HACK_MOVES = 0
 	
@@ -188,11 +191,14 @@ function clear()
 	levelconversions = {}
 	maprotation = 0
 	mapdir = 3
+
+	notstill = {}
+	donemove = 0
 	
 	HACK_MOVES = 0
 	
 	print("clear")
-	
+	babaclear()
 	collectgarbage()
 end
 

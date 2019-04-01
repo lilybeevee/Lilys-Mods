@@ -527,6 +527,18 @@ function testcond(conds,unitid,x_,y_)
 							end
 						end
 					end
+				elseif (condtype == "still") then
+					babaprint("still: " .. donemove)
+					valid = true
+					if donemove <= 1 or (donemove > 1 and notstill[unitid] == true) then
+						result = false
+					end
+				elseif (condtype == "not still") then
+					babaprint("not still: " .. donemove)
+					valid = true
+					if donemove <= 1 or (donemove > 1 and not notstill[unitid]) then
+						result = false
+					end
 				elseif (isnot == "with") then
 					valid = true
 
