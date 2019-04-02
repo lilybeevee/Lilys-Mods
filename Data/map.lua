@@ -153,6 +153,15 @@ function collapseleveltree()
 	--MF_alert("collapsed")
 end
 
+function resetleveltree()
+	leveltree = {}
+	leveltree_id = {}
+	
+	generaldata.strings[CURRLEVEL] = ""
+	generaldata.strings[PARENT] = ""
+	generaldata.strings[LEVELNUMBER_NAME] = ""
+end
+
 function rebuildleveltree(tree,tree_id)
 	leveltree = {}
 	leveltree_id = {}

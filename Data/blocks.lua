@@ -35,7 +35,7 @@ function statusblock(ids,undoing_)
 			end
 			
 			if (oldfloat ~= newfloat) then
-				addundo({"float",name,unit.values[ID],oldfloat,newfloat})
+				addaction(unit.fixed,{"dofloat",oldfloat,newfloat,unit.values[ID],unit.fixed,name})
 			end
 			
 			if (issleep(unit.fixed) == false) then
