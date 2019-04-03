@@ -1,6 +1,7 @@
 activemod = {}
 activemod.enabled = {}
 activemod.enabled["still"] = true
+activemod.enabled["condition stacking"] = true
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}

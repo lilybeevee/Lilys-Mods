@@ -372,7 +372,7 @@ function docode(firstwords)
 												stage2reached = true
 												prevstage = stage
 												stage = 3
-											elseif ((tiletype == 7) and (stage2reached == false)) then
+											elseif ((tiletype == 7) and (not doingcond or activemod.enabled["condition stacking"]) and (stage2reached == false)) then
 												doingcond = true
 												prevstage = stage
 												stage = 3
