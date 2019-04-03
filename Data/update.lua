@@ -64,6 +64,14 @@ function doupdate()
 				else
 					print("No meaningful update data for object " .. tostring(data[1]) .. ", " .. data[2])
 				end
+			elseif (data[2] == "dofloat") then
+				if (data[3] ~= nil) and (data[4] ~= nil) then
+					local unit = mmf.newObject(tonumber(data[6]))
+					unit.values[FLOAT] = tonumber(data[4])
+					addundo({"float",data[7],data[5],data[3],data[4]})
+				else
+					print("No meaningful update data for object " .. tostring(data[1]) .. ", " .. data[2])
+				end
 			end
 		end
 	end
