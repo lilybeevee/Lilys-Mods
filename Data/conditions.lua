@@ -38,13 +38,13 @@ function testcond(conds,unitid,x_,y_)
 				local condtype = cond[1]
 				local params_ = cond[2]
 
-				local iconds = nil
+				local iconds = {}
 
 				local params = {}
 				if params_ then
 					for a,b in ipairs(params_) do
 						if type(b) == "table" then
-							iconds = b
+							table.insert(iconds,b)
 						else
 							table.insert(params,b)
 						end
@@ -89,7 +89,7 @@ function testcond(conds,unitid,x_,y_)
 												local name_ = getname(unit)
 												
 												if (name_ == b) and (alreadyfound[b] == nil) then
-													if not iconds or testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														alreadyfound[b] = 1
 														allfound = allfound + 1
 													end
@@ -102,7 +102,7 @@ function testcond(conds,unitid,x_,y_)
 								elseif (b == "empty") then
 									result = false
 								elseif (b == "level") then
-									if not iconds or testcond(iconds,1,x,y) then
+									if testcondstack(iconds,1,x,y) then
 										alreadyfound[b] = 1
 										allfound = allfound + 1
 									end
@@ -113,11 +113,11 @@ function testcond(conds,unitid,x_,y_)
 								if (b ~= "empty") and (b ~= "level") then
 									if (unitlists[b] ~= nil) then
 										if (#unitlists[b] > 0) then
-											if not iconds then
+											if #iconds == 0 then
 												ulist = true
 											else
 												for c,d in ipairs(unitlists[b]) do
-													if testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														ulist = true
 														break
 													end
@@ -129,11 +129,11 @@ function testcond(conds,unitid,x_,y_)
 									local empties = findempty()
 									
 									if (#empties > 0) then
-										if not iconds then
+										if #iconds == 0 then
 											ulist = true
 										else
 											for c,d in ipairs(empties) do
-												if testcond(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
 													ulist = true
 													break
 												end
@@ -152,7 +152,7 @@ function testcond(conds,unitid,x_,y_)
 									end
 								end
 								
-								if ulist or (not iconds and (b == "text")) then
+								if ulist or (#iconds == 0 and (b == "text")) then
 									if (alreadyfound[b] == nil) then
 										alreadyfound[b] = 1
 										allfound = allfound + 1
@@ -184,7 +184,7 @@ function testcond(conds,unitid,x_,y_)
 												local name_ = getname(unit)
 												
 												if (name_ == b) then
-													if not iconds or testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														result = false
 													end
 												end
@@ -197,7 +197,7 @@ function testcond(conds,unitid,x_,y_)
 									local onempty = false
 
 									if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then 
-										if not iconds or testcond(iconds,2,x,y) then
+										if testcondstack(iconds,2,x,y) then
 											onempty = true
 										end
 									end
@@ -212,11 +212,11 @@ function testcond(conds,unitid,x_,y_)
 								if (b ~= "empty") and (b ~= "level") and (iconds or (b ~= "text")) then
 									if (unitlists[b] ~= nil) then
 										if (#unitlists[b] > 0) then
-											if not iconds then
+											if #iconds == 0 then
 												result = false
 											else
 												for c,d in ipairs(unitlists[b]) do
-													if testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														result = false
 														break
 													end
@@ -228,11 +228,11 @@ function testcond(conds,unitid,x_,y_)
 									local empties = findempty()
 									
 									if (#findempty > 0) then
-										if not iconds then
+										if #iconds == 0 then
 											result = false
 										else
 											for c,d in ipairs(findempty) do
-												if testcond(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
 													result = false
 													break
 												end
@@ -281,7 +281,7 @@ function testcond(conds,unitid,x_,y_)
 														local name_ = getname(unit)
 														
 														if (name_ == b) and (alreadyfound[b] == nil) then
-															if not iconds or testcond(iconds,d,(x+ox),(y+oy)) then
+															if testcondstack(iconds,d,(x+ox),(y+oy)) then
 																alreadyfound[b] = 1
 																allfound = allfound + 1
 															end
@@ -298,14 +298,14 @@ function testcond(conds,unitid,x_,y_)
 									elseif (b == "empty") then
 										if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then
 											if (alreadyfound[b] == nil) then
-												if not iconds or testcond(iconds,2,(x+ox),(y+oy)) then
+												if testcondstack(iconds,2,(x+ox),(y+oy)) then
 													alreadyfound[b] = 1
 													allfound = allfound + 1
 												end
 											end
 										end
 									elseif (b == "level") then
-										if not iconds or testcond(iconds,1,(x+ox),(y+oy)) then
+										if testcondstack(iconds,1,(x+ox),(y+oy)) then
 											alreadyfound[b] = 1
 											allfound = allfound + 1
 										end
@@ -356,7 +356,7 @@ function testcond(conds,unitid,x_,y_)
 														local name_ = getname(unit)
 														
 														if (name_ == b) then
-															if not iconds or testcond(iconds,d,(x+ox),(y+oy)) then
+															if testcondstack(iconds,d,(x+ox),(y+oy)) then
 																result = false
 															end
 														end
@@ -370,12 +370,12 @@ function testcond(conds,unitid,x_,y_)
 										end
 									elseif (b == "empty") then
 										if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then
-											if not iconds or testcond(iconds,2,(x+ox),(y+oy)) then
+											if testcondstack(iconds,2,(x+ox),(y+oy)) then
 												result = false
 											end
 										end
 									elseif (b == "level") then
-										if not iconds or testcond(iconds,1,(x+ox),(y+oy)) then
+										if testcondstack(iconds,1,(x+ox),(y+oy)) then
 											result = false
 										end
 									end
@@ -418,7 +418,7 @@ function testcond(conds,unitid,x_,y_)
 															local name_ = getname(unit)
 															
 															if (name_ == b) and (alreadyfound[b] == nil) then
-																if not iconds or testcond(iconds,d,(x+g),(y+h)) then
+																if testcondstack(iconds,d,(x+g),(y+h)) then
 																	alreadyfound[b] = 1
 																	allfound = allfound + 1
 																end
@@ -437,7 +437,7 @@ function testcond(conds,unitid,x_,y_)
 												end
 												
 												if nearempty then
-													if not iconds or testcond(iconds,2,(x+g),(y+h)) then
+													if testcondstack(iconds,2,(x+g),(y+h)) then
 														alreadyfound[b] = 1
 														allfound = allfound + 1
 													end
@@ -446,7 +446,7 @@ function testcond(conds,unitid,x_,y_)
 										end
 									end
 								elseif (b == "level") then
-									if not iconds or testcond(iconds,1,x,y) then
+									if testcondstack(iconds,1,x,y) then
 										alreadyfound[b] = 1
 										allfound = allfound + 1
 									end
@@ -457,11 +457,11 @@ function testcond(conds,unitid,x_,y_)
 								if (b ~= "empty") and (b ~= "level") then
 									if (unitlists[b] ~= nil) then
 										if (#unitlists[b] > 0) then
-											if not iconds then
+											if #iconds == 0 then
 												ulist = true
 											else
 												for c,d in ipairs(unitlists[b]) do
-													if testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														ulist = true
 														break
 													end
@@ -473,11 +473,11 @@ function testcond(conds,unitid,x_,y_)
 									local empties = findempty()
 									
 									if (#findempty > 0) then
-										if not iconds then
+										if #iconds == 0 then
 											ulist = true
 										else
 											for c,d in ipairs(findempty) do
-												if testcond(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
 													ulist = true
 													break
 												end
@@ -498,7 +498,7 @@ function testcond(conds,unitid,x_,y_)
 									end
 								end
 								
-								if ulist or (not iconds and (b == "text")) then
+								if ulist or (#iconds == 0 and (b == "text")) then
 									if (alreadyfound[b] == nil) then
 										alreadyfound[b] = 1
 										allfound = allfound + 1
@@ -530,7 +530,7 @@ function testcond(conds,unitid,x_,y_)
 														local name_ = getname(unit)
 														
 														if (name_ == b) then
-															if not iconds or testcond(iconds,d,(x+g),(y+h)) then
+															if testcondstack(iconds,d,(x+g),(y+h)) then
 																result = false
 															end
 														end
@@ -547,7 +547,7 @@ function testcond(conds,unitid,x_,y_)
 												end
 												
 												if nearempty then
-													if not iconds or testcond(iconds,2,(x+g),(y+h)) then
+													if testcondstack(iconds,2,(x+g),(y+h)) then
 														result = false
 													end
 												end
@@ -555,7 +555,7 @@ function testcond(conds,unitid,x_,y_)
 										end
 									end
 								else
-									if not iconds or testcond(iconds,1,x,y) then
+									if testcondstack(iconds,1,x,y) then
 										result = false
 									end
 								end
@@ -565,11 +565,11 @@ function testcond(conds,unitid,x_,y_)
 								if (b ~= "empty") and (b ~= "level") and (iconds or (b ~= "text")) then
 									if (unitlists[b] ~= nil) then
 										if (#unitlists[b] > 0) then
-											if not iconds then
+											if #iconds == 0 then
 												result = false
 											else
 												for c,d in ipairs(unitlists[b]) do
-													if testcond(iconds,d,x,y) then
+													if testcondstack(iconds,d,x,y) then
 														result = false
 														break
 													end
@@ -581,11 +581,11 @@ function testcond(conds,unitid,x_,y_)
 									local empties = findempty()
 									
 									if (#findempty > 0) then
-										if not iconds then
+										if #iconds == 0 then
 											result = false
 										else
 											for c,d in ipairs(findempty) do
-												if testcond(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
 													result = false
 													break
 												end
@@ -711,4 +711,13 @@ function testcond(conds,unitid,x_,y_)
 	end
 	
 	return result
+end
+
+function testcondstack(conds,unitid,x,y)
+	for _,cond in ipairs(conds) do
+		if not testcond(cond,unitid,x,y) then
+			return false
+		end
+	end
+	return true
 end

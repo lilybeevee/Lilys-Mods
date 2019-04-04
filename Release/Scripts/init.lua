@@ -10,6 +10,9 @@ function mod.load(dir)
 	loadscript(dir .. "movement")
 	loadscript(dir .. "rules")
 	loadscript(dir .. "conditions")
+	loadscript(dir .. "syntax")
+	loadscript(dir .. "tools")
+	loadscript(dir .. "undo")
 
 	loadscript(dir .. "options")
 
@@ -25,6 +28,9 @@ function mod.unload(dir)
 	loadscript("Data/movement")
 	loadscript("Data/rules")
 	loadscript("Data/conditions")
+	loadscript("Data/syntax")
+	loadscript("Data/tools")
+	loadscript("Data/undo")
 end
 
 mod.alltiles = {
@@ -39,7 +45,7 @@ mod.alltiles = {
 
 function mod.addblock(tile)
 	if mod.tilecount >= 6 then
-		error("Please only enable 6 or less features")
+		return
 	end
 
 	local tileindex = 121 + mod.tilecount

@@ -394,6 +394,9 @@ function docode(firstwords)
 										if (tiletype == 0) or (tiletype == 2) then
 											prevstage = stage
 											stage = 5
+										elseif (tiletype == 3) and doingcond and activemod.enabled["condition stacking"] then
+											prevstage = stage
+											stage = 1
 										elseif (tiletype ~= 4) then
 											stage = -1
 											stop = true
@@ -671,7 +674,11 @@ function docode(firstwords)
 											elseif (wtype == 3) then
 												allowedwords = {0}
 												local cond = {prefix .. wname, wtype, wid}
-												table.insert(group_conds, {cond, {}})
+												if not condstack then
+													table.insert(group_conds, {cond, {}})
+												else
+													table.insert(group, {cond, {}})
+												end
 											elseif (wtype == 7) then
 												allowedwords = argtype
 												allowedwords_extra = argextra

@@ -18,6 +18,9 @@ mod.enabled["bait"] = true
 mod.enabled["lure"] = true
 mod.enabled["turn"] = false
 
+-- Mechanics
+mod.enabled["condition stacking"] = true
+
 
 --------------------------------
 --[[ ADVANCED BLOCK OPTIONS ]]--
