@@ -34,6 +34,7 @@ mod.alltiles = {
 	"turn",
 	"copy",
 	"with",
+	"still",
 }
 
 function mod.addblock(tile)

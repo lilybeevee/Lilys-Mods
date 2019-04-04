@@ -1,5 +1,4 @@
 function movecommand(ox,oy,dir_,playerid_)
-	updatenotstill()
 	statusblock()
 	movelist = {}
 	hasmoved = {}
@@ -565,7 +564,7 @@ function movecommand(ox,oy,dir_,playerid_)
 			
 			if (#movelist > 0) then
 				for i,data in ipairs(movelist) do
-					table.insert(hasmoved,data[1])
+					hasmoved[data[1]] = true
 					move(data[1],data[2],data[3],data[4],data[5])
 				end
 			end
@@ -605,7 +604,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,levelpush})
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		updateundo = true
-		table.insert(hasmoved,1)
+		hasmoved[1] = true
 	end
 	
 	if (levelpull >= 0) then
@@ -617,8 +616,10 @@ function movecommand(ox,oy,dir_,playerid_)
 		addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,levelpull})
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		updateundo = true
-		table.insert(hasmoved,1)
+		hasmoved[1] = true
 	end
+
+	updatestill()
 
 	doupdate()
 	code()
@@ -632,19 +633,38 @@ function movecommand(ox,oy,dir_,playerid_)
 	end
 end
 
-function updatenotstill()
+function updatestill()
 	if not activemod.enabled["still"] then
 		return
 	end
-	donemove = donemove + 1
-	if donemove > 1 then
-		notstill = {}
-		for _,v in ipairs(hasmoved) do
-			notstill[v] = true
+	newstill = {}
+	newstillid = ""
+	for _,unit in ipairs(units) do
+		if hasmoved[unit.fixed] then
+			newstill[unit.fixed] = false
+			newstillid = newstillid .. getname(unit) .. "0"
+		else
+			newstill[unit.fixed] = true
+			newstillid = newstillid .. getname(unit) .. "1"
 		end
 	end
-	addundo({"still",notstill,donemove-1})
-	updateundo = true
+	newstill[1] = (hasmoved[1] == true)
+	if newstill[1] then
+		newstillid = newstillid .. "level1"
+	end
+	newstill[2] = (hasmoved[2] == true)
+	if newstill[2] then
+		newstillid = newstillid .. "empty1"
+	end
+	addundo({"still",still,stillid,donemove})
+	if donemove < 1 or newstillid ~= stillid then
+		donemove = donemove + 1
+		updateundo = true
+	end
+	if donemove >= 1 then
+		still = newstill
+		stillid = newstillid
+	end
 end
 
 function check(unitid,x,y,dir,pulling_,reason)

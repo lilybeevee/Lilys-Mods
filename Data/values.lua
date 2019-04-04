@@ -1,6 +1,6 @@
 activemod = {}
 activemod.enabled = {}
-activemod.enabled["still"] = false
+activemod.enabled["still"] = true
 activemod.enabled["condition stacking"] = true
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
@@ -1970,7 +1970,7 @@ tileslist =
 		type = 2,
 		colour = {1, 3},
 		active = {1, 4},
-		tile = {3, 12},
+		tile = {5, 12},
 		grid = {11, 3},
 		layer = 20,
 	},]]

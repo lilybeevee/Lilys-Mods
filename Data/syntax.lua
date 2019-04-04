@@ -47,7 +47,8 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	mapdir = 3
 	levelconversions = {}
 
-	notstill = nil
+	still = {}
+	stillid = ""
 	donemove = 0
 	
 	HACK_MOVES = 0
@@ -192,7 +193,8 @@ function clear()
 	maprotation = 0
 	mapdir = 3
 
-	notstill = {}
+	still = {}
+	stillid = ""
 	donemove = 0
 	
 	HACK_MOVES = 0

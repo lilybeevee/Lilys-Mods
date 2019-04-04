@@ -646,15 +646,15 @@ function testcond(conds,unitid,x_,y_)
 					end
 				elseif (condtype == "still") then
 					valid = true
-					if donemove <= 1 or (donemove > 1 and notstill[unitid] == true) then
+					if still[unitid] ~= true then
 						result = false
 					end
 				elseif (condtype == "not still") then
 					valid = true
-					if donemove <= 1 or (donemove > 1 and not notstill[unitid]) then
+					if still[unitid] ~= false then
 						result = false
 					end
-				elseif (isnot == "with") then
+				elseif (condtype == "with") then
 					valid = true
 
 					local isfirst = false
@@ -666,12 +666,7 @@ function testcond(conds,unitid,x_,y_)
 					if not withrecursion[conds] then
 						withrecursion[conds] = true
 						for a,b in ipairs(params) do
-							local badparam = not hasfeature(name,"is",b,unitid,x,y)
-							if isnot ~= condtype then
-								badparam = not badparam
-							end
-
-							if badparam then
+							if not hasfeature(name,"is",b,unitid,x,y) then
 								result = false
 							end
 						end
@@ -680,7 +675,30 @@ function testcond(conds,unitid,x_,y_)
 							withrecursion = nil
 						end
 					else
-						result = (isnot ~= condtype)
+						result = false
+					end
+				elseif (condtype == "not with") then
+					valid = true
+
+					local isfirst = false
+					if withrecursion == nil then
+						isfirst = true
+						withrecursion = {}
+					end
+
+					if not withrecursion[conds] then
+						withrecursion[conds] = true
+						for a,b in ipairs(params) do
+							if hasfeature(name,"is",b,unitid,x,y) then
+								result = false
+							end
+						end
+
+						if isfirst then
+							withrecursion = nil
+						end
+					else
+						result = false
 					end
 				end
 			end

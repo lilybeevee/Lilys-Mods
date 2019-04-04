@@ -244,7 +244,7 @@ function undo()
 					if (paradox[uid] == nil) then
 						local unitid = getunitid(line[3])
 						
-						-- Kökkö ratkaisu!
+						-- Kï¿½kkï¿½ ratkaisu!
 						if (unitid ~= nil) then
 							local unit = mmf.newObject(unitid)
 							unit.values[FLOAT] = tonumber(line[4])
@@ -264,8 +264,9 @@ function undo()
 					local unit = mmf.newObject(unitid)
 					unit.values[A] = line[5]
 				elseif (style == "still") then
-					notstill = line[2]
-					donemove = line[3]
+					still = line[2]
+					stillid = line[3]
+					donemove = line[4]
 				end
 			end
 		end

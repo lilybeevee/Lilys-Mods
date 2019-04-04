@@ -2,15 +2,15 @@
 changed=object048,
 
 [general]
-name=first level
-selectorX=-1
-paletteroot=1
-paths=0
-customparent=1level
-palette=default.png
-levels=0
-specials=0
-leveltype=0
-unlockcount=0
 selectorY=-1
+unlockcount=0
+leveltype=0
+specials=0
+levels=0
+palette=default.png
+customparent=1level
+paths=0
+paletteroot=1
+selectorX=-1
+name=first level
 

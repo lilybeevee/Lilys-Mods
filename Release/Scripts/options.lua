@@ -11,11 +11,12 @@ local mod = activemod
 mod.enabled["means"] = true
 mod.enabled["copy"] = true
 mod.enabled["with"] = true
+mod.enabled["still"] = true
 
 -- Properties
 mod.enabled["bait"] = true
 mod.enabled["lure"] = true
-mod.enabled["turn"] = true
+mod.enabled["turn"] = false
 
 
 --------------------------------
@@ -32,6 +33,7 @@ mod.tile["means"] = {
 	operatortype = "verb_all",
 	colour = {0, 1},
 	active = {0, 3},
+	tile = {0, 12},
 	layer = 20,
 }
 
@@ -45,6 +47,7 @@ mod.tile["copy"] = {
 	operatortype = "verb",
 	colour = {2, 1},
 	active = {2, 2},
+	tile = {4, 12},
 	layer = 20,
 }
 
@@ -59,6 +62,21 @@ mod.tile["with"] = {
 	argtype = {2},
 	colour = {0, 1},
 	active = {0, 3},
+	tile = {3, 12},
+	layer = 20,
+}
+
+mod.tile["still"] = {
+	name = "text_still",
+	sprite = "text_still",
+	sprite_in_root = true,
+	unittype = "text",
+	tiling = -1,
+	type = 3,
+	operatortype = "cond_start",
+	colour = {0, 1},
+	active = {0, 3},
+	tile = {6, 12},
 	layer = 20,
 }
 
@@ -71,6 +89,7 @@ mod.tile["bait"] = {
 	type = 2,
 	colour = {3, 2},
 	active = {3, 3},
+	tile = {1, 12},
 	layer = 20,
 }
 
@@ -83,6 +102,7 @@ mod.tile["lure"] = {
 	type = 2,
 	colour = {2, 2},
 	active = {2, 3},
+	tile = {2, 12},
 	layer = 20,
 }
 
@@ -95,5 +115,8 @@ mod.tile["turn"] = {
 	type = 2,
 	colour = {1, 3},
 	active = {1, 4},
+	tile = {5, 12},
 	layer = 20,
 }
+
+-- Current highest tile: {6, 12}
