@@ -48,11 +48,10 @@ function mod.addblock(tile)
 		return
 	end
 
-	local tileindex = 121 + mod.tilecount
+	local tileindex = 120 + mod.tilecount
 	local tilename = "object" .. tileindex
 
 	tileslist[tilename] = tile
-	tileslist[tilename].tile = {mod.tilecount, 12}
 	tileslist[tilename].grid = {11, mod.tilecount}
 
 	mod.tilecount = mod.tilecount + 1
