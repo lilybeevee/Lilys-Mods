@@ -1,6 +1,6 @@
 activemod = {}
 activemod.enabled = {}
-activemod.enabled["still"] = true
+activemod.enabled["still"] = false
 activemod.enabled["condition stacking"] = true
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
@@ -157,7 +157,7 @@ binds =
 		"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
 		"1","2","3","4","5","6","7","8","9","0",
 		"Right","Up","Left","Down",
-		".",",","-","+","´","'","¨","§","<",
+		".",",","-","+","ï¿½","'","ï¿½","ï¿½","<",
 		"Control","Shift","Return","Esc","Space","Backspace",
 	},
 }
@@ -1925,11 +1925,11 @@ tileslist =
 		operatortype = "verb",
 		colour = {2, 1},
 		active = {2, 2},
-		tile = {3, 12},
+		tile = {4, 12},
 		grid = {11, 4},
 		layer = 20,
 	},
-	object124 =
+	object125 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1941,11 +1941,11 @@ tileslist =
 		argtype = {2},
 		colour = {0, 1},
 		active = {0, 3},
-		tile = {4, 12},
-		grid = {11, 5},
+		tile = {3, 12},
+		grid = {11, 3},
 		layer = 20,
 	},
-	object125 =
+	object124 =
 	{
 		name = "text_still",
 		sprite = "text_still",
@@ -1957,7 +1957,7 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {5, 12},
-		grid = {11, 3},
+		grid = {11, 5},
 		layer = 20,
 	},
 	--[[object125 = 
@@ -1970,7 +1970,7 @@ tileslist =
 		type = 2,
 		colour = {1, 3},
 		active = {1, 4},
-		tile = {5, 12},
+		tile = {3, 12},
 		grid = {11, 3},
 		layer = 20,
 	},]]

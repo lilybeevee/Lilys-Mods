@@ -41,11 +41,13 @@ function testcond(conds,unitid,x_,y_)
 				local iconds = nil
 
 				local params = {}
-				for a,b in ipairs(params_) do
-					if type(b) == "table" then
-						iconds = b
-					else
-						table.insert(params,b)
+				if params_ then
+					for a,b in ipairs(params_) do
+						if type(b) == "table" then
+							iconds = b
+						else
+							table.insert(params,b)
+						end
 					end
 				end
 				

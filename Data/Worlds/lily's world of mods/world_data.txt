@@ -1,7 +1,8 @@
-[levels]
-levelid=2
-
 [general]
-name=lily's world of mods
-start=2level
 firstlevel=1level
+start=2level
+name=lily's world of mods
+
+[levels]
+levelid=4
+
