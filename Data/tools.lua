@@ -1299,3 +1299,25 @@ function genflowercolour()
 	
 	return result,c1,c2
 end
+
+function livecheck(unitid)
+	if liveturn then
+		if not liveunits[unitid] then
+			return false
+		end
+	else
+		local name = ""
+		if unitid ~= 2 and unitid ~= 1 then
+			local unit = mmf.newObject(unitid)
+			name = getname(unit)
+		elseif unitid == 2 then
+			name = "empty"
+		elseif unitid == 1 then
+			name = "level"
+		end
+		if hasfeature(name,"is","live",unitid) then
+			return false
+		end
+	end
+	return true
+end

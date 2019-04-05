@@ -1,16 +1,20 @@
-function newundo()
-	if (updateundo == false) or (doundo == false) then
+function newundo(force)
+	if ((updateundo == false) or (doundo == false)) and not force then
 		table.remove(undobuffer, 1)
 	else
 		generaldata2.values[UNDOTOOLTIPTIMER] = 0
 	end
 	
-	table.insert(undobuffer, 1, {})
+	if not liveturn or force then
+		table.insert(undobuffer, 1, {})
+	end
 	
 	local thisundo = undobuffer[1]
 	
 	if (thisundo ~= nil) then
-		thisundo.wordunits = {}
+		if thisundo.wordunits == nil or not liveturn or force then
+			thisundo.wordunits = {}
+		end
 		
 		if (#wordunits > 0) then
 			for i,v in ipairs(wordunits) do
@@ -42,6 +46,9 @@ end
 
 
 function undo()
+	if liveturn then
+		newundo(true)
+	end
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
 		

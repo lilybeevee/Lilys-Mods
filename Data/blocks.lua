@@ -100,7 +100,7 @@ function moveblock()
 			
 			if (#allfollows > 0) then
 				for k,l in ipairs(allfollows) do
-					if (issleep(l) == false) then
+					if (issleep(l) == false) and livecheck(l) then
 						local unit = mmf.newObject(l)
 						local x,y,name = unit.values[XPOS],unit.values[YPOS],unit.strings[UNITNAME]
 						local unitrules = {}
@@ -181,7 +181,7 @@ function moveblock()
 	doupdate()
 	
 	for i,unitid in ipairs(istele) do
-		if (isgone(unitid) == false) then
+		if (isgone(unitid) == false) and livecheck(unitid) then
 			local unit = mmf.newObject(unitid)
 			local name = getname(unit)
 			local x,y = unit.values[XPOS],unit.values[YPOS]
@@ -256,7 +256,7 @@ function moveblock()
 	end
 	
 	for a,unitid in ipairs(isshift) do
-		if (unitid ~= 2) and (unitid ~= 1) then
+		if (unitid ~= 2) and (unitid ~= 1) and livecheck(unitid) then
 			local unit = mmf.newObject(unitid)
 			local x,y,dir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
 			
@@ -442,45 +442,47 @@ function block(small_)
 		local ismore = getunitswitheffect("more",delthese)
 		
 		for id,unit in ipairs(ismore) do
-			local x,y = unit.values[XPOS],unit.values[YPOS]
-			local name = unit.strings[UNITNAME]
-			local doblocks = {}
-			
-			for i=1,4 do
-				local drs = ndirs[i]
-				ox = drs[1]
-				oy = drs[2]
+			if livecheck(unit.fixed) then
+				local x,y = unit.values[XPOS],unit.values[YPOS]
+				local name = unit.strings[UNITNAME]
+				local doblocks = {}
 				
-				local valid = true
-				local obs = findobstacle(x+ox,y+oy)
-				local tileid = (x+ox) + (y+oy) * roomsizex
-				
-				if (#obs > 0) then
-					for a,b in ipairs(obs) do
-						if (b == -1) then
-							valid = false
-						elseif (b ~= 0) and (b ~= -1) then
-							local bunit = mmf.newObject(b)
-							local obsname = bunit.strings[UNITNAME]
-							local obstype = bunit.strings[UNITTYPE]
-							
-							if (obstype == "text") then
-								obsname = "text"
-							end
-							
-							local obsstop = hasfeature(obsname,"is","stop",b,x+ox,y+oy)
-							local obspush = hasfeature(obsname,"is","push",b,x+ox,y+oy)
-							local obspull = hasfeature(obsname,"is","pull",b,x+ox,y+oy)
-							
-							if (obsstop ~= nil) or (obspush ~= nil) or (obspull ~= nil) or (obsname == name) or (obstype == "text") then
+				for i=1,4 do
+					local drs = ndirs[i]
+					ox = drs[1]
+					oy = drs[2]
+					
+					local valid = true
+					local obs = findobstacle(x+ox,y+oy)
+					local tileid = (x+ox) + (y+oy) * roomsizex
+					
+					if (#obs > 0) then
+						for a,b in ipairs(obs) do
+							if (b == -1) then
 								valid = false
+							elseif (b ~= 0) and (b ~= -1) then
+								local bunit = mmf.newObject(b)
+								local obsname = bunit.strings[UNITNAME]
+								local obstype = bunit.strings[UNITTYPE]
+								
+								if (obstype == "text") then
+									obsname = "text"
+								end
+								
+								local obsstop = hasfeature(obsname,"is","stop",b,x+ox,y+oy)
+								local obspush = hasfeature(obsname,"is","push",b,x+ox,y+oy)
+								local obspull = hasfeature(obsname,"is","pull",b,x+ox,y+oy)
+								
+								if (obsstop ~= nil) or (obspush ~= nil) or (obspull ~= nil) or (obsname == name) or (obstype == "text") then
+									valid = false
+								end
 							end
 						end
 					end
-				end
-				
-				if valid then
-					local newunit = copy(unit.fixed,x+ox,y+oy)
+					
+					if valid then
+						local newunit = copy(unit.fixed,x+ox,y+oy)
+					end
 				end
 			end
 		end
@@ -793,6 +795,33 @@ function block(small_)
 					end
 				end
 			end
+
+			local reset = findfeature(nil,"is","reset")
+
+			if reset ~= nil then
+				for a,b in ipairs(reset) do
+					if b[1] ~= "empty" then
+						local resetunits = findtype(b,x,y,0)
+
+						if #resetunits > 0 then
+							for c,d in ipairs(resetunits) do
+								if floating(d,unit.fixed) then
+									local pmult,sound = checkeffecthistory("reset")
+									generaldata.values[FASTTRANSITION] = 1
+									MF_playsound("restart")
+									liveturn = false
+									while #undobuffer > 1 do
+										undo()
+									end
+									undobuffer = {}
+									newundo()
+									return
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 	end
 	
@@ -811,6 +840,10 @@ function block(small_)
 				
 				local domake = true
 				local exists = false
+
+				if not livecheck(unit.fixed) then
+					domake = false
+				end
 				
 				if (v ~= "text") and (v ~= "all") then
 					for b,mat in pairs(objectlist) do

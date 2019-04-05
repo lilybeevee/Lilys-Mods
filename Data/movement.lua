@@ -1,5 +1,13 @@
 function movecommand(ox,oy,dir_,playerid_)
-	statusblock()
+	local statusblockids = nil
+	if liveturn then
+		statusblockids = {}
+		for id,v in pairs(liveunits) do
+			table.insert(statusblockids, id)
+		end
+	end
+	statusblock(statusblockids)
+
 	movelist = {}
 	hasmoved = {}
 	
@@ -263,6 +271,14 @@ function movecommand(ox,oy,dir_,playerid_)
 				break
 			end
 		end
+
+		local new_moving_units = {}
+		for i,data in ipairs(moving_units) do
+			if data.reason == "you" or data.reason == "copy" or livecheck(data.unitid) then
+				table.insert(new_moving_units, data)
+			end
+		end
+		moving_units = new_moving_units
 		
 		local done = false
 		local state = 0
@@ -637,29 +653,44 @@ function updatestill()
 	if not activemod.enabled["still"] then
 		return
 	end
-	newstill = {}
-	newstillid = ""
+	local newstill = {}
+	local newstillid = ""
 	for _,unit in ipairs(units) do
-		if hasmoved[unit.fixed] then
-			newstill[unit.fixed] = false
-			newstillid = newstillid .. getname(unit) .. "0"
+		if livecheck(unit.fixed) then
+			if hasmoved[unit.fixed] then
+				newstill[unit.fixed] = false
+				newstillid = newstillid .. getname(unit) .. "0"
+			else
+				newstill[unit.fixed] = true
+				newstillid = newstillid .. getname(unit) .. "1"
+			end
 		else
-			newstill[unit.fixed] = true
-			newstillid = newstillid .. getname(unit) .. "1"
+			if still[unit.fixed] ~= nil then
+				newstill[unit.fixed] = still[unit.fixed]
+				if still[unit.fixed] == true then
+					newstillid = newstillid .. getname(unit) .. "1"
+				else
+					newstillid = newstillid .. getname(unit) .. "0"
+				end
+			end
 		end
 	end
-	newstill[1] = (hasmoved[1] == true)
+	if livecheck(1) then
+		newstill[1] = (hasmoved[1] == true)
+	end
 	if newstill[1] then
 		newstillid = newstillid .. "level1"
 	end
-	newstill[2] = (hasmoved[2] == true)
+	if livecheck(2) then
+		newstill[2] = (hasmoved[2] == true)
+	end
 	if newstill[2] then
 		newstillid = newstillid .. "empty1"
 	end
 	addundo({"still",still,stillid,donemove})
 	if donemove < 1 or newstillid ~= stillid then
 		donemove = donemove + 1
-		updateundo = true
+		doundo = true
 	end
 	if donemove >= 1 then
 		still = newstill

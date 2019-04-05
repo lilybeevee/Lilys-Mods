@@ -372,7 +372,7 @@ function docode(firstwords)
 												stage2reached = true
 												prevstage = stage
 												stage = 3
-											elseif ((tiletype == 7) and (not doingcond or activemod.enabled["condition stacking"]) and (stage2reached == false)) then
+											elseif ((tiletype == 7) and (not doingcond or activemod.condition_stacking) and (stage2reached == false)) then
 												doingcond = true
 												prevstage = stage
 												stage = 3
@@ -394,7 +394,7 @@ function docode(firstwords)
 										if (tiletype == 0) or (tiletype == 2) then
 											prevstage = stage
 											stage = 5
-										elseif (tiletype == 3) and doingcond and activemod.enabled["condition stacking"] then
+										elseif (tiletype == 3) and doingcond and activemod.condition_stacking then
 											prevstage = stage
 											stage = 1
 										elseif (tiletype ~= 4) then
@@ -1183,7 +1183,7 @@ function postrules()
 								end
 								newruleids[b] = 1
 								
-								if (ruleids[b] == nil) and (#undobuffer > 1) then
+								if (ruleids[b] == nil) and ((#undobuffer > 1) or liveturn) then
 									if (ruleeffectlimiter[b] == nil) then
 										local x,y = bunit.values[XPOS],bunit.values[YPOS]
 										local c1,c2 = getcolour(b,"active")

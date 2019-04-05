@@ -1,7 +1,9 @@
 activemod = {}
 activemod.enabled = {}
 activemod.enabled["still"] = true
-activemod.enabled["condition stacking"] = true
+activemod.enabled["live"] = true
+activemod.condition_stacking = true
+activemod.live_speed = 20
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
@@ -1914,7 +1916,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	object123 = 
+	--[[object123 = 
 	{
 		name = "text_copy",
 		sprite = "text_copy",
@@ -1928,8 +1930,8 @@ tileslist =
 		tile = {4, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
-	object125 =
+	},]]
+	--[[object125 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1944,7 +1946,7 @@ tileslist =
 		tile = {3, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
+	},]]
 	object124 =
 	{
 		name = "text_still",
@@ -1974,4 +1976,30 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
+	object125 = {
+		name = "text_reset",
+		sprite = "text_reset",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {3, 0},
+		active = {3, 1},
+		tile = {7, 12},
+		grid = {11, 3},
+		layer = 20,
+	},
+	object123 = {
+		name = "text_live",
+		sprite = "text_live",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {0, 2},
+		active = {0, 3},
+		tile = {8, 12},
+		grid = {11, 4},
+		layer = 20,
+	}
 }

@@ -50,6 +50,8 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	still = {}
 	stillid = ""
 	donemove = 0
+	levelmovetimer = 0
+	liveturn = false
 	
 	HACK_MOVES = 0
 	
@@ -196,6 +198,8 @@ function clear()
 	still = {}
 	stillid = ""
 	donemove = 0
+	levelmovetimer = 0
+	liveturn = false
 	
 	HACK_MOVES = 0
 	
@@ -224,6 +228,7 @@ function command(key,player_)
 		local oy = drs[2]
 		local dir = keyid
 		
+		liveturn = false
 		movecommand(ox,oy,dir,player)
 		MF_update()
 	end
