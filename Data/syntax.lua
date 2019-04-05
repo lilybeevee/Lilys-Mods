@@ -50,8 +50,8 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	still = {}
 	stillid = ""
 	donemove = 0
-	levelmovetimer = 0
-	liveturn = false
+	autotimer = 0
+	autoturn = false
 	
 	HACK_MOVES = 0
 	
@@ -198,8 +198,8 @@ function clear()
 	still = {}
 	stillid = ""
 	donemove = 0
-	levelmovetimer = 0
-	liveturn = false
+	autotimer = 0
+	autoturn = false
 	
 	HACK_MOVES = 0
 	
@@ -228,9 +228,11 @@ function command(key,player_)
 		local oy = drs[2]
 		local dir = keyid
 		
-		liveturn = false
+		autoturn = false
+		print("standard turn start")
 		movecommand(ox,oy,dir,player)
 		MF_update()
+		print("standard turn end")
 	end
 	
 	if (keyid == 5) then

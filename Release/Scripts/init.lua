@@ -6,7 +6,9 @@ mod.tile = {}
 
 mod.tilecount = 0
 
+-- Calls when a world is first loaded
 function mod.load(dir)
+	-- Load mod's script replacements
 	loadscript(dir .. "movement")
 	loadscript(dir .. "rules")
 	loadscript(dir .. "conditions")
@@ -14,8 +16,10 @@ function mod.load(dir)
 	loadscript(dir .. "tools")
 	loadscript(dir .. "undo")
 
+	-- Load other script for mod config
 	loadscript(dir .. "options")
 
+	-- Load mod tiles enabled in options.lua
 	for _,v in ipairs(mod.alltiles) do
 		if mod.enabled[v] then
 			mod.addblock(mod.tile[v])
@@ -23,8 +27,12 @@ function mod.load(dir)
 	end
 end
 
+-- Calls when another world is loaded while this mod is active
 function mod.unload(dir)
+	-- Remove custom tiles
 	loadscript("Data/values")
+
+	-- Restore modified scripts
 	loadscript("Data/movement")
 	loadscript("Data/rules")
 	loadscript("Data/conditions")

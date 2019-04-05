@@ -1300,9 +1300,9 @@ function genflowercolour()
 	return result,c1,c2
 end
 
-function livecheck(unitid)
-	if liveturn then
-		if not liveunits[unitid] then
+function autocheck(unitid)
+	if autoturn then
+		if not autounits[unitid] then
 			return false
 		end
 	else
@@ -1315,7 +1315,7 @@ function livecheck(unitid)
 		elseif unitid == 1 then
 			name = "level"
 		end
-		if hasfeature(name,"is","live",unitid) then
+		if hasfeature(name,"is","auto",unitid) then
 			return false
 		end
 	end

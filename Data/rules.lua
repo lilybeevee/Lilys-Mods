@@ -1183,7 +1183,7 @@ function postrules()
 								end
 								newruleids[b] = 1
 								
-								if (ruleids[b] == nil) and ((#undobuffer > 1) or liveturn) then
+								if (ruleids[b] == nil) and ((#undobuffer > 1) or autoturn) then
 									if (ruleeffectlimiter[b] == nil) then
 										local x,y = bunit.values[XPOS],bunit.values[YPOS]
 										local c1,c2 = getcolour(b,"active")

@@ -1,9 +1,9 @@
 activemod = {}
 activemod.enabled = {}
 activemod.enabled["still"] = true
-activemod.enabled["live"] = true
+activemod.enabled["auto"] = true
 activemod.condition_stacking = true
-activemod.live_speed = 20
+activemod.auto_speed = 20
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
@@ -1990,8 +1990,8 @@ tileslist =
 		layer = 20,
 	},
 	object123 = {
-		name = "text_live",
-		sprite = "text_live",
+		name = "text_auto",
+		sprite = "text_auto",
 		sprite_in_root = true,
 		unittype = "text",
 		tiling = -1,

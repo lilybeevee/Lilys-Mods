@@ -1,8 +1,8 @@
 function movecommand(ox,oy,dir_,playerid_)
 	local statusblockids = nil
-	if liveturn then
+	if autoturn then
 		statusblockids = {}
-		for id,v in pairs(liveunits) do
+		for id,v in pairs(autounits) do
 			table.insert(statusblockids, id)
 		end
 	end
@@ -274,7 +274,7 @@ function movecommand(ox,oy,dir_,playerid_)
 
 		local new_moving_units = {}
 		for i,data in ipairs(moving_units) do
-			if data.reason == "you" or data.reason == "copy" or livecheck(data.unitid) then
+			if data.reason == "you" or data.reason == "copy" or autocheck(data.unitid) then
 				table.insert(new_moving_units, data)
 			end
 		end
@@ -656,7 +656,7 @@ function updatestill()
 	local newstill = {}
 	local newstillid = ""
 	for _,unit in ipairs(units) do
-		if livecheck(unit.fixed) then
+		if autocheck(unit.fixed) then
 			if hasmoved[unit.fixed] then
 				newstill[unit.fixed] = false
 				newstillid = newstillid .. getname(unit) .. "0"
@@ -675,13 +675,13 @@ function updatestill()
 			end
 		end
 	end
-	if livecheck(1) then
+	if autocheck(1) then
 		newstill[1] = (hasmoved[1] == true)
 	end
 	if newstill[1] then
 		newstillid = newstillid .. "level1"
 	end
-	if livecheck(2) then
+	if autocheck(2) then
 		newstill[2] = (hasmoved[2] == true)
 	end
 	if newstill[2] then

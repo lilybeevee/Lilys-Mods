@@ -5,14 +5,15 @@ function newundo(force)
 		generaldata2.values[UNDOTOOLTIPTIMER] = 0
 	end
 	
-	if not liveturn or force then
+	if not autoturn or force then
 		table.insert(undobuffer, 1, {})
+		print("made real new undo")
 	end
 	
 	local thisundo = undobuffer[1]
 	
 	if (thisundo ~= nil) then
-		if thisundo.wordunits == nil or not liveturn or force then
+		if thisundo.wordunits == nil or not autoturn or force then
 			thisundo.wordunits = {}
 		end
 		
@@ -29,11 +30,21 @@ end
 
 function addundo(line)
 	if doundo then
+		if #undobuffer == 1 and autoturn then
+			newundo(true)
+		end
+
 		local currentundo = undobuffer[1]
+		if autoturn then
+			currentundo = undobuffer[2]
+			updateundo = true
+		end
 		local text = tostring(#undobuffer) .. ", "
 		
 		table.insert(currentundo, 1, {})
 		currentundo[1] = {}
+
+		table.insert(line, autotimer)
 		
 		for i,v in ipairs(line) do
 			table.insert(currentundo[1], v)
@@ -46,15 +57,13 @@ end
 
 
 function undo()
-	if liveturn then
-		newundo(true)
-	end
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
 		
 		if (currentundo ~= nil) then
 			for i,line in ipairs(currentundo) do
 				local style = line[1]
+				autotimer = line[#line]
 				
 				if (style == "update") then
 					local uid = line[9]

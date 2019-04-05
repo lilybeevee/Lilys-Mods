@@ -100,7 +100,7 @@ function moveblock()
 			
 			if (#allfollows > 0) then
 				for k,l in ipairs(allfollows) do
-					if (issleep(l) == false) and livecheck(l) then
+					if (issleep(l) == false) and autocheck(l) then
 						local unit = mmf.newObject(l)
 						local x,y,name = unit.values[XPOS],unit.values[YPOS],unit.strings[UNITNAME]
 						local unitrules = {}
@@ -181,7 +181,7 @@ function moveblock()
 	doupdate()
 	
 	for i,unitid in ipairs(istele) do
-		if (isgone(unitid) == false) and livecheck(unitid) then
+		if (isgone(unitid) == false) and autocheck(unitid) then
 			local unit = mmf.newObject(unitid)
 			local name = getname(unit)
 			local x,y = unit.values[XPOS],unit.values[YPOS]
@@ -256,7 +256,7 @@ function moveblock()
 	end
 	
 	for a,unitid in ipairs(isshift) do
-		if (unitid ~= 2) and (unitid ~= 1) and livecheck(unitid) then
+		if (unitid ~= 2) and (unitid ~= 1) and autocheck(unitid) then
 			local unit = mmf.newObject(unitid)
 			local x,y,dir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
 			
@@ -442,7 +442,7 @@ function block(small_)
 		local ismore = getunitswitheffect("more",delthese)
 		
 		for id,unit in ipairs(ismore) do
-			if livecheck(unit.fixed) then
+			if autocheck(unit.fixed) then
 				local x,y = unit.values[XPOS],unit.values[YPOS]
 				local name = unit.strings[UNITNAME]
 				local doblocks = {}
@@ -809,7 +809,7 @@ function block(small_)
 									local pmult,sound = checkeffecthistory("reset")
 									generaldata.values[FASTTRANSITION] = 1
 									MF_playsound("restart")
-									liveturn = false
+									autoturn = false
 									while #undobuffer > 1 do
 										undo()
 									end
@@ -841,7 +841,7 @@ function block(small_)
 				local domake = true
 				local exists = false
 
-				if not livecheck(unit.fixed) then
+				if not autocheck(unit.fixed) then
 					domake = false
 				end
 				

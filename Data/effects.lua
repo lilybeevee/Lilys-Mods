@@ -11,8 +11,8 @@ function effects(timer)
 	local rnd = math.random(2,4)
 	doeffect(timer,"end","unlock",1,1,10,{1,rnd},"inwards")
 
-	if activemod.enabled["live"] then
-		doliveturn()
+	if activemod.enabled["auto"] then
+		doautoturn()
 	end
 	
 	--rnd = math.random(0,2)
@@ -531,10 +531,10 @@ function doparticles(name,x,y,count,c1,c2,layer_,zoom_)
 	end
 end
 
-function doliveturn()
-	levelmovetimer = levelmovetimer + 1
+function doautoturn()
+	autotimer = autotimer + 1
 
-	local live = findallfeature(nil,"is","live")
+	local live = findallfeature(nil,"is","auto")
 	local livecount = {}
 
 	for _,unitid in ipairs(live) do
@@ -549,17 +549,19 @@ function doliveturn()
 	local hasfinals = false
 
 	for unitid,count in pairs(livecount) do
-		local movespeed = math.max(1, math.floor(activemod.live_speed/count))
-		if levelmovetimer % movespeed == 0 then
+		local movespeed = math.max(1, math.floor(activemod.auto_speed/count))
+		if autotimer % movespeed == 0 then
 			finals[unitid] = true
 			hasfinals = true
 		end
 	end
 
 	if hasfinals then
-		liveunits = finals
-		liveturn = true
+		autounits = finals
+		autoturn = true
+		print("final turn start")
 		movecommand(0,0,4,1)
 		MF_update()
+		print("final turn end")
 	end
 end
