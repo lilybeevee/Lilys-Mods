@@ -19,7 +19,7 @@ function statusblock(ids,undoing_)
 		if (undoing == false) then
 			local oldfloat = unit.values[FLOAT]
 			local newfloat = 0
-			if (unit.values[FLOAT] < 2) then
+			if (unit.values[FLOAT] < 2) and (generaldata.values[MODE] == 0) then
 				unit.values[FLOAT] = 0
 			end
 			
@@ -29,12 +29,12 @@ function statusblock(ids,undoing_)
 			local left = hasfeature(name,"is","left",unit.fixed)
 			local down = hasfeature(name,"is","down",unit.fixed)
 			
-			if (isfloat ~= nil) then
+			if (isfloat ~= nil) and (generaldata.values[MODE] == 0) then
 				unit.values[FLOAT] = 1
 				newfloat = 1
 			end
 			
-			if (oldfloat ~= newfloat) then
+			if (oldfloat ~= newfloat) and (generaldata.values[MODE] == 0) then
 				addaction(unit.fixed,{"dofloat",oldfloat,newfloat,unit.values[ID],unit.fixed,name})
 			end
 			
@@ -50,6 +50,24 @@ function statusblock(ids,undoing_)
 				end
 				if (down ~= nil) then
 					updatedir(unit.fixed,3)
+				end
+			end
+			
+			if (generaldata.values[MODE] == 0) then
+				if (featureindex["back"] ~= nil) then
+					local isback = hasfeature(name,"is","back",unit.fixed)
+					
+					if (isback == nil) then
+						unit.values[MISC_A] = 0
+						unit.values[MISC_B] = 0
+					end
+					
+					if (isback ~= nil) and (unit.values[MISC_A] == 0) then
+						unit.values[MISC_A] = #undobuffer
+					end
+				else
+					unit.values[MISC_A] = 0
+					unit.values[MISC_B] = 0
 				end
 			end
 		end
@@ -170,6 +188,192 @@ function moveblock()
 			
 							if (targetdir >= 0) then
 								updatedir(unit.fixed,targetdir)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if memoryneeded then
+		--[[
+		for name,memgroup in pairs(memory) do
+			local found = false
+			
+			if (featureindex["back"] ~= nil) then
+				for a,b in ipairs(featureindex["back"]) do
+					local rule = b[1]
+					local conds = b[2]
+					
+					if (rule[1] == name) and (#conds == 0) then
+						found = true
+					end
+				end
+			end
+			
+			local delmem = {}
+			
+			for i,v in ipairs(memgroup) do
+				if found then
+					v.timer = v.timer + 2
+					updateundo = true
+					
+					local undooffset = #undobuffer - v.undobuffer
+					local undotargetid = undooffset - v.timer + 2
+					local currundoid = #undobuffer - v.undobuffer + 1
+					
+					MF_alert(tostring(undotargetid) .. ", " .. tostring(#undobuffer) .. ", " .. tostring(undooffset))
+					
+					if (undotargetid == 0) and (currundoid > 0) then
+						local currentundo = undobuffer[currundoid]
+						
+						MF_alert("Trying to load memory at slot " .. tostring(#currentundo - v.undoid))
+						MF_alert("Undobuffer size = " .. tostring(#undobuffer[currundoid]))
+						
+						local line_ = #currentundo - v.undoid
+						local line = currentundo[line_]
+						
+						local x,y,dir,levelfile,levelname,vislevel,complete,visstyle,maplevel,colour,clearcolour = line[3],line[4],line[5],line[8],line[9],line[10],line[11],line[12],line[13],line[14],line[15]
+						local name = line[2]
+						
+						MF_alert("Object name: " .. tostring(name) .. ", " .. tostring(line[1]))
+						
+						local unitname = ""
+						local unitid = 0
+						
+						if (name ~= "cursor") then
+							unitname = unitreference[name]
+							unitid = MF_emptycreate(unitname,x,y)
+						else
+							unitname = "Editor_selector"
+							unitid = MF_specialcreate(unitname)
+							setundo(1)
+						end
+						
+						local unit = mmf.newObject(unitid)
+						unit.values[ONLINE] = 1
+						unit.values[XPOS] = x
+						unit.values[YPOS] = y
+						unit.values[DIR] = dir
+						unit.values[ID] = line[6]
+						unit.flags[9] = true
+						
+						MF_alert(v.undobuffer)
+						MF_alert(math.floor(v.timer/2))
+						
+						unit.values[MISC_A] = v.undobuffer + math.floor(v.timer/2)
+						unit.values[MISC_B] = math.floor(v.timer/2)
+						
+						if (name == "cursor") then
+							unit.values[POSITIONING] = 7
+						end
+						
+						unit.strings[U_LEVELFILE] = levelfile
+						unit.strings[U_LEVELNAME] = levelname
+						unit.flags[MAPLEVEL] = maplevel
+						unit.values[VISUALLEVEL] = vislevel
+						unit.values[VISUALSTYLE] = visstyle
+						unit.values[COMPLETED] = complete
+						
+						unit.strings[COLOUR] = colour
+						unit.strings[CLEARCOLOUR] = clearcolour
+						
+						if (unit.className == "level") then
+							MF_setcolourfromstring(unitid,colour)
+						end
+						
+						if (name ~= "cursor") then
+							addunit(unitid)
+							addunitmap(unitid,x,y,unit.strings[UNITNAME])
+							dynamic(unitid)
+						else
+							MF_setcolour(unitid,4,2)
+							unit.visible = true
+							unit.layer = 2
+						end
+						
+						if (unit.strings[UNITTYPE] == "text") then
+							updatecode = 1
+						end
+						
+						local undowordunits = currentundo.wordunits
+						if (#undowordunits > 0) then
+							for a,b in ipairs(undowordunits) do
+								if (b == line[6]) then
+									updatecode = 1
+								end
+							end
+						end
+						
+						local visibility = hasfeature(name,"is","hide",unitid)
+						
+						if (visibility ~= nil) then
+							unit.visible = false
+						end
+						
+						table.insert(delmem, i)
+					end
+				else
+					v.timer = 0
+				end
+			end
+			
+			for i,v in ipairs(delmem) do
+				table.remove(memgroup, v + (i - 1))
+			end
+			
+			if (#memgroup == 0) then
+				memory[name] = nil
+			end
+		end
+		]]--
+		
+		local isback = findallfeature(nil,"is","back")
+		
+		for i,unitid in ipairs(isback) do
+			local unit = mmf.newObject(unitid)
+			
+			local undooffset = #undobuffer - unit.values[MISC_A] - 1
+			unit.values[MISC_B] = unit.values[MISC_B] + 1
+			
+			local undotargetid = undooffset + unit.values[MISC_B] + 1
+			
+			if (undotargetid < #undobuffer) and (undotargetid > 0) then
+				local currentundo = undobuffer[undotargetid]
+				
+				if (currentundo ~= nil) then
+					for a,line in ipairs(currentundo) do
+						local style = line[1]
+						
+						if (style == "update") and (line[9] == unit.values[ID]) then
+							local uid = line[9]
+							
+							if (paradox[uid] == nil) then
+								local oldx,oldy = unit.values[XPOS],unit.values[YPOS]
+								local x,y,dir = line[3],line[4],line[5]
+								
+								addaction(unitid,{"update",x,y,dir})
+							else
+								particles("hot",line[3],line[4],1,{1, 1})
+								updateundo = true
+							end
+						elseif (style == "create") and (line[3] == unit.values[ID]) then
+							local uid = line[3]
+							
+							if (paradox[uid] == nil) then
+								local name = unit.strings[UNITNAME]
+								
+								addundo({"remove",unit.strings[UNITNAME],unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR]})
+								
+								if (name ~= "cursor") then
+									delunit(unitid)
+									dynamic(unitid)
+									MF_specialremove(unitid,2)
+								else
+									editor.values[NAMEFLAG] = 0
+									MF_cleanspecialremove(unitid)
+								end
 							end
 						end
 					end
