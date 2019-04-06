@@ -229,10 +229,8 @@ function command(key,player_)
 		local dir = keyid
 		
 		autoturn = false
-		print("standard turn start")
 		movecommand(ox,oy,dir,player)
 		MF_update()
-		print("standard turn end")
 	end
 	
 	if (keyid == 5) then

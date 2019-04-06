@@ -559,9 +559,7 @@ function doautoturn()
 	if hasfinals then
 		autounits = finals
 		autoturn = true
-		print("final turn start")
 		movecommand(0,0,4,1)
 		MF_update()
-		print("final turn end")
 	end
 end

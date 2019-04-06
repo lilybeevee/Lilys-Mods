@@ -7,7 +7,6 @@ function newundo(force)
 	
 	if not autoturn or force then
 		table.insert(undobuffer, 1, {})
-		print("made real new undo")
 	end
 	
 	local thisundo = undobuffer[1]
@@ -55,10 +54,11 @@ function addundo(line)
 	end
 end
 
-
 function undo()
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
+
+		local persisted = {}
 		
 		if (currentundo ~= nil) then
 			for i,line in ipairs(currentundo) do
@@ -67,43 +67,51 @@ function undo()
 				
 				if (style == "update") then
 					local uid = line[9]
-					
+
 					if (paradox[uid] == nil) then
 						local unitid = getunitid(line[9])
 						
 						local unit = mmf.newObject(unitid)
 						
-						local oldx,oldy = unit.values[XPOS],unit.values[YPOS]
-						local x,y,dir = line[3],line[4],line[5]
-						unit.values[XPOS] = x
-						unit.values[YPOS] = y
-						unit.values[DIR] = dir
-						unit.values[POSITIONING] = 0
-						
-						updateunitmap(unitid,oldx,oldy,x,y,unit.strings[UNITNAME])
-						dynamic(unitid)
-						dynamicat(oldx,oldy)
-						
-						local ox = math.abs(oldx-x)
-						local oy = math.abs(oldy-y)
-						
-						if (ox + oy == 1) and (unit.values[TILING] == 2) then
-							unit.values[VISUALDIR] = ((unit.values[VISUALDIR] - 1)+4) % 4
-							unit.direction = unit.values[DIR] * 8 + unit.values[VISUALDIR]
+						local oldx,oldy = -1,-1
+						if unit then
+							local oldx,oldy = unit.values[XPOS],unit.values[YPOS]
 						end
-						
-						if (unit.strings[UNITTYPE] == "text") then
-							updatecode = 1
-						end
-						
-						local undowordunits = currentundo.wordunits
-						
-						if (#undowordunits > 0) then
-							for a,b in pairs(undowordunits) do
-								if (b == line[9]) then
-									updatecode = 1
+
+						if unit and not hasfeature(getname(unit),"is","persist",unitid,oldx,oldy) then
+							local x,y,dir = line[3],line[4],line[5]
+							unit.values[XPOS] = x
+							unit.values[YPOS] = y
+							unit.values[DIR] = dir
+							unit.values[POSITIONING] = 0
+							
+							updateunitmap(unitid,oldx,oldy,x,y,unit.strings[UNITNAME])
+							dynamic(unitid)
+							dynamicat(oldx,oldy)
+							
+							local ox = math.abs(oldx-x)
+							local oy = math.abs(oldy-y)
+							
+							if (ox + oy == 1) and (unit.values[TILING] == 2) then
+								unit.values[VISUALDIR] = ((unit.values[VISUALDIR] - 1)+4) % 4
+								unit.direction = unit.values[DIR] * 8 + unit.values[VISUALDIR]
+							end
+							
+							if (unit.strings[UNITTYPE] == "text") then
+								updatecode = 1
+							end
+							
+							local undowordunits = currentundo.wordunits
+							
+							if (#undowordunits > 0) then
+								for a,b in pairs(undowordunits) do
+									if (b == line[9]) then
+										updatecode = 1
+									end
 								end
 							end
+						else
+							table.insert(persisted, line)
 						end
 					else
 						particles("hot",line[3],line[4],1,{1, 1})
@@ -129,6 +137,7 @@ function undo()
 						end
 						
 						local unit = mmf.newObject(unitid)
+
 						unit.values[ONLINE] = 1
 						unit.values[XPOS] = x
 						unit.values[YPOS] = y
@@ -150,37 +159,48 @@ function undo()
 						unit.strings[COLOUR] = colour
 						unit.strings[CLEARCOLOUR] = clearcolour
 						
-						if (unit.className == "level") then
-							MF_setcolourfromstring(unitid,colour)
+						local rulename = name
+						if string.sub(rulename,1,4) == "text" then
+							rulename = "text"
 						end
-						
-						if (name ~= "cursor") then
-							addunit(unitid)
-							addunitmap(unitid,x,y,unit.strings[UNITNAME])
-							dynamic(unitid)
-						else
-							MF_setcolour(unitid,4,2)
-							unit.visible = true
-							unit.layer = 2
-						end
-						
-						if (unit.strings[UNITTYPE] == "text") then
-							updatecode = 1
-						end
-						
-						local undowordunits = currentundo.wordunits
-						if (#undowordunits > 0) then
-							for a,b in ipairs(undowordunits) do
-								if (b == line[6]) then
-									updatecode = 1
+
+						if not hasfeature(rulename,"is","persist",unitid,x,y) then 
+							print("true!")
+							if (unit.className == "level") then
+								MF_setcolourfromstring(unitid,colour)
+							end
+							
+							if (name ~= "cursor") then
+								addunit(unitid)
+								addunitmap(unitid,x,y,unit.strings[UNITNAME])
+								dynamic(unitid)
+							else
+								MF_setcolour(unitid,4,2)
+								unit.visible = true
+								unit.layer = 2
+							end
+							
+							if (unit.strings[UNITTYPE] == "text") then
+								updatecode = 1
+							end
+							
+							local undowordunits = currentundo.wordunits
+							if (#undowordunits > 0) then
+								for a,b in ipairs(undowordunits) do
+									if (b == line[6]) then
+										updatecode = 1
+									end
 								end
 							end
-						end
-						
-						local visibility = hasfeature(name,"is","hide",unitid)
-						
-						if (visibility ~= nil) then
-							unit.visible = false
+							
+							local visibility = hasfeature(name,"is","hide",unitid)
+							
+							if (visibility ~= nil) then
+								unit.visible = false
+							end
+						else
+							table.insert(persisted, line)
+							MF_remove(unitid)
 						end
 					else
 						particles("hot",line[3],line[4],1,{1, 1})
@@ -209,22 +229,26 @@ function undo()
 						local x,y = unit.values[XPOS],unit.values[YPOS]
 						local unittype = unit.strings[UNITTYPE]
 						
-						unit = {}
-						delunit(unitid)
-						MF_remove(unitid)
-						dynamicat(x,y)
-						
-						if (unittype == "text") then
-							updatecode = 1
-						end
-						
-						local undowordunits = currentundo.wordunits
-						if (#undowordunits > 0) then
-							for a,b in ipairs(undowordunits) do
-								if (b == line[3]) then
-									updatecode = 1
+						if not hasfeature(getname(unit),"is","persist",unitid,x,y) then
+							unit = {}
+							delunit(unitid)
+							MF_remove(unitid)
+							dynamicat(x,y)
+							
+							if (unittype == "text") then
+								updatecode = 1
+							end
+							
+							local undowordunits = currentundo.wordunits
+							if (#undowordunits > 0) then
+								for a,b in ipairs(undowordunits) do
+									if (b == line[3]) then
+										updatecode = 1
+									end
 								end
 							end
+						else
+							table.insert(persisted, line)
 						end
 					end
 				elseif (style == "done") then
@@ -267,13 +291,25 @@ function undo()
 						end
 					end
 				elseif (style == "levelupdate") then
-					MF_setroomoffset(line[2],line[3])
-					mapdir = line[6]
+					if not hasfeature("level","is","persist") then
+						MF_setroomoffset(line[2],line[3])
+						mapdir = line[6]
+					else
+						table.insert(persisted, line)
+					end
 				elseif (style == "maprotation") then
-					maprotation = line[2]
-					MF_levelrotation(maprotation)
+					if not hasfeature("level","is","persist") then
+						maprotation = line[2]
+						MF_levelrotation(maprotation)
+					else
+						table.insert(persisted, line)
+					end
 				elseif (style == "mapcursor") then
-					MF_setmapcursor(line[3],line[4],line[5],line[10])
+					if not hasfeature("cursor","is","persist") then
+						MF_setmapcursor(line[3],line[4],line[5],line[10])
+					else
+						table.insert(persisted, line)
+					end
 				elseif (style == "colour") then
 					local unitid = getunitid(line[2])
 					MF_setcolour(unitid,line[3],line[4])
@@ -291,6 +327,12 @@ function undo()
 		nextundo.wordunits = {}
 		for i,v in ipairs(currentundo.wordunits) do
 			table.insert(nextundo.wordunits, v)
+		end
+		if #persisted > 0 then
+			updatecode = 1
+			for i,v in ipairs(persisted) do
+				table.insert(nextundo, v)
+			end
 		end
 		table.remove(undobuffer, 2)
 	end

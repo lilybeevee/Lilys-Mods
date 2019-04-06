@@ -810,9 +810,11 @@ function block(small_)
 									generaldata.values[FASTTRANSITION] = 1
 									MF_playsound("restart")
 									autoturn = false
+									resetting = true
 									while #undobuffer > 1 do
 										undo()
 									end
+									resetting = false
 									undobuffer = {}
 									newundo()
 									return
