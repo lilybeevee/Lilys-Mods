@@ -383,6 +383,10 @@ function delete(unitid,x_,y_,total_)
 		
 		if (total == false) then
 			inside(insidename,x,y,dir,unitid)
+			
+			if (unitid ~= 2) and memoryneeded then
+				--savememory(unit,insidename)
+			end
 		end
 		
 		if (unitid ~= 2) then
@@ -722,6 +726,38 @@ function inside(name,x,y,dir,unitid)
 			end
 		end
 	end
+end
+
+function savememory(unit,name)
+	local x,y = unit.values[XPOS],unit.values[YPOS]
+	
+	local currstep = #undobuffer
+	
+	if (memory[name] == nil) then
+		memory[name] = {}
+	end
+	
+	local id = #memory[name] + 1
+	
+	memory[name][id] = {}
+	local currmem = memory[name][id]
+	
+	currmem.timer = 0
+	currmem.undobuffer = #undobuffer
+	currmem.name = unit.strings[UNITNAME]
+	
+	local currundo = undobuffer[1]
+	currmem.undoid = #currundo
+	
+	if (unit.values[MISC_A] > 0) and (generaldata.values[MODE] == 0) then
+		currmem.undobuffer = unit.values[MISC_A]
+	end
+	
+	if (unit.values[MISC_B] > 0) and (generaldata.values[MODE] == 0) then
+		currmem.timer = unit.values[MISC_B] + 1
+	end
+	
+	MF_alert("Added a new memory at " .. tostring(#undobuffer) .. ", on slot " .. tostring(currmem.undoid))
 end
 
 function animate()

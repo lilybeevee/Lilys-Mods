@@ -37,6 +37,8 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	effecthistory = {}
 	notfeatures = {}
 	pushedunits = {}
+	memory = {}
+	memoryneeded = false
 	
 	generaldata.values[CURRID] = 0
 	updatecode = 1
@@ -123,6 +125,10 @@ function addunit(id)
 		statusblock({id})
 		MF_animframe(id,math.random(0,2))
 	end
+	
+	if (unit.strings[UNITNAME] == "text_back") then
+		memoryneeded = true
+	end
 end
 
 function clearunits()
@@ -147,6 +153,8 @@ function clearunits()
 	effecthistory = {}
 	notfeatures = {}
 	pushedunits = {}
+	memory = {}
+	memoryneeded = false
 	
 	generaldata.values[CURRID] = 0
 	updateundo = true
@@ -187,6 +195,7 @@ function clear()
 	effecthistory = {}
 	notfeatures = {}
 	pushedunits = {}
+	memory = {}
 	
 	updatecode = 1
 	updateundo = false
