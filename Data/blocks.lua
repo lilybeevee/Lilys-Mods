@@ -998,7 +998,7 @@ function block(small_)
 			
 			local win = findfeature(nil,"is","win")
 			
-			if (win ~= nil) then
+			if (win ~= nil) and not doreset then
 				for a,b in ipairs(win) do
 					if (b[1] ~= "empty") then
 						local flag = findtype(b,x,y,0)
@@ -1342,7 +1342,7 @@ function levelblock()
 				
 				if (action == "reset") then
 					doreset = true
-				elseif (action == "win") then
+				elseif (action == "win") and not doreset then
 					local yous = findfeature(nil,"is","you")
 					local yous2 = findfeature(nil,"is","you2")
 					
