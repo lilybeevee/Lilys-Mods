@@ -21,10 +21,11 @@ mod.enabled["persist"] = false
 mod.enabled["auto"] = false
 
 ---------------------------------------------------
---[[     MECHANIC ENABLE/DISABLE OPTIONS       ]]--
+--[[           MECHANIC OPTIONS                ]]--
 ---------------------------------------------------
 
-mod.enabled["condition stacking"] = true
+activemod.condition_stacking = true
+activemod.auto_speed = 20
 
 --------------------------------
 --[[ ADVANCED BLOCK OPTIONS ]]--
