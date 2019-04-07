@@ -977,6 +977,24 @@ function block(small_)
 					end
 				end
 			end
+
+			local reset = findfeature(nil,"is","reset")
+
+			if reset ~= nil then
+				for a,b in ipairs(reset) do
+					if b[1] ~= "empty" then
+						local resetunits = findtype(b,x,y,0)
+
+						if #resetunits > 0 then
+							for c,d in ipairs(resetunits) do
+								if floating(d,unit.fixed) then
+									doreset = true
+								end
+							end
+						end
+					end
+				end
+			end
 			
 			local win = findfeature(nil,"is","win")
 			
@@ -993,35 +1011,6 @@ function block(small_)
 									MF_particles("win",x,y,10 * pmult,2,4,1,1)
 									MF_win()
 									break
-								end
-							end
-						end
-					end
-				end
-			end
-
-			local reset = findfeature(nil,"is","reset")
-
-			if reset ~= nil then
-				for a,b in ipairs(reset) do
-					if b[1] ~= "empty" then
-						local resetunits = findtype(b,x,y,0)
-
-						if #resetunits > 0 then
-							for c,d in ipairs(resetunits) do
-								if floating(d,unit.fixed) then
-									local pmult,sound = checkeffecthistory("reset")
-									generaldata.values[FASTTRANSITION] = 1
-									MF_playsound("restart")
-									autoturn = false
-									resetting = true
-									while #undobuffer > 1 do
-										undo()
-									end
-									resetting = false
-									undobuffer = {}
-									newundo()
-									return
 								end
 							end
 						end
@@ -1351,7 +1340,9 @@ function levelblock()
 			if testcond(conds,1) and (rule[2] == "is") then
 				local action = rule[3]
 				
-				if (action == "win") then
+				if (action == "reset") then
+					doreset = true
+				elseif (action == "win") then
 					local yous = findfeature(nil,"is","you")
 					local yous2 = findfeature(nil,"is","you2")
 					
@@ -1747,4 +1738,17 @@ function findfears(unitid)
 	end
 	
 	return result,resultdir
+end
+
+function resetlevel()
+	MF_playsound("restart")
+	autoturn = false
+	resetting = true
+	while #undobuffer > 1 do
+		undo()
+	end
+	resetting = false
+	undobuffer = {}
+	newundo()
+	doreset = false
 end

@@ -1,7 +1,7 @@
 [tiles]
 object076_name=text_turn
 object076_image=text_turn
-changed=object076,object048,
+changed=object048,object076,
 
 [general]
 name=first level

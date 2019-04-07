@@ -43,8 +43,6 @@ function addundo(line)
 		
 		table.insert(currentundo, 1, {})
 		currentundo[1] = {}
-
-		table.insert(line, autotimer)
 		
 		for i,v in ipairs(line) do
 			table.insert(currentundo[1], v)
@@ -64,7 +62,6 @@ function undo()
 		if (currentundo ~= nil) then
 			for i,line in ipairs(currentundo) do
 				local style = line[1]
-				autotimer = line[#line]
 				
 				if (style == "update") then
 					local uid = line[9]

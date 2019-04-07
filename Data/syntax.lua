@@ -54,6 +54,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	donemove = 0
 	autotimer = 0
 	autoturn = false
+	doreset = false
 	
 	HACK_MOVES = 0
 	
@@ -209,6 +210,7 @@ function clear()
 	donemove = 0
 	autotimer = 0
 	autoturn = false
+	doreset = false
 	
 	HACK_MOVES = 0
 	
@@ -240,6 +242,10 @@ function command(key,player_)
 		autoturn = false
 		movecommand(ox,oy,dir,player)
 		MF_update()
+		if doreset then
+			resetlevel()
+			MF_update()
+		end
 	end
 	
 	if (keyid == 5) then

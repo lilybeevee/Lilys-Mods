@@ -561,5 +561,9 @@ function doautoturn()
 		autoturn = true
 		movecommand(0,0,4,1)
 		MF_update()
+		if doreset then
+			resetlevel()
+			MF_update()
+		end
 	end
 end
