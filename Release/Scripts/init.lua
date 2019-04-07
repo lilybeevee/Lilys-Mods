@@ -9,9 +9,12 @@ mod.tilecount = 0
 -- Calls when a world is first loaded
 function mod.load(dir)
 	-- Load mod's script replacements
+	loadscript(dir .. "blocks")
+	loadscript(dir .. "conditions")
+	loadscript(dir .. "convert")
+	loadscript(dir .. "effects")
 	loadscript(dir .. "movement")
 	loadscript(dir .. "rules")
-	loadscript(dir .. "conditions")
 	loadscript(dir .. "syntax")
 	loadscript(dir .. "tools")
 	loadscript(dir .. "undo")
@@ -33,9 +36,12 @@ function mod.unload(dir)
 	loadscript("Data/values")
 
 	-- Restore modified scripts
+	loadscript("Data/blocks")
+	loadscript("Data/conditions")
+	loadscript("Data/convert")
+	loadscript("Data/effects")
 	loadscript("Data/movement")
 	loadscript("Data/rules")
-	loadscript("Data/conditions")
 	loadscript("Data/syntax")
 	loadscript("Data/tools")
 	loadscript("Data/undo")
@@ -46,6 +52,9 @@ mod.alltiles = {
 	"bait",
 	"lure",
 	"turn",
+	"reset",
+	"persist",
+	"auto",
 	"copy",
 	"with",
 	"still",

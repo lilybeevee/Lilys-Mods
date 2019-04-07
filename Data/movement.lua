@@ -28,6 +28,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		mapdir = dir_
 		updateundo = true
+		hasmoved[1] = true
 	end
 
 	local turn = findallfeature(nil,"is","turn")
@@ -274,7 +275,7 @@ function movecommand(ox,oy,dir_,playerid_)
 
 		local new_moving_units = {}
 		for i,data in ipairs(moving_units) do
-			if data.reason == "you" or data.reason == "copy" or autocheck(data.unitid) then
+			if data.reason == "you" or (data.reason == "copy" and autocheck(data.copy)) or autocheck(data.unitid) then
 				table.insert(new_moving_units, data)
 			end
 		end

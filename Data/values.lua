@@ -2,6 +2,7 @@ activemod = {}
 activemod.enabled = {}
 activemod.enabled["still"] = true
 activemod.enabled["auto"] = true
+activemod.enabled["persist"] = true
 activemod.condition_stacking = true
 activemod.auto_speed = 20
 
@@ -1916,7 +1917,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	--[[object123 = 
+	object123 = 
 	{
 		name = "text_copy",
 		sprite = "text_copy",
@@ -1930,7 +1931,7 @@ tileslist =
 		tile = {4, 12},
 		grid = {11, 4},
 		layer = 20,
-	},]]
+	},
 	--[[object125 =
 	{
 		name = "text_with",
@@ -1989,7 +1990,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},
-	object123 = {
+	object124 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -1999,10 +2000,10 @@ tileslist =
 		colour = {0, 2},
 		active = {0, 3},
 		tile = {9, 12},
-		grid = {11, 4},
+		grid = {11, 5},
 		layer = 20,
 	},
-	object124 = {
+	--[[object124 = {
 		name = "text_persist",
 		sprite = "text_persist",
 		sprite_in_root = true,
@@ -2014,5 +2015,5 @@ tileslist =
 		tile = {8, 12},
 		grid = {11, 5},
 		layer = 20,
-	}
+	}]]
 }

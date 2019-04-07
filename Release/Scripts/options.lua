@@ -3,9 +3,8 @@ local mod = activemod
 ---------------------------------------------------
 --[[        BLOCK ENABLE/DISABLE OPTIONS       ]]--
 ---------------------------------------------------
--- !! PLEASE ONLY ENABLE 6 FEATURES AT A TIME !! --
+-- !!! PLEASE ONLY ENABLE 6 BLOCKS AT A TIME !!! --
 ---------------------------------------------------
-
 
 -- Specials
 mod.enabled["means"] = true
@@ -17,10 +16,15 @@ mod.enabled["still"] = true
 mod.enabled["bait"] = true
 mod.enabled["lure"] = true
 mod.enabled["turn"] = false
+mod.enabled["reset"] = false
+mod.enabled["persist"] = false
+mod.enabled["auto"] = false
 
--- Mechanics
+---------------------------------------------------
+--[[     MECHANIC ENABLE/DISABLE OPTIONS       ]]--
+---------------------------------------------------
+
 mod.enabled["condition stacking"] = true
-
 
 --------------------------------
 --[[ ADVANCED BLOCK OPTIONS ]]--
@@ -122,4 +126,43 @@ mod.tile["turn"] = {
 	layer = 20,
 }
 
--- Current highest tile: {6, 12}
+mod.tile["reset"] = {
+	name = "text_reset",
+	sprite = "text_reset",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {3, 0},
+	active = {3, 1},
+	tile = {7, 12},
+	layer = 20,
+}
+
+mod.tile["persist"] = {
+	name = "text_persist",
+	sprite = "text_persist",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {0, 2},
+	active = {0, 3},
+	tile = {8, 12},
+	layer = 20,
+}
+
+mod.tile["auto"] = {
+	name = "text_auto",
+	sprite = "text_auto",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {0, 2},
+	active = {0, 3},
+	tile = {9, 12},
+	layer = 20,
+}
+
+-- Current highest tile: {9, 12}

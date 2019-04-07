@@ -1,4 +1,4 @@
-function conversion(dolevels_)
+function conversion(dolevels_,persistonly_)
 	local alreadydone = {}
 	local dolevels = dolevels_ or false
 	
@@ -328,6 +328,16 @@ function doconvert(data,extrarule_)
 				newunit.visible = true
 			end
 			
+			local simplename = unitname
+			if tileslist[unitname].unittype == "text" then
+				simplename = "text"
+			end
+			
+			if ingameid == baseingameid and activemod.enabled["persist"] then--and findfeature(simplename,"is","persist") ~= nil then
+				print("HECK YOU")
+				ingameid = newid()
+			end
+
 			newunit.values[ID] = ingameid
 			
 			newunit.strings[U_LEVELFILE] = unit.strings[U_LEVELFILE]

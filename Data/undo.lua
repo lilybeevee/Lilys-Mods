@@ -1,5 +1,5 @@
 function newundo(force)
-	if ((updateundo == false) or (doundo == false)) and not force then
+	if ((updateundo == false) or (doundo == false)) and not force and not kindaupdateundo then
 		table.remove(undobuffer, 1)
 	else
 		generaldata2.values[UNDOTOOLTIPTIMER] = 0
@@ -25,6 +25,7 @@ function newundo(force)
 	end
 	
 	updateundo = false
+	kindaupdateundo = false
 end
 
 function addundo(line)
@@ -36,7 +37,7 @@ function addundo(line)
 		local currentundo = undobuffer[1]
 		if autoturn then
 			currentundo = undobuffer[2]
-			updateundo = true
+			kindaupdateundo = true
 		end
 		local text = tostring(#undobuffer) .. ", "
 		
@@ -165,7 +166,6 @@ function undo()
 						end
 
 						if not hasfeature(rulename,"is","persist",unitid,x,y) then 
-							print("true!")
 							if (unit.className == "level") then
 								MF_setcolourfromstring(unitid,colour)
 							end
@@ -226,29 +226,31 @@ function undo()
 						end
 						
 						local unit = mmf.newObject(unitid)
-						local x,y = unit.values[XPOS],unit.values[YPOS]
-						local unittype = unit.strings[UNITTYPE]
-						
-						if not hasfeature(getname(unit),"is","persist",unitid,x,y) then
-							unit = {}
-							delunit(unitid)
-							MF_remove(unitid)
-							dynamicat(x,y)
+						if unit ~= nil then
+							local x,y = unit.values[XPOS],unit.values[YPOS]
+							local unittype = unit.strings[UNITTYPE]
 							
-							if (unittype == "text") then
-								updatecode = 1
-							end
-							
-							local undowordunits = currentundo.wordunits
-							if (#undowordunits > 0) then
-								for a,b in ipairs(undowordunits) do
-									if (b == line[3]) then
-										updatecode = 1
+							if not hasfeature(getname(unit),"is","persist",unitid,x,y) then
+								unit = {}
+								delunit(unitid)
+								MF_remove(unitid)
+								dynamicat(x,y)
+								
+								if (unittype == "text") then
+									updatecode = 1
+								end
+								
+								local undowordunits = currentundo.wordunits
+								if (#undowordunits > 0) then
+									for a,b in ipairs(undowordunits) do
+										if (b == line[3]) then
+											updatecode = 1
+										end
 									end
 								end
+							else
+								table.insert(persisted, line)
 							end
-						else
-							table.insert(persisted, line)
 						end
 					end
 				elseif (style == "done") then
