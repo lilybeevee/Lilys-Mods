@@ -1336,9 +1336,10 @@ function genflowercolour()
 	return result,c1,c2
 end
 
-function autocheck(unitid)
+function autocheck(unitid,ignored_)
+	local ignored = ignored_ or {}
 	if autoturn then
-		if not autounits[unitid] then
+		if not ignored[unitid] and not autounits[unitid] then
 			return false
 		end
 	else
@@ -1351,7 +1352,7 @@ function autocheck(unitid)
 		elseif unitid == 1 then
 			name = "level"
 		end
-		if hasfeature(name,"is","auto",unitid) then
+		if not ignored[unitid] and hasfeature(name,"is","auto",unitid) then
 			return false
 		end
 	end

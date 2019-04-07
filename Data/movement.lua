@@ -6,6 +6,7 @@ function movecommand(ox,oy,dir_,playerid_)
 			table.insert(statusblockids, id)
 		end
 	end
+	autoignored = {}
 	statusblock(statusblockids)
 
 	movelist = {}
@@ -90,6 +91,7 @@ function movecommand(ox,oy,dir_,playerid_)
 							
 							table.insert(moving_units, {unitid = v, reason = "you", state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
 							been_seen[v] = #moving_units
+							autoignored[v] = true
 						else
 							local id = been_seen[v]
 							local this = moving_units[id]
@@ -252,6 +254,9 @@ function movecommand(ox,oy,dir_,playerid_)
 						updatedir(data.unitid, dir)
 					end
 					table.insert(moving_units, {unitid = v, reason = "copy", state = 4, moves = data.moves, dir = dir, xpos = x, ypos = y, copy = data.unitid})
+					if autocheck(data.unitid,autoignored) then
+						autoignored[v] = true
+					end
 				end
 			end
 		end
@@ -657,7 +662,7 @@ function updatestill()
 	local newstill = {}
 	local newstillid = ""
 	for _,unit in ipairs(units) do
-		if autocheck(unit.fixed) then
+		if autocheck(unit.fixed,autoignored) then
 			if hasmoved[unit.fixed] then
 				newstill[unit.fixed] = false
 				newstillid = newstillid .. getname(unit) .. "0"
@@ -676,13 +681,13 @@ function updatestill()
 			end
 		end
 	end
-	if autocheck(1) then
+	if autocheck(1,autoignored) then
 		newstill[1] = (hasmoved[1] == true)
 	end
 	if newstill[1] then
 		newstillid = newstillid .. "level1"
 	end
-	if autocheck(2) then
+	if autocheck(2,autoignored) then
 		newstill[2] = (hasmoved[2] == true)
 	end
 	if newstill[2] then

@@ -549,7 +549,7 @@ function doautoturn()
 	local hasfinals = false
 
 	for unitid,count in pairs(livecount) do
-		local movespeed = math.max(1, math.floor(activemod.auto_speed/count))
+		local movespeed = math.max(1, math.floor(activemod.auto_speed/(2^(count-1))))
 		if autotimer % movespeed == 0 then
 			finals[unitid] = true
 			hasfinals = true
