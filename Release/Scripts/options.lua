@@ -20,12 +20,24 @@ mod.enabled["reset"] = false
 mod.enabled["persist"] = false
 mod.enabled["auto"] = false
 
----------------------------------------------------
---[[           MECHANIC OPTIONS                ]]--
----------------------------------------------------
+--------------------------
+--[[ MECHANIC OPTIONS ]]--
+--------------------------
 
 activemod.condition_stacking = true
 activemod.auto_speed = 20
+
+-------------------------------------------------
+--[[   MACROS (CUSTOM FEATURES FROM RULES)   ]]--
+-------------------------------------------------
+-- Patterns only work in NOUN VERB PROP format --
+-------------------------------------------------
+
+activemod.macros["{x} is conduct"] = {
+	"{x} near all with hot is hot",
+	"{x} near text with hot is hot",
+}
+
 
 --------------------------------
 --[[ ADVANCED BLOCK OPTIONS ]]--

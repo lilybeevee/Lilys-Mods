@@ -6,7 +6,9 @@ function movecommand(ox,oy,dir_,playerid_)
 			table.insert(statusblockids, id)
 		end
 	end
+
 	autoignored = {}
+
 	statusblock(statusblockids)
 
 	movelist = {}
@@ -173,7 +175,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				local shifts = findallfeature(nil,"is","shift")
 				
 				for i,v in ipairs(shifts) do
-					if (v ~= 2) then
+					if (v ~= 2) and autocheck(v) then
 						local affected = {}
 						local unit = mmf.newObject(v)
 						
@@ -206,7 +208,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				
 				local levelshift = findfeature("level","is","shift")
 				
-				if (levelshift ~= nil) then
+				if (levelshift ~= nil) and autocheck(1) then
 					local leveldir = mapdir
 						
 					for a,unit in ipairs(units) do
@@ -641,66 +643,91 @@ function movecommand(ox,oy,dir_,playerid_)
 		hasmoved[1] = true
 	end
 
-	updatestill()
-
+	modupdate("still")
 	doupdate()
 	code()
 	conversion()
 	doupdate()
 	code()
 	moveblock()
+	modupdate("chain")
 	
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)
 	end
 end
 
-function updatestill()
-	if not activemod.enabled["still"] then
-		return
-	end
-	local newstill = {}
-	local newstillid = ""
-	for _,unit in ipairs(units) do
-		if autocheck(unit.fixed,autoignored) then
-			if hasmoved[unit.fixed] then
-				newstill[unit.fixed] = false
-				newstillid = newstillid .. getname(unit) .. "0"
-			else
-				newstill[unit.fixed] = true
-				newstillid = newstillid .. getname(unit) .. "1"
-			end
-		else
-			if still[unit.fixed] ~= nil then
-				newstill[unit.fixed] = still[unit.fixed]
-				if still[unit.fixed] == true then
-					newstillid = newstillid .. getname(unit) .. "1"
-				else
+function modupdate(name)
+	if name == "still" and activemod.enabled["still"] then
+		local newstill = {}
+		local newstillid = ""
+		for _,unit in ipairs(units) do
+			if autocheck(unit.fixed,autoignored) then
+				if hasmoved[unit.fixed] then
+					newstill[unit.fixed] = false
 					newstillid = newstillid .. getname(unit) .. "0"
+				else
+					newstill[unit.fixed] = true
+					newstillid = newstillid .. getname(unit) .. "1"
+				end
+			else
+				if still[unit.fixed] ~= nil then
+					newstill[unit.fixed] = still[unit.fixed]
+					if still[unit.fixed] == true then
+						newstillid = newstillid .. getname(unit) .. "1"
+					else
+						newstillid = newstillid .. getname(unit) .. "0"
+					end
 				end
 			end
 		end
+		if autocheck(1,autoignored) then
+			newstill[1] = (hasmoved[1] == true)
+		end
+		if newstill[1] then
+			newstillid = newstillid .. "level1"
+		end
+		if autocheck(2,autoignored) then
+			newstill[2] = (hasmoved[2] == true)
+		end
+		if newstill[2] then
+			newstillid = newstillid .. "empty1"
+		end
+		addundo({"still",still,stillid,donemove})
+		if donemove < 1 or newstillid ~= stillid then
+			donemove = donemove + 1
+			doundo = true
+		end
+		if donemove >= 1 then
+			still = newstill
+			stillid = newstillid
+		end
 	end
-	if autocheck(1,autoignored) then
-		newstill[1] = (hasmoved[1] == true)
-	end
-	if newstill[1] then
-		newstillid = newstillid .. "level1"
-	end
-	if autocheck(2,autoignored) then
-		newstill[2] = (hasmoved[2] == true)
-	end
-	if newstill[2] then
-		newstillid = newstillid .. "empty1"
-	end
-	addundo({"still",still,stillid,donemove})
-	if donemove < 1 or newstillid ~= stillid then
-		donemove = donemove + 1
-		doundo = true
-	end
-	if donemove >= 1 then
-		still = newstill
-		stillid = newstillid
+
+	if name == "chain" and activemod.enabled["chain"] then
+		local chains = findallfeature(nil,"is","chain")
+
+		local prevchained = copytable(chainedunits)
+		local chainedunits = {}
+		for _,id in ipairs(chains) do
+			if id ~= 1 and id ~= 2 then
+				local unit = mmf.newObject(id)
+				local name = getname(unit)
+
+				local ischain = hasfeature(name,"is","chain",id)
+
+				local prevchain = prevchained[id]
+
+				if ischain and not chain then
+					local x,y = unit.values[XPOS],unit.values[YPOS]
+					addundo({"chain",id,chain})
+					chainedunits[id] = {x,y}
+				elseif not ischain and chain then
+					addundo({"chain",unit.fixed,chain})
+					chainedunits[unit.fixed] = nil
+				end
+			end
+		end
 	end
 end
 
@@ -746,6 +773,16 @@ function check(unitid,x,y,dir,pulling_,reason)
 		lockpartner = "shut"
 	elseif (shut ~= nil) then
 		lockpartner = "open"
+	end
+
+	local selfweak = hasfeature(name,"is","weak",unitid,x,y)
+
+	local chain = chainedunits[unitid]
+	if chain and not selfweak then
+		if math.abs((x+ox) - chain[1]) > 1 or math.abs((y+oy) - chain[2]) > 1 then
+			table.insert(result, 1)
+			table.insert(results, -1)
+		end
 	end
 	
 	local obs = findobstacle(x+ox,y+oy)

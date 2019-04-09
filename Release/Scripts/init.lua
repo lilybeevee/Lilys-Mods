@@ -3,6 +3,7 @@ local mod = {}
 -- options.lua to edit
 mod.enabled = {}
 mod.tile = {}
+mod.macros = {}
 
 mod.tilecount = 0
 

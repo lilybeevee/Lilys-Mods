@@ -34,6 +34,7 @@ function code()
 		featureindex = {}
 		visualfeatures = {}
 		notfeatures = {}
+		macros = {}
 		local firstwords = {}
 		local alreadyused = {}
 		
@@ -970,7 +971,49 @@ function applyaltfeatures(option,conds,ids,visible,notrule)
 	return false
 end
 
-function addoption(option,conds_,ids,visible,notrule,ignoremeans)
+function addmacros(option,ids,ignoremeans)
+	for k,v in pairs(activemod.macros) do
+		local wordi = 0
+		local valid = true
+		local vars = {}
+		for word in string.gmatch(k, "%S+") do
+			wordi = wordi + 1
+
+			local isvar = ""
+			if string.sub(word, 1, 1) == "{" then
+				isvar = string.sub(word, 2, -2)
+			end
+
+			if isvar == "" and option[wordi] ~= word then
+				valid = false
+			elseif isvar ~= "" then
+				if vars[isvar] and vars[isvar] ~= word then
+					valid = false
+				else
+					vars[isvar] = option[wordi]
+				end
+			end
+		end
+
+		if valid then
+			for _,text in ipairs(v) do
+				local rules,conds = rulefromtext(text,vars)
+				if rules ~= nil then
+					for _,i in ipairs(rules[1]) do
+						for _,j in ipairs(rules[2]) do
+							for _,k in ipairs(rules[3]) do
+								addoption({i,j,k},conds,ids,true,nil,ignoremeans,option)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+
+function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 	if not ignoremeans and #option == 3 then
 		local hasmeans = applyaltfeatures(option,conds_,ids,visible,notrule)
 
@@ -978,7 +1021,10 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans)
 			return
 		end
 	end
-	-- MEANS END
+
+	if not baserule and #option == 3 then
+		addmacros(option,ids,ignoremeans)
+	end
 
 	--MF_alert(option[1] .. ", " .. option[2] .. ", " .. option[3])
 	

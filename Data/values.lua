@@ -1,10 +1,21 @@
 activemod = {}
 activemod.enabled = {}
+activemod.macros = {}
 activemod.enabled["still"] = true
 activemod.enabled["auto"] = true
 activemod.enabled["persist"] = true
+activemod.enabled["chain"] = true
 activemod.condition_stacking = true
 activemod.auto_speed = 20
+
+activemod.macros["{x} is conduct"] = {
+	"{x} near all with hot is hot",
+	"{x} near text with hot is hot",
+}
+
+activemod.macros["{x} is you"] = {
+	"{x} on keke is best",
+}
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
@@ -1932,7 +1943,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	--[[object125 =
+	object123 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1945,10 +1956,10 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {3, 12},
-		grid = {11, 3},
+		grid = {11, 4},
 		layer = 20,
-	},]]
-	object123 =
+	},
+	--[[object123 =
 	{
 		name = "text_still",
 		sprite = "text_still",
@@ -1962,7 +1973,7 @@ tileslist =
 		tile = {5, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	--[[object125 = 
 	{
 		name = "text_turn",
@@ -1977,7 +1988,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	object125 = {
+	--[[object125 = {
 		name = "text_reset",
 		sprite = "text_reset",
 		sprite_in_root = true,
@@ -1989,7 +2000,7 @@ tileslist =
 		tile = {7, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
+	},]]
 	object124 = {
 		name = "text_auto",
 		sprite = "text_auto",
@@ -2016,4 +2027,17 @@ tileslist =
 		grid = {11, 5},
 		layer = 20,
 	}]]
+	object125 = {
+		name = "text_chain",
+		sprite = "text_chain",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {1, 1},
+		active = {0, 1},
+		tile = {10, 12},
+		grid = {11, 3},
+		layer = 20,
+	},
 }
