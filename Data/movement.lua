@@ -1357,57 +1357,59 @@ function move(unitid,ox,oy,dir,specials_,instant_,simulate_)
 			end
 			
 			if unit.visible and (#movelist < 700) then
-				local effectid = MF_effectcreate("effect_bling")
-				local effect = mmf.newObject(effectid)
-				
-				local midx = math.floor(roomsizex * 0.5)
-				local midy = math.floor(roomsizey * 0.5)
-				local mx = x - midx
-				local my = y - midy
-				
-				local c1,c2 = getcolour(unitid)
-				MF_setcolour(effectid,c1,c2)
-				
-				local xvel,yvel = 0,0
-				
-				if (ox ~= 0) then
-					xvel = 0 - ox / math.abs(ox)
+				if (generaldata.values[DISABLEPARTICLES] == 0) then
+					local effectid = MF_effectcreate("effect_bling")
+					local effect = mmf.newObject(effectid)
+					
+					local midx = math.floor(roomsizex * 0.5)
+					local midy = math.floor(roomsizey * 0.5)
+					local mx = x - midx
+					local my = y - midy
+					
+					local c1,c2 = getcolour(unitid)
+					MF_setcolour(effectid,c1,c2)
+					
+					local xvel,yvel = 0,0
+					
+					if (ox ~= 0) then
+						xvel = 0 - ox / math.abs(ox)
+					end
+					
+					if (oy ~= 0) then
+						yvel = 0 - oy / math.abs(oy)
+					end
+					
+					local dx = mx + 0.5
+					local dy = my + 0.75
+					local dxvel = xvel
+					local dyvel = yvel
+					
+					if (generaldata2.values[ROOMROTATION] == 90) then
+						dx = my + 0.75
+						dy = 0 - mx - 0.5
+						dxvel = yvel
+						dyvel = 0 - xvel
+					elseif (generaldata2.values[ROOMROTATION] == 180) then
+						dx = 0 - mx - 0.5
+						dy = 0 - my - 0.75
+						dxvel = 0 - xvel
+						dyvel = 0 - yvel
+					elseif (generaldata2.values[ROOMROTATION] == 270) then
+						dx = 0 - my - 0.75
+						dy = mx + 0.5
+						dxvel = 0 - yvel
+						dyvel = xvel
+					end
+					
+					effect.values[ONLINE] = 3
+					effect.values[XPOS] = Xoffset + (midx + (dx) * generaldata2.values[ZOOM]) * tilesize * spritedata.values[TILEMULT]
+					effect.values[YPOS] = Yoffset + (midy + (dy) * generaldata2.values[ZOOM]) * tilesize * spritedata.values[TILEMULT]
+					effect.scaleX = generaldata2.values[ZOOM] * spritedata.values[TILEMULT]
+					effect.scaleY = generaldata2.values[ZOOM] * spritedata.values[TILEMULT]
+					
+					effect.values[XVEL] = dxvel * math.random(10,30) * 0.1 * spritedata.values[TILEMULT] * generaldata2.values[ZOOM]
+					effect.values[YVEL] = dyvel * math.random(10,30) * 0.1 * spritedata.values[TILEMULT] * generaldata2.values[ZOOM]
 				end
-				
-				if (oy ~= 0) then
-					yvel = 0 - oy / math.abs(oy)
-				end
-				
-				local dx = mx + 0.5
-				local dy = my + 0.75
-				local dxvel = xvel
-				local dyvel = yvel
-				
-				if (generaldata2.values[ROOMROTATION] == 90) then
-					dx = my + 0.75
-					dy = 0 - mx - 0.5
-					dxvel = yvel
-					dyvel = 0 - xvel
-				elseif (generaldata2.values[ROOMROTATION] == 180) then
-					dx = 0 - mx - 0.5
-					dy = 0 - my - 0.75
-					dxvel = 0 - xvel
-					dyvel = 0 - yvel
-				elseif (generaldata2.values[ROOMROTATION] == 270) then
-					dx = 0 - my - 0.75
-					dy = mx + 0.5
-					dxvel = 0 - yvel
-					dyvel = xvel
-				end
-				
-				effect.values[ONLINE] = 3
-				effect.values[XPOS] = Xoffset + (midx + (dx) * generaldata2.values[ZOOM]) * tilesize * spritedata.values[TILEMULT]
-				effect.values[YPOS] = Yoffset + (midy + (dy) * generaldata2.values[ZOOM]) * tilesize * spritedata.values[TILEMULT]
-				effect.scaleX = generaldata2.values[ZOOM] * spritedata.values[TILEMULT]
-				effect.scaleY = generaldata2.values[ZOOM] * spritedata.values[TILEMULT]
-				
-				effect.values[XVEL] = dxvel * math.random(10,30) * 0.1 * spritedata.values[TILEMULT] * generaldata2.values[ZOOM]
-				effect.values[YVEL] = dyvel * math.random(10,30) * 0.1 * spritedata.values[TILEMULT] * generaldata2.values[ZOOM]
 				
 				if (unit.values[TILING] == 2) then
 					unit.values[VISUALDIR] = ((unit.values[VISUALDIR] + 1) + 4) % 4

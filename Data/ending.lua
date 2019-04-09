@@ -264,7 +264,7 @@ function ending(enddataid)
 					name = "fall",
 					xpos = 21,
 					ypos = 13,
-					colour = {2,3},
+					colour = {2,4},
 					level = "16level",
 				},
 				{
