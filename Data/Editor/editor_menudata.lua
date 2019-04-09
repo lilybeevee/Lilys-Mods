@@ -193,6 +193,12 @@ menufuncs =
 				
 				y = y + tilesize
 				
+				local particles = MF_read("settings","settings","particles")
+				s,c = gettoggle(particles)
+				createbutton("particles",x,y,2,16,1,langtext("settings_particles"),name,3,2,buttonid,nil,s)
+				
+				y = y + tilesize
+				
 				local contrast = MF_read("settings","settings","contrast")
 				s,c = gettoggle(contrast)
 				createbutton("contrast",x,y,2,16,1,langtext("settings_palette"),name,3,2,buttonid,nil,s)
@@ -235,6 +241,7 @@ menufuncs =
 				{{"fullscreen"},},
 				{{"grid"},},
 				{{"wobble"},},
+				{{"particles"},},
 				{{"contrast"},},
 				{{"restartask"},},
 				{{"zoom1"},{"zoom2"},{"zoom3"},},
@@ -247,6 +254,7 @@ menufuncs =
 				--{{"language"},},
 				{{"grid"},},
 				{{"wobble"},},
+				{{"particles"},},
 				{{"contrast"},},
 				{{"restartask"},},
 				{{"zoom1"},{"zoom2"},{"zoom3"},},
