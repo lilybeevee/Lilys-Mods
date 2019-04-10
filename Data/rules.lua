@@ -128,6 +128,21 @@ function dumpobj(o)
    end
 end
 
+function simpledump(o)
+	if type(o) == 'table' then
+		local s = '{'
+		for k,v in pairs(o) do
+			s = s .. simpledump(v)
+			if k < #o then
+				s = s .. ','
+			end
+		end
+		return s .. '}'
+	else
+		return tostring(o)
+	end
+end
+
 function docode(firstwords)
 	local donefirstwords = {}
 	local limiter = 0
@@ -1105,46 +1120,52 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 			table.insert(nr_i, rule)
 		end
 		
-		if (#conds > 0) then
-			for i,cond in ipairs(conds) do
-				if (cond[2] ~= nil) then
-					if (#cond[2] > 0) then
-						local alreadyused = {}
-						local newconds = {}
-						local allfound = false
-						
-						--alreadyused[target] = 1
-						
-						for a,b in ipairs(cond[2]) do
-							if (b ~= "all") then
-								alreadyused[b] = 1
-								table.insert(newconds, b)
-							else
-								allfound = true
-							end
-						end
-						
-						if allfound then
-							for a,mat in pairs(objectlist) do
-								if (alreadyused[a] == nil) and (a ~= "group") and (a ~= "all") and (a ~= "text") then
-									table.insert(newconds, a)
-									alreadyused[a] = 1
+		local function fixgroupconds(conds)
+			if (#conds > 0) then
+				for i,cond in ipairs(conds) do
+					if (cond[2] ~= nil) then
+						if (#cond[2] > 0) then
+							local alreadyused = {}
+							local newconds = {}
+							local allfound = false
+							
+							--alreadyused[target] = 1
+							
+							for a,b in ipairs(cond[2]) do
+								if (type(b) == "table") then
+									fixgroupconds(b)
+									table.insert(newconds, b)
+								elseif (b ~= "all") then
+									alreadyused[b] = 1
+									table.insert(newconds, b)
+								else
+									allfound = true
 								end
 							end
+							
+							if allfound then
+								for a,mat in pairs(objectlist) do
+									if (alreadyused[a] == nil) and (a ~= "group") and (a ~= "all") and (a ~= "text") and (a ~= "any") then
+										table.insert(newconds, a)
+										alreadyused[a] = 1
+									end
+								end
+							end
+							
+							cond[2] = newconds
 						end
-						
-						cond[2] = newconds
 					end
 				end
 			end
 		end
+		fixgroupconds(conds)
 
 		local targetnot = string.sub(target, 1, 3)
 		local targetnot_ = string.sub(target, 5)
 		
 		if (targetnot == "not") and (objectlist[targetnot_] ~= nil) then
 			for i,mat in pairs(objectlist) do
-				if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= targetnot_) and (i ~= "text") then
+				if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= targetnot_) and (i ~= "text") and (i ~= "any") then
 					local rule = {i,verb,effect}
 					--print(i .. " " .. verb .. " " .. effect)
 					local newconds = {}
@@ -1159,7 +1180,7 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 		if (effect == "all") then
 			if (verb ~= "is") then 
 				for i,mat in pairs(objectlist) do
-					if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= "text") then
+					if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= "text") and (i ~= "any") then
 						local rule = {target,verb,i}
 						local newconds = {}
 						for a,b in ipairs(conds) do
@@ -1173,7 +1194,7 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 
 		if (target == "all") then
 			for i,mat in pairs(objectlist) do
-				if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= "text") then
+				if (i ~= "empty") and (i ~= "all") and (i ~= "level") and (i ~= "group") and (i ~= "text") and (i ~= "any") then
 					local rule = {i,verb,effect}
 					local newconds = {}
 					for a,b in ipairs(conds) do

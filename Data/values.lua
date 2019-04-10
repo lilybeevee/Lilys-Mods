@@ -9,13 +9,17 @@ activemod.condition_stacking = true
 activemod.auto_speed = 20
 
 activemod.macros["{x} is conduct"] = {
-	"{x} near all with hot is hot",
-	"{x} near text with hot is hot",
+	"{x} near any with hot is hot",
+	"{x} near any with hot is hot",
 }
 
-activemod.macros["{x} is you"] = {
+--[[activemod.macros["keke is {x}"] = {
+	"keke on any on keke is not {x}"
+}]]
+
+--[[activemod.macros["{x} is you"] = {
 	"{x} on keke is best",
-}
+}]]
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
@@ -1885,7 +1889,7 @@ tileslist =
 	--
 	-- CUSTOM BLOCKS START
 	--
-	object120 =
+	--[[object120 =
 	{
 		name = "text_bait",
 		sprite = "text_bait",
@@ -1898,7 +1902,7 @@ tileslist =
 		tile = {1, 12},
 		grid = {11, 1},
 		layer = 20,
-	},
+	},]]
 	object121 =
 	{
 		name = "text_lure",
@@ -2038,6 +2042,20 @@ tileslist =
 		active = {0, 1},
 		tile = {10, 12},
 		grid = {11, 3},
+		layer = 20,
+	},
+	object120 =
+	{
+		name = "text_any",
+		sprite = "text_any",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 0,
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {11, 12},
+		grid = {11, 1},
 		layer = 20,
 	},
 }

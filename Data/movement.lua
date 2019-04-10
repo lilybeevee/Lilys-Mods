@@ -705,7 +705,7 @@ function modupdate(name)
 	end
 
 	if name == "chain" and activemod.enabled["chain"] then
-		local chains = findallfeature(nil,"is","chain")
+		--[[local chains = findallfeature(nil,"is","chain")
 
 		local prevchained = copytable(chainedunits)
 		local chainedunits = {}
@@ -727,7 +727,7 @@ function modupdate(name)
 					chainedunits[unit.fixed] = nil
 				end
 			end
-		end
+		end]]
 	end
 end
 

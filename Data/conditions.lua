@@ -87,8 +87,10 @@ function testcond(conds,unitid,x_,y_)
 											if (d ~= unitid) then
 												local unit = mmf.newObject(d)
 												local name_ = getname(unit)
+
+												print(name .. " " .. condtype .. " " .. b)
 												
-												if (name_ == b) and (alreadyfound[b] == nil) then
+												if ((name_ == b) or (b == "any")) and (alreadyfound[b] == nil) then
 													if testcondstack(iconds,d,x,y) then
 														alreadyfound[b] = 1
 														allfound = allfound + 1
@@ -183,7 +185,7 @@ function testcond(conds,unitid,x_,y_)
 												local unit = mmf.newObject(d)
 												local name_ = getname(unit)
 												
-												if (name_ == b) then
+												if (name_ == b) or (b == "any") then
 													if testcondstack(iconds,d,x,y) then
 														result = false
 													end
@@ -280,7 +282,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) and (alreadyfound[b] == nil) then
+														if ((name_ == b) or (b == "any")) and (alreadyfound[b] == nil) then
 															if testcondstack(iconds,d,(x+ox),(y+oy)) then
 																alreadyfound[b] = 1
 																allfound = allfound + 1
@@ -355,7 +357,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) then
+														if (name_ == b) or (b == "any") then
 															if testcondstack(iconds,d,(x+ox),(y+oy)) then
 																result = false
 															end
@@ -417,7 +419,7 @@ function testcond(conds,unitid,x_,y_)
 															local unit = mmf.newObject(d)
 															local name_ = getname(unit)
 															
-															if (name_ == b) and (alreadyfound[b] == nil) then
+															if ((name_ == b) or (b == "any")) and (alreadyfound[b] == nil) then
 																if testcondstack(iconds,d,(x+g),(y+h)) then
 																	alreadyfound[b] = 1
 																	allfound = allfound + 1
@@ -529,7 +531,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) then
+														if (name_ == b) or (b == "any") then
 															if testcondstack(iconds,d,(x+g),(y+h)) then
 																result = false
 															end

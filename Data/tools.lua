@@ -538,14 +538,20 @@ function textfromrule(rules)
 	return text
 end
 
-function rulefromtext(text,replace_)
+function rulefromtext(text_,replace_)
 	local rules,conds = {{},{},{}},{}
+	local text = text_
 	local replace = replace_ or {}
 
 	local isnot = false
 	local lasttype = -1
 	local group = rules[1]
 	local doingconds = false
+
+	for o,r in pairs(replace) do
+		local newtext,_ = string.gsub(text, "{" .. o .. "}", r)
+		text = newtext
+	end
 
 	print("rule from text: " .. text)
 
@@ -561,22 +567,18 @@ function rulefromtext(text,replace_)
 			end
 		end
 
-		print("word: " .. word)
+		local type = -1
 
 		local realname = unitreference["text_" .. word]
 		if not realname then
-			break
+			type = 0
 		end
 
-		local type = -1
-		if changes[realname] then
+		if type == -1 and changes[realname] then
 			type = changes[realname].type or -1
 		end
-		if type == -1 then
-			type = tileslist[realname].type
-		end
-		if type == -1 then
-			break
+		if type == -1 and tileslist[realname] then
+			type = tileslist[realname].type or 0
 		end
 
 		local prefix = ""
@@ -622,7 +624,7 @@ function rulefromtext(text,replace_)
 		lasttype = type
 	end
 
-	print("final: " .. dumpobj(rules) .. "," .. dumpobj(conds))
+	print("final: " .. simpledump(rules) .. "," .. simpledump(conds))
 
 	if #rules[3] > 0 then
 		return rules,conds
