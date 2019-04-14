@@ -299,6 +299,7 @@ function undo()
 				elseif (style == "maprotation") then
 					if not hasfeature("level","is","persist") then
 						maprotation = line[2]
+						mapdir = line[3]
 						MF_levelrotation(maprotation)
 					else
 						table.insert(persisted, line)
@@ -321,6 +322,9 @@ function undo()
 				elseif (style == "chain") then
 					local unitid = line[2]
 					chainedunits[unitid] = line[3]
+				elseif (style == "any") then
+					lastchosenany = line[2]
+					updatecode = 1
 				end
 			end
 		end

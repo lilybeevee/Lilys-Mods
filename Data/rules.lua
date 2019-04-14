@@ -35,6 +35,7 @@ function code()
 		visualfeatures = {}
 		notfeatures = {}
 		macros = {}
+		chosenany = {}
 		local firstwords = {}
 		local alreadyused = {}
 		
@@ -102,6 +103,10 @@ function code()
 			local newwordunits,newwordidentifier = findwordunits()
 			
 			--MF_alert("ID comparison: " .. newwordidentifier .. " - " .. wordidentifier)
+
+			addundo({"any",lastchosenany})
+			lastchosenany = chosenany
+			print("-----")
 			
 			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1
@@ -1203,6 +1208,48 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 					addoption(rule,newconds,ids,false,nil,true)
 				end
 			end
+		end
+
+		if (target == "any") then
+			local newobject = nil
+			--print(simpledump(lastchosenany))
+			--print(simpledump(ids))
+			if lastchosenany then
+				for _,v in ipairs(lastchosenany) do
+					local lastids = v[2]
+					if #lastids == #ids then
+						local match = true
+						for i,id in ipairs(lastids) do
+							if ids[i][1] ~= id[1] then
+								match = false
+							end
+						end
+						if match then
+							newobject = v[1]
+							break
+						end
+					end
+				end
+			end
+			if newobject == nil then
+				local options = {}
+				for d,mat in pairs(objectlist) do
+					if (d ~= "group") and (d ~= "all") and (a ~= "any") then
+						table.insert(options, d)
+					end
+				end
+				if not objectlist["text"] then
+					table.insert(options, "text")
+				end
+				newobject = options[math.random(1,#options)]
+			end
+			local rule = {newobject,verb,effect}
+			local newconds = {}
+			for a,b in ipairs(conds) do
+				table.insert(newconds, b)
+			end
+			addoption(rule,newconds,ids,false,nil,true)
+			table.insert(chosenany,{newobject,ids})
 		end
 	end
 end

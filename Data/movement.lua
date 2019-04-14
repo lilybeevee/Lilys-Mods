@@ -3,7 +3,9 @@ function movecommand(ox,oy,dir_,playerid_)
 	if autoturn then
 		statusblockids = {}
 		for id,v in pairs(autounits) do
-			table.insert(statusblockids, id)
+			if id ~= 2 and id ~= 1 then
+				table.insert(statusblockids, id)
+			end
 		end
 	end
 
@@ -641,6 +643,22 @@ function movecommand(ox,oy,dir_,playerid_)
 		MF_scrollroom(ox * tilesize,oy * tilesize)
 		updateundo = true
 		hasmoved[1] = true
+	end
+	
+	if hasfeature("level","is","turn",1) and autocheck(1) then
+		addundo({"maprotation",maprotation,mapdir})
+		mapdir = (mapdir - 1) % 4
+		if mapdir == 3 then
+			maprotation = 0
+		elseif mapdir == 0 then
+			maprotation = 90
+		elseif mapdir == 1 then
+			maprotation = 180
+		elseif mapdir == 2 then
+			maprotation = 270
+		end
+		MF_levelrotation(maprotation)
+		updateundo = true
 	end
 
 	modupdate("still")

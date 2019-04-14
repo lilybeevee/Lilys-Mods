@@ -136,22 +136,22 @@ function domaprotation()
 			if testcond(conds,1) then
 				if (rule[1] == "level") and (rule[2] == "is") then
 					if (rule[3] == "down") then
-						addundo({"maprotation",maprotation,0,3})
+						addundo({"maprotation",maprotation,mapdir})
 						maprotation = 0
 						mapdir = 3
 						MF_levelrotation(maprotation)
 					elseif (rule[3] == "right") then
-						addundo({"maprotation",maprotation,90,0})
+						addundo({"maprotation",maprotation,mapdir})
 						maprotation = 90
 						mapdir = 0
 						MF_levelrotation(maprotation)
 					elseif (rule[3] == "up") then
-						addundo({"maprotation",maprotation,180,1})
+						addundo({"maprotation",maprotation,mapdir})
 						maprotation = 180
 						mapdir = 1
 						MF_levelrotation(maprotation)
 					elseif (rule[3] == "left") then
-						addundo({"maprotation",maprotation,270,2})
+						addundo({"maprotation",maprotation,mapdir})
 						maprotation = 270
 						mapdir = 2
 						MF_levelrotation(maprotation)
@@ -543,6 +543,11 @@ function doautoturn()
 		else
 			livecount[unitid] = livecount[unitid] + 1
 		end
+	end
+
+	local levelauto = findfeature("level","is","auto")
+	if levelauto then
+		livecount[1] = #levelauto
 	end
 
 	local finals = {}

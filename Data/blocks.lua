@@ -511,7 +511,15 @@ function fallblock(things)
 				local onground = false
 				
 				while (onground == false) do
-					local below,below_,specials = check(unitid,x,y,3,false,"fall")
+					local falldir = mapdir
+					if falldir == 0 then
+						falldir = 2
+					elseif falldir == 2 then
+						falldir = 0
+					end
+					local ndrs = ndirs[falldir+1]
+					local ox,oy = ndrs[1],ndrs[2]
+					local below,below_,specials = check(unitid,x,y,falldir,false,"fall")
 					
 					local result = 0
 					for c,d in pairs(below) do
@@ -540,14 +548,15 @@ function fallblock(things)
 						local gone = false
 						
 						if (result == 0) then
-							update(unitid,x,y+1)
+							update(unitid,x+ox,y+oy)
 						elseif (result == 2) then
 							gone = move(unitid,0,1,dir,specials,true,true)
 						end
 						
 						-- Poista tästä kommenttimerkit jos haluat, että fall tsekkaa juttuja per pudottu tile
 						if (gone == false) then
-							y = y + 1
+							x = x + ox
+							y = y + oy
 							--block({unitid},true)
 							settled = false
 							
