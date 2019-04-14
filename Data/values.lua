@@ -4,7 +4,6 @@ activemod.macros = {}
 activemod.enabled["still"] = true
 activemod.enabled["auto"] = true
 activemod.enabled["persist"] = true
-activemod.enabled["chain"] = true
 activemod.condition_stacking = true
 activemod.auto_speed = 20
 
@@ -12,14 +11,6 @@ activemod.macros["{x} is conduct"] = {
 	"{x} near any with hot is hot",
 	"{x} near any with hot is hot",
 }
-
---[[activemod.macros["keke is {x}"] = {
-	"keke on any on keke is not {x}"
-}]]
-
---[[activemod.macros["{x} is you"] = {
-	"{x} on keke is best",
-}]]
 
 dirs = {{1,0},{0,1},{-1,0},{0,-1},{0,0}}
 ndirs = {{1,0},{0,-1},{-1,0},{0,1},{0,0}}
@@ -2032,14 +2023,14 @@ tileslist =
 		layer = 20,
 	}]]
 	object125 = {
-		name = "text_chain",
-		sprite = "text_chain",
+		name = "text_sticky",
+		sprite = "text_sticky",
 		sprite_in_root = true,
 		unittype = "text",
 		tiling = -1,
 		type = 2,
-		colour = {1, 1},
-		active = {0, 1},
+		colour = {5, 1},
+		active = {5, 3},
 		tile = {10, 12},
 		grid = {11, 3},
 		layer = 20,

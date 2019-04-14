@@ -668,7 +668,6 @@ function movecommand(ox,oy,dir_,playerid_)
 	doupdate()
 	code()
 	moveblock()
-	modupdate("chain")
 	
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)
@@ -721,32 +720,6 @@ function modupdate(name)
 			stillid = newstillid
 		end
 	end
-
-	if name == "chain" and activemod.enabled["chain"] then
-		--[[local chains = findallfeature(nil,"is","chain")
-
-		local prevchained = copytable(chainedunits)
-		local chainedunits = {}
-		for _,id in ipairs(chains) do
-			if id ~= 1 and id ~= 2 then
-				local unit = mmf.newObject(id)
-				local name = getname(unit)
-
-				local ischain = hasfeature(name,"is","chain",id)
-
-				local prevchain = prevchained[id]
-
-				if ischain and not chain then
-					local x,y = unit.values[XPOS],unit.values[YPOS]
-					addundo({"chain",id,chain})
-					chainedunits[id] = {x,y}
-				elseif not ischain and chain then
-					addundo({"chain",unit.fixed,chain})
-					chainedunits[unit.fixed] = nil
-				end
-			end
-		end]]
-	end
 end
 
 function check(unitid,x,y,dir,pulling_,reason)
@@ -791,16 +764,6 @@ function check(unitid,x,y,dir,pulling_,reason)
 		lockpartner = "shut"
 	elseif (shut ~= nil) then
 		lockpartner = "open"
-	end
-
-	local selfweak = hasfeature(name,"is","weak",unitid,x,y)
-
-	local chain = chainedunits[unitid]
-	if chain and not selfweak then
-		if math.abs((x+ox) - chain[1]) > 1 or math.abs((y+oy) - chain[2]) > 1 then
-			table.insert(result, 1)
-			table.insert(results, -1)
-		end
 	end
 	
 	local obs = findobstacle(x+ox,y+oy)

@@ -55,7 +55,6 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	autotimer = 0
 	autoturn = false
 	doreset = false
-	chainedunits = {}
 	
 	HACK_MOVES = 0
 	
@@ -212,7 +211,6 @@ function clear()
 	autotimer = 0
 	autoturn = false
 	doreset = false
-	chainedunits = {}
 	
 	HACK_MOVES = 0
 	

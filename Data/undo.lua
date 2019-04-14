@@ -319,9 +319,6 @@ function undo()
 					still = line[2]
 					stillid = line[3]
 					donemove = line[4]
-				elseif (style == "chain") then
-					local unitid = line[2]
-					chainedunits[unitid] = line[3]
 				elseif (style == "any") then
 					lastchosenany = line[2]
 					updatecode = 1
