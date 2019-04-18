@@ -106,7 +106,6 @@ function code()
 
 			addundo({"any",lastchosenany})
 			lastchosenany = chosenany
-			print("-----")
 			
 			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1

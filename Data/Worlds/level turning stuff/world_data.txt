@@ -1,0 +1,7 @@
+[levels]
+levelid=2
+
+[general]
+name=level turning stuff
+start=1level
+firstlevel=1level

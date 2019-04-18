@@ -1,8 +1,8 @@
 [tiles]
-object054_image=text_conduct
 object054_name=text_conduct
-object076_image=text_turn
+object054_image=text_conduct
 object076_name=text_turn
+object076_image=text_turn
 changed=object076,object054,object048,
 
 [general]
