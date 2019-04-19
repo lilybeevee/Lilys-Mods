@@ -13,8 +13,6 @@ function movecommand(ox,oy,dir_,playerid_)
 
 	statusblock(statusblockids)
 
-	print("step")
-
 	movelist = {}
 	hasmoved = {}
 	
@@ -363,12 +361,56 @@ function movecommand(ox,oy,dir_,playerid_)
 
 						newdirs[data.unitid] = dir
 						
+
 						local ndrs = ndirs[dir + 1]
 						local ox,oy = ndrs[1],ndrs[2]
 						local pushobslist = {}
+
+						local allsticky,pushsticky,pullsticky,stickyresult = stickycheck(data.unitid,dir,false,data.unitid)
+						local doingsticky = #allsticky > 0 or result == 1
 						
-						local obslist,allobs,specials = check(data.unitid,x,y,dir,false,data.reason)
-						local pullobs,pullallobs,pullspecials = check(data.unitid,x,y,dir,true,data.reason)
+						local obslist,allobs,specials,pushids = {},{},{},{}
+						local pullobs,pullallobs,pullspecials,pullids = {},{},{},{}
+
+						if not doingsticky then
+							obslist,allobs,specials = check(data.unitid,x,y,dir,false,data.reason)
+							pullobs,pullallobs,pullspecials = check(data.unitid,x,y,dir,true,data.reason)
+						else
+							for _,v in ipairs(pushsticky) do
+								local newobs,allnewobs,newspecials = check(v[1],v[2],v[3],dir,false,data.reason)
+								for c,d in ipairs(newobs) do
+									if stickyresult == 1 then
+										table.insert(obslist, 1)
+									else
+										table.insert(obslist, d)
+									end
+									table.insert(pushids, v[1])
+								end
+								for c,d in ipairs(allnewobs) do
+									table.insert(allobs, d)
+								end
+								for c,d in ipairs(newspecials) do
+									table.insert(specials, d)
+								end
+							end
+							for _,v in ipairs(pullsticky) do
+								local newobs,allnewobs,newspecials = check(v[1],v[2],v[3],dir,true,data.reason)
+								for c,d in ipairs(newobs) do
+									if stickyresult == 1 then
+										table.insert(pullobs, 1)
+									else
+										table.insert(pullobs, d)
+									end
+									table.insert(pullids, v[1])
+								end
+								for c,d in ipairs(allnewobs) do
+									table.insert(pullallobs, d)
+								end
+								for c,d in ipairs(newspecials) do
+									table.insert(pullspecials, d)
+								end
+							end
+						end
 						
 						local swap = hasfeature(name,"is","swap",data.unitid,x,y)
 						
@@ -403,7 +445,7 @@ function movecommand(ox,oy,dir_,playerid_)
 											local solid = true
 											
 											for f,g in pairs(specials) do
-												if (g[1] == thisobs) and (g[2] == "weak") then
+												if (g[1] == thisobs) or (g[1] == pushids[c]) and (g[2] == "weak") then
 													solid = false
 													obs = 0
 													result = math.max(result, 0)
@@ -447,6 +489,10 @@ function movecommand(ox,oy,dir_,playerid_)
 								end
 								
 								table.insert(movelist, {data.unitid,ox,oy,dir,specials})
+
+								for _,v in ipairs(allsticky) do
+									table.insert(movelist, {v[1],ox,oy,dir,specials})
+								end
 								--move(data.unitid,ox,oy,dir,specials)
 								
 								local swapped = {}
@@ -474,11 +520,12 @@ function movecommand(ox,oy,dir_,playerid_)
 								for c,pobs in ipairs(pullobs) do
 									if (pobs < -1) or (pobs > 1) then
 										local paobs = pullallobs[c]
+										local pullid = pullids[c] or data.unitid
 										
-										local hm = trypush(paobs,ox,oy,dir,true,x,y,data.reason,data.unitid)
+										local hm = trypush(paobs,ox,oy,dir,true,x,y,data.reason,pullid)
 										--babaprint("pull: " .. hm)
 										if (hm == 0) then
-											table.insert(finalpullobs, paobs)
+											table.insert(finalpullobs, {paobs, pullid})
 										end
 									elseif (pobs == -1) then
 										local levelpull_ = findfeature("level","is","pull")
@@ -495,7 +542,7 @@ function movecommand(ox,oy,dir_,playerid_)
 								
 								for c,pobs in ipairs(finalpullobs) do
 									pushedunits = {}
-									dopush(pobs,ox,oy,dir,true,x,y,data.reason,data.unitid)
+									dopush(pobs[1],ox,oy,dir,true,x,y,data.reason,pobs[2])
 								end
 								
 								solved = true
@@ -508,7 +555,6 @@ function movecommand(ox,oy,dir_,playerid_)
 									
 									for c,pushobs in ipairs(pushobslist) do
 										local hm = trypush(pushobs,ox,oy,dir,false,x,y,data.reason)
-										--babaprint("push: " .. hm)
 										if (hm == 0) then
 											table.insert(finalpushobs, pushobs)
 										elseif (hm == 1) or (hm == -1) then
@@ -569,8 +615,8 @@ function movecommand(ox,oy,dir_,playerid_)
 					data.state = 10
 					
 					local tunit = mmf.newObject(data.unitid)
-					
-					if (data.moves == 0) then
+
+					if (data.moves <= 0) then
 						--print(tunit.strings[UNITNAME] .. " - removed from queue")
 						table.insert(delete_moving_units, i)
 					else
@@ -806,6 +852,9 @@ function check(unitid,x,y,dir,pulling_,reason)
 					end
 				end
 				
+				local weak = hasfeature(obsname,"is","weak",id)
+				local selfweak = hasfeature(name,"is","weak",unitid)
+
 				if not stickyconnect then
 					if (lockpartner ~= "") and (pulling == false) then
 						local partner = hasfeature(obsname,"is",lockpartner,id)
@@ -825,11 +874,15 @@ function check(unitid,x,y,dir,pulling_,reason)
 						end
 					end
 					
-					local weak = hasfeature(obsname,"is","weak",id)
 					if (weak ~= nil) and (pulling == false) then
 						if (issafe(id) == false) then
 							--valid = false
 							table.insert(specials, {id, "weak"})
+						end
+					elseif sticky and selfweak and not pulling then
+						if (issafe(id) == false) then
+							--valid = false
+							table.insert(specials, {unitid, "weak"})
 						end
 					end
 				end
@@ -967,7 +1020,7 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 	if not doingsticky then
 		local fulllist,pushlist,pulllist,result_ = stickycheck(unitid,dir,pulling)
 		if #fulllist > 0 then
-			if result_ == 1 then
+			if result_ == 1 and (not weak or pulling) then
 				return 1
 			end
 
@@ -984,7 +1037,11 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 				result = math.max(result, trypush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,true))
 			end
 
-			return result
+			if not weak or pulling then
+				return result
+			else
+				return 0
+			end
 		end
 	end
 
@@ -1072,7 +1129,33 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 				result = math.max(result, dopush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,stickyspecials))
 			end 
 
-			if (not pulling and result < 2) or (pulling and result < 1) then
+			if result > 0 then
+				if not hasfeature(name,"is","weak",unitid,x,y) then
+					local localresult = 0
+					for _,v in ipairs(pushlist) do
+						local punit = mmf.newObject(v[1])
+						local pname = getname(punit)
+						local px,py = v[2],v[3]
+
+						if not hasfeature(pname,"is","weak",v[1],px,py) then
+							localresult = 1
+						end
+					end
+					if localresult == 0 then
+						result = 0
+					end
+				else
+					delete(unitid,x,y)
+				
+					local pmult,sound = checkeffecthistory("weak")
+					setsoundname("removal",1,sound)
+					generaldata.values[SHAKE] = 3
+					MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
+					result = 0
+				end
+			end
+
+			if result < 1 then
 				local moveentry = {}
 				for _,v in ipairs(fulllist) do
 					moveentry[v[1]] = {v[1],ox,oy,dir,{}}
@@ -1087,14 +1170,6 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 						moveentry[v[1]][5] = movespecial[v[1]]
 					end
 				end
-			elseif hasfeature(name,"is","weak",unitid,x,y) then
-				delete(unitid,x,y)
-				
-				local pmult,sound = checkeffecthistory("weak")
-				setsoundname("removal",1,sound)
-				generaldata.values[SHAKE] = 3
-				MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
-				result = 0
 			end
 
 			return result
@@ -1624,7 +1699,7 @@ function findcopycats(target)
 	return result
 end
 
-function stickycheck(unitid,dir,pulling,alreadychecked,fromdir,lastpull,topull_,allowpull)
+function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,topull_,allowpull)
 	local pushlist = {}
 	local pulllist = {}
 	local fulllist = {}
@@ -1675,7 +1750,10 @@ function stickycheck(unitid,dir,pulling,alreadychecked,fromdir,lastpull,topull_,
 	end
 
 	table.insert(alreadychecked, unitid)
-	table.insert(fulllist, {unitid, x, y})
+
+	if ignored ~= unitid then
+		table.insert(fulllist, {unitid, x, y})
+	end
 
 	for i=1,4 do
 		local ndrs = ndirs[i]
@@ -1695,7 +1773,7 @@ function stickycheck(unitid,dir,pulling,alreadychecked,fromdir,lastpull,topull_,
 				ignore = true
 			end]]
 			if not ignore then
-				local fulllist_,pushlist_,pulllist_,result_ = stickycheck(id,dir,pulling,alreadychecked,i-1,ispull,topull,allowpull)
+				local fulllist_,pushlist_,pulllist_,result_ = stickycheck(id,dir,pulling,ignored,alreadychecked,i-1,ispull,topull,allowpull)
 				if #fulllist_ > 0 then
 					foundnone = false
 				end
@@ -1715,27 +1793,27 @@ function stickycheck(unitid,dir,pulling,alreadychecked,fromdir,lastpull,topull_,
 			if i-1 == rotate(dir) then
 				table.insert(pulllist, {unitid, x, y})
 				if not alreadysetcolour then
-					MF_setcolour(unitid,4,2)
+					--MF_setcolour(unitid,4,2)
 					alreadysetcolour = true
 				else
-					MF_setcolour(unitid,3,1)
+					--MF_setcolour(unitid,3,1)
 				end
 			elseif i-1 == dir then
 				table.insert(pushlist, {unitid, x, y})
 				if not alreadysetcolour then
-					MF_setcolour(unitid,1,3)
+					--MF_setcolour(unitid,1,3)
 					alreadysetcolour = true
 				else
-					MF_setcolour(unitid,3,1)
+					--MF_setcolour(unitid,3,1)
 				end
 			end
 		end
 	end
 
 	if selfstop then
-		MF_setcolour(unitid,4,1)
+		--MF_setcolour(unitid,4,1)
 	elseif not alreadysetcolour then
-		MF_setcolour(unitid,0,3)
+		--MF_setcolour(unitid,0,3)
 	end
 
 	if root then
@@ -1744,11 +1822,11 @@ function stickycheck(unitid,dir,pulling,alreadychecked,fromdir,lastpull,topull_,
 			pullcount = pullcount + 1
 			if v == 0 then
 				result = 1
-				MF_setcolour(i,4,1)
+				--MF_setcolour(i,4,1)
 			end
 		end
 		if pullcount > 0 and result == 0 then
-			local a,b,c,d = stickycheck(unitid,dir,pulling,{},fromdir,false,{},true)
+			local a,b,c,d = stickycheck(unitid,dir,pulling,ignored,{},fromdir,false,{},true)
 			return a,b,c,d
 		end
 	end

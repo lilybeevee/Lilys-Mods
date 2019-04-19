@@ -763,6 +763,7 @@ function block(small_)
 						local vunit = mmf.newObject(v)
 						local thistype = vunit.strings[UNITTYPE]
 						if (v ~= unit.fixed) then
+							print("WRYYY")
 							local pmult,sound = checkeffecthistory("weak")
 							MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
 							removalshort = sound
