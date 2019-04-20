@@ -1021,7 +1021,7 @@ function addmacros(option,ids,ignoremeans)
 					for _,i in ipairs(rules[1]) do
 						for _,j in ipairs(rules[2]) do
 							for _,k in ipairs(rules[3]) do
-								addoption({i,j,k},conds,ids,true,nil,ignoremeans,option)
+								addoption({i,j,k},conds,ids,false,nil,ignoremeans,option)
 							end
 						end
 					end

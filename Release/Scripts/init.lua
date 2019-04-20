@@ -50,6 +50,7 @@ end
 
 mod.alltiles = {
 	"means",
+	"sticky",
 	"bait",
 	"lure",
 	"turn",
@@ -59,6 +60,7 @@ mod.alltiles = {
 	"copy",
 	"with",
 	"still",
+	"any",
 }
 
 function mod.addblock(tile)

@@ -11,8 +11,10 @@ mod.enabled["means"] = true
 mod.enabled["copy"] = true
 mod.enabled["with"] = true
 mod.enabled["still"] = true
+mod.enabled["any"] = false
 
 -- Properties
+mod.enabled["sticky"] = false
 mod.enabled["bait"] = true
 mod.enabled["lure"] = true
 mod.enabled["turn"] = false
@@ -32,11 +34,13 @@ activemod.auto_speed = 20
 -------------------------------------------------
 -- Patterns only work in NOUN VERB PROP format --
 -------------------------------------------------
+--          !!!     UNFINISHED     !!!         --
+-------------------------------------------------
 
-activemod.macros["{x} is conduct"] = {
+--[[activemod.macros["{x} is conduct"] = {
 	"{x} near all with hot is hot",
 	"{x} near text with hot is hot",
-}
+}]]
 
 
 --------------------------------
@@ -178,4 +182,30 @@ mod.tile["auto"] = {
 	layer = 20,
 }
 
--- Current highest tile: {9, 12}
+mod.tile["sticky"] = {
+	name = "text_sticky",
+	sprite = "text_sticky",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {5, 1},
+	active = {5, 3},
+	tile = {10, 12},
+	layer = 20,
+}
+
+mod.tile["any"] = {
+	name = "text_any",
+	sprite = "text_any",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 0,
+	colour = {0, 1},
+	active = {0, 3},
+	tile = {11, 12},
+	layer = 20,
+}
+
+-- Current highest tile: {11, 12}
