@@ -179,10 +179,12 @@ function hasfeature(rule1,rule2,rule3,unitid,x,y)
 	return nil
 end
 
-function findallfeature(rule1,rule2,rule3)
+function findallfeature(rule1,rule2,rule3,ignore_empty_)
 	local group = findfeature(rule1,rule2,rule3)
+	local ignore_empty = ignore_empty_ or false
 	
 	local result = {}
+	local empty = {}
 	
 	if (group ~= nil) then
 		for i,v in ipairs(group) do
@@ -191,14 +193,48 @@ function findallfeature(rule1,rule2,rule3)
 				
 				for a,b in ipairs(groupmembers) do
 					table.insert(result, b)
+					table.insert(empty, {})
 				end
 			else
-				table.insert(result, 2)
+				if (ignore_empty == false) then
+					local conds = v[2]
+					local needstest = false
+					local valid = true
+					
+					if (#conds > 0) and ((conds[1] ~= nil) and (conds[1][1] ~= "never")) then
+						needstest = true
+					elseif (#conds > 0) and ((conds[1] ~= nil) and (conds[1][1] == "never")) then
+						valid = false
+					end
+					
+					if valid then
+						table.insert(result, 2)
+						table.insert(empty, {})
+						
+						local thisempty = empty[#empty]
+						
+						for a=1,roomsizex-2 do
+							for b=1,roomsizey-2 do
+								local tileid = a + b * roomsizex
+								
+								if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then
+									if (needstest == false) then
+										thisempty[tileid] = 0
+									else
+										if testcond(conds,2,a,b) then
+											thisempty[tileid] = 0
+										end
+									end
+								end
+							end
+						end
+					end
+				end
 			end
 		end
 	end
 	
-	return result
+	return result,empty
 end
 
 function getunitswitheffect(rule3,delthese_)

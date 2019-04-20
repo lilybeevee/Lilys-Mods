@@ -1288,8 +1288,6 @@ function gateunlock(dataid,cursorid)
 					end
 				end
 				
-				MF_alert(gatetype)
-				
 				MF_gateeffect(unitid,unit.values[A],gatetype)
 				MF_playsound("roll")
 			end
@@ -1362,10 +1360,13 @@ function handlespecial(unitid,type,data)
 			local x = Xoffset + unit.values[XPOS] * tilesize * spritedata.values[TILEMULT] + tilesize * spritedata.values[TILEMULT] * 0.5
 			local y = Yoffset + unit.values[YPOS] * tilesize * spritedata.values[TILEMULT] + tilesize * spritedata.values[TILEMULT] * 0.5
 			
+			local xtile = unit.values[XPOS]
+			local ytile = unit.values[YPOS]
+			
 			if (gamepad == nil) or ((gamepad ~= nil) and (subtype ~= "down")) then
-				createcontrolicon(subtype,gamepad_,x,y,"InGame",nil,1)
+				createcontrolicon(subtype,gamepad_,x,y,"InGame",nil,1,{xtile,ytile})
 			elseif (gamepad ~= nil) and (subtype == "down") then
-				createcontrolicon("move",gamepad_,x,y,"InGame",nil,1)
+				createcontrolicon("move",gamepad_,x,y,"InGame",nil,1,{xtile,ytile})
 			end
 		end
 	elseif (type == "level") then

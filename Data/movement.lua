@@ -28,6 +28,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		if (finaltake == false) then
 			if (dir_ ~= 4) and (take == 1) then
 				local players = {}
+				local empty = {}
 				local playerid = 1
 				
 				if (playerid_ ~= nil) then
@@ -35,12 +36,12 @@ function movecommand(ox,oy,dir_,playerid_)
 				end
 				
 				if (playerid == 1) then
-					players = findallfeature(nil,"is","you")
+					players,empty = findallfeature(nil,"is","you")
 				elseif (playerid == 2) then
-					players = findallfeature(nil,"is","you2")
+					players,empty = findallfeature(nil,"is","you2")
 					
 					if (#players == 0) then
-						players = findallfeature(nil,"is","you")
+						players,empty = findallfeature(nil,"is","you")
 					end
 				end
 				
@@ -58,6 +59,19 @@ function movecommand(ox,oy,dir_,playerid_)
 						else
 							updatedir(v, dir_)
 						end
+					else
+						local thisempty = empty[i]
+						
+						for a,b in pairs(thisempty) do
+							local x = a % roomsizex
+							local y = math.floor(a / roomsizex)
+							
+							local sleep = hasfeature("empty","is","sleep",2,x,y)
+							
+							if (sleep ~= nil) then
+								thisempty[a] = nil
+							end
+						end
 					end
 					
 					if (sleeping == false) then
@@ -66,10 +80,20 @@ function movecommand(ox,oy,dir_,playerid_)
 							if (v ~= 2) then
 								local unit = mmf.newObject(v)
 								x,y = unit.values[XPOS],unit.values[YPOS]
+								
+								table.insert(moving_units, {unitid = v, reason = "you", state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
+								been_seen[v] = #moving_units
+							else
+								local thisempty = empty[i]
+								
+								for a,b in pairs(thisempty) do
+									x = a % roomsizex
+									y = math.floor(a / roomsizex)
+								
+									table.insert(moving_units, {unitid = 2, reason = "you", state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
+									been_seen[v] = #moving_units
+								end
 							end
-							
-							table.insert(moving_units, {unitid = v, reason = "you", state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
-							been_seen[v] = #moving_units
 						else
 							local id = been_seen[v]
 							local this = moving_units[id]
@@ -80,13 +104,13 @@ function movecommand(ox,oy,dir_,playerid_)
 			end
 			
 			if (take == 2) then
-				local movers = findallfeature(nil,"is","move")
-				moving_units,been_seen = add_moving_units("move",movers,moving_units,been_seen)
+				local movers,mempty = findallfeature(nil,"is","move")
+				moving_units,been_seen = add_moving_units("move",movers,moving_units,been_seen,mempty)
 				
-				local chillers = findallfeature(nil,"is","chill")
-				moving_units,been_seen = add_moving_units("chill",chillers,moving_units,been_seen)
+				local chillers,cempty = findallfeature(nil,"is","chill")
+				moving_units,been_seen = add_moving_units("chill",chillers,moving_units,been_seen,cempty)
 				
-				local fears = findallfeature(nil,"fear",nil)
+				local fears,empty = findallfeature(nil,"fear",nil)
 				
 				for i,v in ipairs(fears) do
 					local valid,feardir = findfears(v)
@@ -104,6 +128,19 @@ function movecommand(ox,oy,dir_,playerid_)
 							else
 								updatedir(v, feardir)
 							end
+						else
+							local thisempty = empty[i]
+							
+							for a,b in pairs(thisempty) do
+								local x = a % roomsizex
+								local y = math.floor(a / roomsizex)
+								
+								local sleep = hasfeature("empty","is","sleep",2,x,y)
+								
+								if (sleep ~= nil) then
+									thisempty[a] = nil
+								end
+							end
 						end
 						
 						if (sleeping == false) then
@@ -112,10 +149,20 @@ function movecommand(ox,oy,dir_,playerid_)
 								if (v ~= 2) then
 									local unit = mmf.newObject(v)
 									x,y = unit.values[XPOS],unit.values[YPOS]
-								end
+									
+									table.insert(moving_units, {unitid = v, reason = "you", state = 0, moves = 1, dir = feardir, xpos = x, ypos = y})
+									been_seen[v] = #moving_units
+								else
+									local thisempty = empty[i]
 								
-								table.insert(moving_units, {unitid = v, reason = "you", state = 0, moves = 1, dir = feardir, xpos = x, ypos = y})
-								been_seen[v] = #moving_units
+									for a,b in pairs(thisempty) do
+										x = a % roomsizex
+										y = math.floor(a / roomsizex)
+									
+										table.insert(moving_units, {unitid = 2, reason = "you", state = 0, moves = 1, dir = feardir, xpos = x, ypos = y})
+										been_seen[v] = #moving_units
+									end
+								end
 							else
 								local id = been_seen[v]
 								local this = moving_units[id]
@@ -125,7 +172,7 @@ function movecommand(ox,oy,dir_,playerid_)
 					end
 				end
 			elseif (take == 3) then
-				local shifts = findallfeature(nil,"is","shift")
+				local shifts = findallfeature(nil,"is","shift",true)
 				
 				for i,v in ipairs(shifts) do
 					if (v ~= 2) then
@@ -1206,9 +1253,10 @@ function move(unitid,ox,oy,dir,specials_,instant_,simulate_)
 	end
 end
 
-function add_moving_units(rule,newdata,data,been_seen)
+function add_moving_units(rule,newdata,data,been_seen,empty_)
 	local result = data
 	local seen = been_seen
+	local empty = empty_ or {}
 	
 	for i,v in ipairs(newdata) do
 		local sleeping = false
@@ -1221,6 +1269,19 @@ function add_moving_units(rule,newdata,data,been_seen)
 			if (sleep ~= nil) then
 				sleeping = true
 			end
+		else
+			local thisempty = empty[i]
+			
+			for a,b in pairs(thisempty) do
+				local x = a % roomsizex
+				local y = math.floor(a / roomsizex)
+				
+				local sleep = hasfeature("empty","is","sleep",2,x,y)
+				
+				if (sleep ~= nil) then
+					thisempty[a] = nil
+				end
+			end
 		end
 		
 		if (sleeping == false) then
@@ -1232,10 +1293,20 @@ function add_moving_units(rule,newdata,data,been_seen)
 				if (v ~= 2) then
 					local unit = mmf.newObject(v)
 					x,y = unit.values[XPOS],unit.values[YPOS]
-				end
+					
+					table.insert(result, {unitid = v, reason = rule, state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
+					seen[v] = #result
+				else
+					local thisempty = empty[i]
 				
-				table.insert(result, {unitid = v, reason = rule, state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
-				seen[v] = #result
+					for a,b in pairs(thisempty) do
+						x = a % roomsizex
+						y = math.floor(a / roomsizex)
+					
+						table.insert(result, {unitid = 2, reason = rule, state = 0, moves = 1, dir = dir_, xpos = x, ypos = y})
+						seen[v] = #result
+					end
+				end
 			else
 				local id = seen[v]
 				local this = result[id]

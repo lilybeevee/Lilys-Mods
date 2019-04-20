@@ -106,9 +106,9 @@ function statusblock(ids,undoing_)
 end
 
 function moveblock()
-	local isshift = findallfeature(nil,"is","shift")
-	local istele = findallfeature(nil,"is","tele")
-	local isfollow = findfeature(nil,"follow",nil)
+	local isshift = findallfeature(nil,"is","shift",true)
+	local istele = findallfeature(nil,"is","tele",true)
+	local isfollow = findfeature(nil,"follow",nil,true)
 	
 	local doned = {}
 	
@@ -329,7 +329,7 @@ function moveblock()
 		end
 		]]--
 		
-		local isback = findallfeature(nil,"is","back")
+		local isback = findallfeature(nil,"is","back",true)
 		
 		for i,unitid in ipairs(isback) do
 			local unit = mmf.newObject(unitid)
@@ -487,7 +487,7 @@ function fallblock(things)
 	local checks = {}
 	
 	if (things == nil) then
-		local isfall = findallfeature(nil,"is","fall")
+		local isfall = findallfeature(nil,"is","fall",true)
 
 		for a,unitid in ipairs(isfall) do
 			table.insert(checks, unitid)
@@ -1604,8 +1604,8 @@ function levelblock()
 							MF_setart(data[1], data[2])
 							numfound = true
 						else
-							local yous = findallfeature(nil,"is","you")
-							local yous2 = findallfeature(nil,"is","you2")
+							local yous = findallfeature(nil,"is","you",true)
+							local yous2 = findallfeature(nil,"is","you2",true)
 							
 							if (#yous2 > 0) then
 								for a,b in ipairs(yous2) do

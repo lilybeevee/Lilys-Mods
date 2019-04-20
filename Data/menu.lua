@@ -515,7 +515,7 @@ function clearletters(group)
 	MF_letterclear(group)
 end
 
-function createcontrolicon(name,gamepad,x,y,iid,update_,layer_)
+function createcontrolicon(name,gamepad,x,y,iid,update_,layer_,tiledata)
 	local iconid = 0
 	local create = true
 	
@@ -630,6 +630,12 @@ function createcontrolicon(name,gamepad,x,y,iid,update_,layer_)
 				frame = i
 			end
 		end
+	end
+	
+	if (tiledata ~= nil) then
+		icon.values[MISC_A] = tiledata[1]
+		icon.values[MISC_B] = tiledata[2]
+		icon.values[7] = 1
 	end
 	
 	icon.animSet = anim
