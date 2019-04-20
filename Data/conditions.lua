@@ -429,16 +429,14 @@ function testcond(conds,unitid,x_,y_)
 													end
 												end
 											else
-												local nearempty = true
+												local nearempty = false
 										
 												local tileid = (x + g) + (y + h) * roomsizex
-												if (unitmap[tileid] ~= nil) then 
-													if (#unitmap[tileid] > 1) then
-														nearempty = false
-													end
+												if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then 
+													nearempty = true
 												end
 												
-												if nearempty then
+												if nearempty and (alreadyfound[b] == nil) then
 													if testcondstack(iconds,2,(x+g),(y+h)) then
 														alreadyfound[b] = 1
 														allfound = allfound + 1
@@ -539,13 +537,11 @@ function testcond(conds,unitid,x_,y_)
 													end
 												end
 											else
-												local nearempty = true
+												local nearempty = false
 										
 												local tileid = (x + g) + (y + h) * roomsizex
-												if (unitmap[tileid] ~= nil) then 
-													if (#unitmap[tileid] > 1) then
-														nearempty = false
-													end
+												if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then 
+													nearempty = true
 												end
 												
 												if nearempty then
