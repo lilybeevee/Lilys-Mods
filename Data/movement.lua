@@ -36,7 +36,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		hasmoved[1] = true
 	end
 
-	local turn = findallfeature(nil,"is","turn")
+	local turn = findallfeature(nil,"is","turn",true)
 	for _,v in ipairs(turn) do
 		if v ~= 2 then
 			local unit = mmf.newObject(v)
@@ -200,7 +200,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				end
 
 				-- BAIT AND LURE START
-				local lures = findallfeature(nil,"is","lure")
+				local lures = findallfeature(nil,"is","lure",true)
 
 				for i,id in ipairs(lures) do
 					local baited = getlured(id)
@@ -1763,7 +1763,7 @@ end
 function findcopycats(target)
 	local result = {}
 
-	local copycats = findallfeature(nil,"copy",target)
+	local copycats = findallfeature(nil,"copy",target,true)
 	for _,v in ipairs(copycats) do
 		table.insert(result, v)
 	end

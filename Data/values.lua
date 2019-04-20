@@ -1880,7 +1880,7 @@ tileslist =
 	--
 	-- CUSTOM BLOCKS START
 	--
-	--[[object120 =
+	object120 =
 	{
 		name = "text_bait",
 		sprite = "text_bait",
@@ -1893,7 +1893,7 @@ tileslist =
 		tile = {1, 12},
 		grid = {11, 1},
 		layer = 20,
-	},]]
+	},
 	object121 =
 	{
 		name = "text_lure",
@@ -1923,7 +1923,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	--[[object123 = 
+	object123 = 
 	{
 		name = "text_copy",
 		sprite = "text_copy",
@@ -1937,8 +1937,8 @@ tileslist =
 		tile = {4, 12},
 		grid = {11, 4},
 		layer = 20,
-	},]]
-	object123 =
+	},
+	--[[object123 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1953,7 +1953,7 @@ tileslist =
 		tile = {3, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	--[[object123 =
 	{
 		name = "text_still",
@@ -2035,7 +2035,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},
-	object120 =
+	--[[object120 =
 	{
 		name = "text_any",
 		sprite = "text_any",
@@ -2048,5 +2048,5 @@ tileslist =
 		tile = {11, 12},
 		grid = {11, 1},
 		layer = 20,
-	},
+	},]]
 }

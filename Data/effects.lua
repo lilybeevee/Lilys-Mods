@@ -534,7 +534,7 @@ end
 function doautoturn()
 	autotimer = autotimer + 1
 
-	local live = findallfeature(nil,"is","auto")
+	local live,liveempty = findallfeature(nil,"is","auto",false)
 	local livecount = {}
 
 	for _,unitid in ipairs(live) do
