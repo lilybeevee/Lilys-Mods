@@ -698,6 +698,137 @@ function testcond(conds,unitid,x_,y_)
 					else
 						result = false
 					end
+				elseif (condtype == "nearest") or (condtype == "not nearest") then
+					valid = true
+					local allfound = 0
+
+					if #params > 0 then
+						for a,b in ipairs(params) do
+							if unitid ~= 1 then
+								if b ~= "level" then
+									local selfdist = 9999
+									local closest = 9999
+									local allself = {}
+									local checkpositions = {}
+
+									if name ~= "empty" then
+										if unitlists[name] ~= nil then
+											for c,d in ipairs(unitlists[name]) do
+												local dunit = mmf.newObject(d)
+												table.insert(allself, {dunit.values[XPOS], dunit.values[YPOS]})
+											end
+										end
+									else
+										local empties = findempty()
+										for c,d in ipairs(empties) do
+											table.insert(allself, {d % roomsizex, math.floor(d/roomsizex)})
+										end
+									end
+
+									if b ~= "empty" and unitlists[b] ~= nil then
+										for c,d in ipairs(unitlists[b]) do
+											local dunit = mmf.newObject(d)
+											local tx,ty = dunit.values[XPOS], dunit.values[YPOS]
+											if testcondstack(iconds,d,tx,ty) then
+												table.insert(checkpositions, {tx, ty})
+											end
+										end
+									elseif b == "empty" then
+										local empties = findempty()
+										for c,d in ipairs(empties) do
+											local tx,ty = d % roomsizex, math.floor(d/roomsizex)
+											if testcondstack(iconds,2,tx,ty) then
+												table.insert(checkpositions, {tx, ty})
+											end
+										end
+									end
+
+									for c,d in ipairs(checkpositions) do
+										for e,f in ipairs(allself) do
+											local dx = f[1] - d[1]
+											local dy = f[2] - d[2]
+											--local dist = math.abs(dx) + math.abs(dy)
+											local dist = math.sqrt(dx * dx + dy * dy)
+
+											if dist < closest then
+												closest = dist
+											end
+											
+											if x == f[1] and y == f[2] then
+												if dist < selfdist then
+													selfdist = dist
+												end
+											end
+										end
+									end
+
+									if closest ~= 9999 and selfdist == closest then
+										allfound = allfound + 1
+									end
+								else
+									allfound = allfound + 1
+								end
+							else
+								local ulist = false
+							
+								if (b ~= "empty") and (b ~= "level") then
+									if (unitlists[b] ~= nil) then
+										if (#unitlists[b] > 0) then
+											if #iconds == 0 then
+												ulist = true
+											else
+												for c,d in ipairs(unitlists[b]) do
+													if testcondstack(iconds,d,x,y) then
+														ulist = true
+														break
+													end
+												end
+											end
+										end
+									end
+								elseif (b == "empty") then
+									local empties = findempty()
+									
+									if (#findempty > 0) then
+										if #iconds == 0 then
+											ulist = true
+										else
+											for c,d in ipairs(findempty) do
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+													ulist = true
+													break
+												end
+											end
+										end
+									end
+								end
+								
+								if (b ~= "text") and (ulist == false) then
+									for e,f in pairs(surrounds) do
+										if (e ~= "dir") then
+											for c,d in ipairs(f) do
+												if (ulist == false) and (d == b) then
+													ulist = true
+												end
+											end
+										end
+									end
+								end
+								
+								if ulist or (#iconds == 0 and (b == "text")) then
+									allfound = allfound + 1
+								end
+							end
+						end
+					end
+
+					if allfound ~= #params then
+						result = false
+					end
+
+					if isnot ~= condtype then
+						result = not result
+					end
 				end
 			end
 			

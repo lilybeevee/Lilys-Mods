@@ -1923,7 +1923,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	object123 = 
+	--[[object123 = 
 	{
 		name = "text_copy",
 		sprite = "text_copy",
@@ -1937,7 +1937,7 @@ tileslist =
 		tile = {4, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	--[[object123 =
 	{
 		name = "text_with",
@@ -2049,6 +2049,21 @@ tileslist =
 		grid = {11, 1},
 		layer = 20,
 	},]]
+	object123 = 
+	{
+		name = "text_nearest",
+		sprite = "text_nearest",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 7,
+		operatortype = "cond_arg",
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {12, 12},
+		grid = {11, 4},
+		layer = 20,
+	},
 }
 
 -- abcdefghijklmnopqrstuvwxyz0123456789-.?!,':_><()&+@��{}/$�����
