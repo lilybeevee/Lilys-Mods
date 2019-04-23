@@ -355,13 +355,14 @@ function docode(firstwords)
 										if (wordid ~= #sentences) then
 											if (tiletype == 1) and (prevtiletype ~= 4) and ((prevstage ~= 4) or doingcond or (stage3reached == false)) then
 												stage2reached = true
+												doingcond = false
 												prevstage = stage
 												stage = 3
 											elseif ((tiletype == 7) and (stage2reached == false)) then
 												doingcond = true
 												prevstage = stage
 												stage = 3
-											elseif (tiletype == 6) then
+											elseif (tiletype == 6) and (prevtiletype ~= 4) then
 												prevstage = stage
 												stage = 4
 											elseif (tiletype ~= 4) then
@@ -388,7 +389,7 @@ function docode(firstwords)
 											if (tiletype == 0) or ((tiletype == 2) and stage3reached) then
 												prevstage = stage
 												stage = 2
-											elseif ((tiletype == 1) and stage3reached) then
+											elseif ((tiletype == 1) and stage3reached) and (doingcond == false) then
 												stage2reached = true
 												prevstage = stage
 												stage = 3
@@ -408,12 +409,12 @@ function docode(firstwords)
 										end
 									elseif (stage == 5) then
 										if (wordid ~= #sentences) then
-											if (tiletype == 1) and doingcond then
+											if (tiletype == 1) and doingcond and (prevtiletype ~= 4) then
 												stage2reached = true
 												doingcond = false
 												prevstage = stage
 												stage = 3
-											elseif (tiletype == 6) then
+											elseif (tiletype == 6) and (prevtiletype ~= 4) then
 												prevstage = stage
 												stage = 4
 											elseif (tiletype ~= 4) then

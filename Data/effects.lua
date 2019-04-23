@@ -131,12 +131,7 @@ function domaprotation()
 			
 			if testcond(conds,1) then
 				if (rule[1] == "level") and (rule[2] == "is") then
-					if (rule[3] == "down") then
-						addundo({"maprotation",maprotation,0,3})
-						maprotation = 0
-						mapdir = 3
-						MF_levelrotation(maprotation)
-					elseif (rule[3] == "right") then
+					if (rule[3] == "right") then
 						addundo({"maprotation",maprotation,90,0})
 						maprotation = 90
 						mapdir = 0
@@ -150,6 +145,11 @@ function domaprotation()
 						addundo({"maprotation",maprotation,270,2})
 						maprotation = 270
 						mapdir = 2
+						MF_levelrotation(maprotation)
+					elseif (rule[3] == "down") then
+						addundo({"maprotation",maprotation,0,3})
+						maprotation = 0
+						mapdir = 3
 						MF_levelrotation(maprotation)
 					end
 				end
