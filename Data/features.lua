@@ -299,7 +299,7 @@ function getunitswithverb(rule2,delthese_)
 		end
 		
 		for i,v in pairs(group) do
-			if (i ~= "empty") then
+			if (i ~= "empty") and (string.sub(i, 1, 4) ~= "not ") then
 				local name = i
 				local groupmembers = unitlists[name]
 				

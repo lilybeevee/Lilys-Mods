@@ -404,7 +404,7 @@ function moveblock()
 					targetgone = false
 					
 					if (targetgone == false) and floating(v,unitid) then
-						local targetname = vunit.strings[UNITNAME]
+						local targetname = getname(vunit)
 						if (objectdata[v] == nil) then
 							objectdata[v] = {}
 						end
@@ -421,8 +421,9 @@ function moveblock()
 									
 									for a,b in ipairs(teles) do
 										local tele = mmf.newObject(b)
+										local telename = getname(tele)
 										
-										if (b ~= unitid) and (tele.strings[UNITNAME] == unit.strings[UNITNAME]) then
+										if (b ~= unitid) and (telename == name) then
 											table.insert(teletargets, b)
 										end
 									end
@@ -1152,11 +1153,7 @@ function startblock(light_)
 			
 			if testcond(conds,1) then
 				if (rule[1] == "level") and (rule[2] == "is") then
-					if (rule[3] == "down") then
-						maprotation = 0
-						mapdir = 3
-						MF_levelrotation(0)
-					elseif (rule[3] == "right") then
+					if (rule[3] == "right") then
 						maprotation = 90
 						mapdir = 0
 						MF_levelrotation(90)
@@ -1168,6 +1165,10 @@ function startblock(light_)
 						maprotation = 270
 						mapdir = 2
 						MF_levelrotation(270)
+					elseif (rule[3] == "down") then
+						maprotation = 0
+						mapdir = 3
+						MF_levelrotation(0)
 					end
 				end
 			end

@@ -14,12 +14,21 @@ function writetext(text_,owner,xoffset,yoffset,type,centered_,layer_,absolute_,c
 		letterh = 22
 	end
 	
+	local colourization = {}
+	local currcolour = 1
+	
 	local vislength = length
 	for i=1,length do
 		local letter = string.sub(text, i, i)
 		
 		if (letter == "$") then
 			vislength = vislength - 4
+			local cdata = string.sub(text, i+1, i+3)
+			
+			c1 = tonumber(string.sub(cdata, 1, 1))
+			c2 = tonumber(string.sub(cdata, 3, 3))
+			
+			table.insert(colourization, {c1, c2})
 		end
 		
 		if (letter == "#") then
@@ -50,6 +59,8 @@ function writetext(text_,owner,xoffset,yoffset,type,centered_,layer_,absolute_,c
 			end
 		end
 	end
+	
+	local text_utf = decode(text)
 	
 	local layer = 2
 	if (owner == -1) or (owner == 0) then
@@ -82,19 +93,22 @@ function writetext(text_,owner,xoffset,yoffset,type,centered_,layer_,absolute_,c
 	
 	local letters = {}
 	
-	for i=1,length do
+	-- 56 = $, 57 = Space
+	
+	for i=1,#text_utf do
 		local j = i + offset
-		local letter = string.sub(text, j, j)
+		local letter = text_utf[j]
 		
-		if (letter ~= "$") then
+		if (letter ~= 56) then
 			x = x + letterw
 			vi = vi + 1
 		else
-			local cdata = string.sub(text, j+1, j+3)
+			local cdata = colourization[currcolour]
 			
-			c1 = tonumber(string.sub(cdata, 1, 1))
-			c2 = tonumber(string.sub(cdata, 3, 3))
+			c1 = cdata[1]
+			c2 = cdata[2]
 			
+			currcolour = currcolour + 1
 			offset = offset + 3
 		end
 		
@@ -105,12 +119,14 @@ function writetext(text_,owner,xoffset,yoffset,type,centered_,layer_,absolute_,c
 			finalx = (0 - (vislength * 0.5) + vi) * letterw
 		end
 		
-		if (letter ~= " ") and (letter ~= "$") then
+		if (letter ~= 57) and (letter ~= 56) then
 			local tid = 0
 			if (credits == 0) then
-				tid = MF_letter(letter,owner,type,offx+xoffset+finalx-4,offy+yoffset+finaly,layer)
+				local letter_utf = text_utf[j]
+				tid = MF_letter(letter_utf,owner,type,offx+xoffset+finalx-4,offy+yoffset+finaly,layer)
 			else
-				tid = MF_creditsletter(letter,offx+xoffset+finalx-4,offy+yoffset+finaly,layer,credits,vi)
+				local letter_utf = text_utf[j]
+				tid = MF_creditsletter(letter_utf,offx+xoffset+finalx-4,offy+yoffset+finaly,layer,credits,vi)
 			end
 			
 			if (c1 ~= 0) or (c2 ~= 3) and (tid ~= 0) then
@@ -121,7 +137,7 @@ function writetext(text_,owner,xoffset,yoffset,type,centered_,layer_,absolute_,c
 		end
 		
 		j = i + offset
-		if (j >= length) then
+		if (j >= #text_utf) then
 			break
 		end
 	end

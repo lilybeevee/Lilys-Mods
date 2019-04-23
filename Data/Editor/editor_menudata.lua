@@ -1407,7 +1407,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
@@ -1446,7 +1446,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
@@ -1485,7 +1485,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
@@ -1557,7 +1557,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
@@ -1596,7 +1596,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
@@ -1635,7 +1635,7 @@ menufuncs =
 						slotname = slotname .. "  "
 					end
 					
-					slotname = slotname .. hours .. ":" .. minutes .. "£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "¤"
+					slotname = slotname .. hours .. ":" .. minutes .. "Â£  " .. tostring(prizes) .. "@  " .. tostring(clears) .. "Â¤"
 				end
 				
 				if (bonus > 0) then
