@@ -46,11 +46,19 @@ function decode(buf)
 	
     local cp = {}
     local pos = 1
+	local pos_ = 1
     local val = 1
     while pos <= #buf do
 		--MF_alert(tostring(pos) .. ", " .. string.sub(buf, pos, pos))
 		
+		pos_ = pos
         pos, val = utf8_dec(buf, pos)
+		
+		if (pos == nil) then
+			MF_alert(val)
+			pos = pos_ + 1
+		end
+		
         val = chr_to_anim[val]
         if val ~= nil then
             cp[#cp+1] = val
