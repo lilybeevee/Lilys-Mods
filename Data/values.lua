@@ -8,6 +8,7 @@ activemod.enabled["auto"] = true
 activemod.enabled["persist"] = true
 activemod.condition_stacking = true
 activemod.auto_speed = 20
+activemod.turn_dir = "ccw"
 
 activemod.macros["{x} is conduct"] = {
 	"{x} near any with hot is hot",
@@ -1896,7 +1897,7 @@ tileslist =
 		grid = {11, 1},
 		layer = 20,
 	},]]
-	object121 =
+	--[[object121 =
 	{
 		name = "text_lure",
 		sprite = "text_lure",
@@ -1909,8 +1910,8 @@ tileslist =
 		tile = {2, 12},
 		grid = {11, 2},
 		layer = 20,
-	},
-	object122 =
+	},]]
+	--[[object122 =
 	{
 		name = "text_means",
 		sprite = "text_means",
@@ -1924,7 +1925,7 @@ tileslist =
 		tile = {0, 12},
 		grid = {11, 0},
 		layer = 20,
-	},
+	},]]
 	--[[object123 = 
 	{
 		name = "text_copy",
@@ -1971,7 +1972,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	--[[object125 = 
+	object121 = 
 	{
 		name = "text_turn",
 		sprite = "text_turn",
@@ -1982,9 +1983,9 @@ tileslist =
 		colour = {1, 3},
 		active = {1, 4},
 		tile = {5, 12},
-		grid = {11, 3},
+		grid = {11, 2},
 		layer = 20,
-	},]]
+	},
 	--[[object125 = {
 		name = "text_reset",
 		sprite = "text_reset",
@@ -1998,7 +1999,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	--[[object124 = {
+	object122 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2008,9 +2009,9 @@ tileslist =
 		colour = {0, 2},
 		active = {0, 3},
 		tile = {9, 12},
-		grid = {11, 5},
+		grid = {11, 0},
 		layer = 20,
-	},]]
+	},
 	--[[object124 = {
 		name = "text_persist",
 		sprite = "text_persist",

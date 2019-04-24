@@ -3,7 +3,7 @@ function movecommand(ox,oy,dir_,playerid_)
 	if autoturn then
 		statusblockids = {}
 		for id,v in pairs(autounits) do
-			if id ~= 2 and id ~= 1 then
+			if id ~= 3 and id ~= 2 and id ~= 1 then
 				table.insert(statusblockids, id)
 			end
 		end
@@ -41,8 +41,36 @@ function movecommand(ox,oy,dir_,playerid_)
 		if v ~= 2 then
 			local unit = mmf.newObject(v)
 			local turndir = unit.values[DIR]
-			turndir = (turndir - 1) % 4
+			if string.lower(activemod.turn_dir) == "cw" then
+				turndir = (turndir - 1) % 4
+			else
+				turndir = (turndir + 1) % 4
+			end
 			updatedir(unit.fixed,turndir)
+		end
+	end
+
+	if autocheck(3) then
+		updategravity(dir_,false)
+	end
+
+	local gravitychecks = nil
+	gravityfall = findfeature("gravity","is","fall") 
+	if gravityfall then
+		for a,unit in ipairs(units) do
+			local name = getname(unit)
+
+			local isstop = hasfeature(name,"is","stop",unit.fixed)
+			local ispush = hasfeature(name,"is","push",unit.fixed)
+			local ispull = hasfeature(name,"is","pull",unit.fixed)
+			local isfall = hasfeature(name,"is","fall",unit.fixed)
+
+			if not isstop or ispush or ispull or isfall then
+				if not gravitychecks then
+					gravitychecks = {}
+				end
+				table.insert(gravitychecks, unit.fixed)
+			end
 		end
 	end
 	
@@ -270,6 +298,40 @@ function movecommand(ox,oy,dir_,playerid_)
 						end
 					end
 				end
+
+				local gravityshift = findfeature("gravity","is","shift")
+
+				if gravityshift then
+					local gshifts = {}
+					if gravitychecks then
+						for i,v in ipairs(gravitychecks) do
+							table.insert(gshifts, v)
+						end
+					else
+						local falls = findallfeature(nil,"is","fall",true)
+						for i,v in ipairs(falls) do
+							if v ~= 2 then
+								table.insert(gshifts, v)
+							end
+						end
+					end
+
+					for i,v in ipairs(gshifts) do
+						local unit = mmf.newObject(v)
+						local x,y = unit.values[XPOS],unit.values[YPOS]
+
+						updatedir(v, gravitydir)
+
+						if not been_seen[v] then
+							table.insert(moving_units, {unitid = v, reason = "gravity", state = 0, moves = 1, dir = gravitydir, xpos = x, ypos = y})
+							been_seen[v] = #moving_units
+						else
+							local id = been_seen[v]
+							local this = moving_units[id]
+							this.moves = this.moves + 1
+						end
+					end
+				end
 			end
 		else
 			for i,data in ipairs(still_moving) do
@@ -332,8 +394,10 @@ function movecommand(ox,oy,dir_,playerid_)
 
 		local new_moving_units = {}
 		for i,data in ipairs(moving_units) do
-			if data.reason == "you" or (data.reason == "copy" and autocheck(data.copy)) or autocheck(data.unitid) then
-				table.insert(new_moving_units, data)
+			if data.reason == "you" or (data.reason == "copy" and autocheck(data.copy)) or (data.reason == "gravity" and autocheck(3)) or autocheck(data.unitid) then
+				if data.reason ~= "gravity" or (data.reason == "gravity" and autocheck(3)) then
+					table.insert(new_moving_units, data)
+				end
 			end
 		end
 		moving_units = new_moving_units
@@ -743,7 +807,11 @@ function movecommand(ox,oy,dir_,playerid_)
 	
 	if hasfeature("level","is","turn",1) and autocheck(1) then
 		addundo({"maprotation",maprotation,mapdir})
-		mapdir = (mapdir - 1) % 4
+		if string.lower(activemod.turn_dir) == "cw" then
+			mapdir = (mapdir - 1) % 4
+		else
+			mapdir = (mapdir + 1) % 4
+		end
 		if mapdir == 3 then
 			maprotation = 0
 		elseif mapdir == 0 then
@@ -760,11 +828,11 @@ function movecommand(ox,oy,dir_,playerid_)
 	modupdate("still")
 	doupdate()
 	code()
-	updategravity(dir_)
+	updategravity(dir_,true)
 	conversion()
 	doupdate()
 	code()
-	updategravity(dir_)
+	updategravity(dir_,true)
 	moveblock()
 	
 	if (dir_ ~= nil) then
@@ -1708,8 +1776,7 @@ function getlured(unitid)
 	local closestdist = -1
 	local closestdir = -1
 	
-	for d=0,3 do
-		local dir = (unitdir - d) % 4
+	for dir=0,3 do
 		local ndrs = ndirs[dir+1]
 		local ox,oy = 0,0
 
@@ -1918,9 +1985,23 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 	return fulllist,pushlist,pulllist,result
 end
 
-function updategravity(dir)
+function updategravity(dir,small)
 	-- Gravity direction code
 	local newgrav = nil
+
+	if not small then
+		if findfeature("gravity","is","turn") then
+			if string.lower(activemod.turn_dir) == "cw" then
+				newgrav = (gravitydir - 1) % 4
+			else
+				newgrav = (gravitydir + 1) % 4
+			end
+		end
+
+		if findfeature("gravity","is","move") then
+			newgrav = rotate(gravitydir)
+		end
+	end
 
 	if findfeature("gravity","is","stop") then
 		newgrav = -1
@@ -1941,12 +2022,16 @@ function updategravity(dir)
 	end
 
 	if not newgrav then
-		newgrav = 3
+		if not small then
+			newgrav = 3
+		else
+			newgrav = gravitydir
+		end
 	end
 
 	if newgrav ~= gravitydir then
 		addundo({"gravity",gravitydir,newgrav})
-		updateundo = true
+		doundo = true
 		hasmoved[3] = true
 	end
 	gravitydir = newgrav

@@ -491,8 +491,24 @@ end
 
 function fallblock(things)
 	local checks = {}
+
+	local gravityfall = findfeature("gravity","is","fall") 
+	local gravityshift = findfeature("gravity","is","shift")
 	
-	if (things == nil) then
+	if gravityfall then
+		for a,unit in ipairs(units) do
+			local name = getname(unit)
+
+			local isstop = hasfeature(name,"is","stop",unit.fixed)
+			local ispush = hasfeature(name,"is","push",unit.fixed)
+			local ispull = hasfeature(name,"is","pull",unit.fixed)
+			local isfall = hasfeature(name,"is","fall",unit.fixed)
+
+			if not isstop or ispush or ispull or isfall then
+				table.insert(checks, unit.fixed)
+			end
+		end
+	elseif (things == nil) then
 		local isfall = findallfeature(nil,"is","fall",true)
 
 		for a,unitid in ipairs(isfall) do
@@ -506,6 +522,10 @@ function fallblock(things)
 	
 	local done = false
 	local firstpos = {}
+
+	if gravityshift then
+		done = true
+	end
 	
 	while (done == false) do
 		local settled = true

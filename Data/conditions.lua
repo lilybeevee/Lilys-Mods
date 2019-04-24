@@ -6,7 +6,7 @@ function testcond(conds,unitid,x_,y_)
 	
 	-- 0 = bug, 1 = level, 2 = empty
 	
-	if (unitid ~= 2) and (unitid ~= 0) and (unitid ~= 1) then
+	if (unitid ~= 3) and (unitid ~= 2) and (unitid ~= 0) and (unitid ~= 1) then
 		local unit = mmf.newObject(unitid)
 		x = unit.values[XPOS]
 		y = unit.values[YPOS]
@@ -24,6 +24,9 @@ function testcond(conds,unitid,x_,y_)
 		name = "level"
 		surrounds = parsesurrounds()
 		dir = tonumber(surrounds.dir)
+	elseif (unitid == 3) then
+		name = "gravity"
+		dir = gravitydir
 	end
 	
 	if (unitid == 0) then

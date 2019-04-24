@@ -534,7 +534,7 @@ end
 function doautoturn()
 	autotimer = autotimer + 1
 
-	local live,liveempty = findallfeature(nil,"is","auto",false)
+	local live = findallfeature(nil,"is","auto",true)
 	local livecount = {}
 
 	for _,unitid in ipairs(live) do
@@ -548,6 +548,11 @@ function doautoturn()
 	local levelauto = findfeature("level","is","auto")
 	if levelauto then
 		livecount[1] = #levelauto
+	end
+
+	local gravityauto = findfeature("gravity","is","auto")
+	if gravityauto then
+		livecount[3] = #gravityauto
 	end
 
 	local finals = {}
