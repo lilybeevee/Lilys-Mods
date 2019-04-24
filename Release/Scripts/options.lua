@@ -6,12 +6,19 @@ local mod = activemod
 -- !!! PLEASE ONLY ENABLE 6 BLOCKS AT A TIME !!! --
 ---------------------------------------------------
 
--- Specials
-mod.enabled["means"] = true
-mod.enabled["copy"] = true
+-- Nouns
+mod.enabled["any"] = false
+mod.enabled["gravity"] = false
+
+-- Conditions
 mod.enabled["with"] = true
 mod.enabled["still"] = true
-mod.enabled["any"] = false
+mod.enabled["nearest"] = false
+mod.enabled["touch"] = false
+
+-- Verbs
+mod.enabled["means"] = true
+mod.enabled["copy"] = true
 
 -- Properties
 mod.enabled["sticky"] = false
@@ -28,6 +35,8 @@ mod.enabled["auto"] = false
 
 activemod.condition_stacking = true
 activemod.auto_speed = 20
+-- ccw = counter-clockwise, cw = clockwise
+activemod.turn_dir = "ccw"
 
 -------------------------------------------------
 --[[   MACROS (CUSTOM FEATURES FROM RULES)   ]]--
@@ -208,4 +217,45 @@ mod.tile["any"] = {
 	layer = 20,
 }
 
--- Current highest tile: {11, 12}
+mod.tile["nearest"] = {
+	name = "text_nearest",
+	sprite = "text_nearest",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 7,
+	operatortype = "cond_arg",
+	colour = {0, 1},
+	active = {0, 3},
+	tile = {12, 12},
+	layer = 20,
+}
+
+
+mod.tile["touch"] = {
+	name = "text_touch",
+	sprite = "text_touch",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 7,
+	operatortype = "cond_arg",
+	colour = {0, 1},
+	active = {0, 3},
+	tile = {13, 12},
+	layer = 20,
+}
+
+mod.tile["gravity"] = {
+	name = "text_gravity",
+	sprite = "text_gravity",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 0,
+	colour = {3, 1},
+	active = {3, 3},
+	tile = {14, 12},
+	layer = 20,
+}
+-- Current highest tile: {14, 12}

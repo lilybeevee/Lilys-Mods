@@ -61,6 +61,9 @@ mod.alltiles = {
 	"with",
 	"still",
 	"any",
+	"nearest",
+	"touch",
+	"gravity",
 }
 
 function mod.addblock(tile)
