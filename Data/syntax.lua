@@ -54,7 +54,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	generatetiles()
 end
 
-function addunit(id)
+function addunit(id,undoing_)
 	local unitid = #units + 1
 	
 	units[unitid] = {}
@@ -115,8 +115,10 @@ function addunit(id)
 		setcolour(unit.fixed)
 	end
 	
+	local undoing = undoing_ or false
+	
 	if (unit.className ~= "path") then
-		statusblock({id})
+		statusblock({id},undoing)
 		MF_animframe(id,math.random(0,2))
 	end
 	

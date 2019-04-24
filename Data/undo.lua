@@ -40,7 +40,6 @@ function addundo(line)
 	end
 end
 
-
 function undo()
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
@@ -139,7 +138,7 @@ function undo()
 						end
 						
 						if (name ~= "cursor") then
-							addunit(unitid)
+							addunit(unitid,true)
 							addunitmap(unitid,x,y,unit.strings[UNITNAME])
 							dynamic(unitid)
 						else
@@ -225,7 +224,7 @@ function undo()
 					
 					--print(unit.className .. ", " .. tostring(unitid) .. ", " .. tostring(line[3]) .. ", " .. unit.strings[UNITNAME])
 					
-					addunit(unitid)
+					addunit(unitid,true)
 				elseif (style == "visibility") then
 					local uid = line[3]
 					
@@ -245,7 +244,7 @@ function undo()
 						local unitid = getunitid(line[3])
 						
 						-- Kökkö ratkaisu!
-						if (unitid ~= nil) then
+						if (unitid ~= nil) and (unitid ~= 0) then
 							local unit = mmf.newObject(unitid)
 							unit.values[FLOAT] = tonumber(line[4])
 						end

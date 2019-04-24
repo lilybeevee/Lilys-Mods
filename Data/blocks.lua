@@ -16,27 +16,28 @@ function statusblock(ids,undoing_)
 	for i,unit in pairs(checkthese) do
 		local name = getname(unit)
 		
+		local oldfloat = unit.values[FLOAT]
+		local newfloat = 0
+		if (unit.values[FLOAT] < 2) and (generaldata.values[MODE] == 0) then
+			unit.values[FLOAT] = 0
+		end
+		
+		local isfloat = hasfeature(name,"is","float",unit.fixed)
+		
+		if (isfloat ~= nil) and (generaldata.values[MODE] == 0) then
+			unit.values[FLOAT] = 1
+			newfloat = 1
+		end
+		
 		if (undoing == false) then
-			local oldfloat = unit.values[FLOAT]
-			local newfloat = 0
-			if (unit.values[FLOAT] < 2) and (generaldata.values[MODE] == 0) then
-				unit.values[FLOAT] = 0
+			if (oldfloat ~= newfloat) and (generaldata.values[MODE] == 0) and (generaldata2.values[ENDINGGOING] == 0) then
+				addaction(unit.fixed,{"dofloat",oldfloat,newfloat,unit.values[ID],unit.fixed,name})
 			end
 			
-			local isfloat = hasfeature(name,"is","float",unit.fixed)
 			local right = hasfeature(name,"is","right",unit.fixed)
 			local up = hasfeature(name,"is","up",unit.fixed)
 			local left = hasfeature(name,"is","left",unit.fixed)
 			local down = hasfeature(name,"is","down",unit.fixed)
-			
-			if (isfloat ~= nil) and (generaldata.values[MODE] == 0) then
-				unit.values[FLOAT] = 1
-				newfloat = 1
-			end
-			
-			if (oldfloat ~= newfloat) and (generaldata.values[MODE] == 0) then
-				addaction(unit.fixed,{"dofloat",oldfloat,newfloat,unit.values[ID],unit.fixed,name})
-			end
 			
 			if (issleep(unit.fixed) == false) then
 				if (right ~= nil) then
@@ -1166,6 +1167,26 @@ function startblock(light_)
 			local isred = isthis(unitrules,"red")
 			local isblue = isthis(unitrules,"blue")
 			local ismake = xthis(unitrules,name,"make")
+			
+			local isright = isthis(unitrules,"right")
+			local isup = isthis(unitrules,"up")
+			local isleft = isthis(unitrules,"left")
+			local isdown = isthis(unitrules,"down")
+			
+			if (sleep == false) then
+				if isright then
+					updatedir(unit.fixed,0)
+				end
+				if isup then
+					updatedir(unit.fixed,1)
+				end
+				if isleft then
+					updatedir(unit.fixed,2)
+				end
+				if isdown then
+					updatedir(unit.fixed,3)
+				end
+			end
 			
 			if ishide then
 				if unit.visible then

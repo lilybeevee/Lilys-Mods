@@ -264,7 +264,7 @@ function doconvert(data,extrarule_)
 	
 	local unitid = data[1]
 	local unit = {}
-	local x,y,dir,name,id,completed = 0,0,0,"",0,0
+	local x,y,dir,name,id,completed,float = 0,0,0,"",0,0,0
 	
 	if (unitid ~= 2) then
 		unit = mmf.newObject(unitid)
