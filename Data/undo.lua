@@ -290,14 +290,14 @@ function undo()
 						end
 					end
 				elseif (style == "levelupdate") then
-					if not hasfeature("level","is","persist") then
+					if not hasfeature("level","is","persist",1) then
 						MF_setroomoffset(line[2],line[3])
 						mapdir = line[6]
 					else
 						table.insert(persisted, line)
 					end
 				elseif (style == "maprotation") then
-					if not hasfeature("level","is","persist") then
+					if not hasfeature("level","is","persist",1) then
 						maprotation = line[2]
 						mapdir = line[3]
 						MF_levelrotation(maprotation)
@@ -305,7 +305,7 @@ function undo()
 						table.insert(persisted, line)
 					end
 				elseif (style == "mapcursor") then
-					if not hasfeature("cursor","is","persist") then
+					if not findfeature("cursor","is","persist") then
 						MF_setmapcursor(line[3],line[4],line[5],line[10])
 					else
 						table.insert(persisted, line)
@@ -322,6 +322,12 @@ function undo()
 				elseif (style == "any") then
 					lastchosenany = line[2]
 					updatecode = 1
+				elseif (style == "gravity") then
+					if not findfeature("gravity","is","persist") then
+						gravitydir = line[2]
+					else
+						table.insert(persisted, line)
+					end
 				end
 			end
 		end

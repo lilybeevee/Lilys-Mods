@@ -1,10 +1,8 @@
 [tiles]
 object068_name=text
-object054_name=text_conduct
-object054_image=text_conduct
-object076_name=text_turn
 object076_image=text_turn
-changed=object076,object054,object048,object068,
+object076_name=text_turn
+changed=object076,object068,object054,object048,
 
 [general]
 selectorY=-1

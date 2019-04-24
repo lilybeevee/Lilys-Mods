@@ -117,3 +117,5 @@ function firstlevel()
 		end
 	end
 end
+
+require("modloader")

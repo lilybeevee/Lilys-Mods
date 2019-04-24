@@ -1,4 +1,6 @@
-activemod = {}
+if not activemod then
+	activemod = {}
+end
 activemod.enabled = {}
 activemod.macros = {}
 activemod.enabled["still"] = true
@@ -1880,7 +1882,7 @@ tileslist =
 	--
 	-- CUSTOM BLOCKS START
 	--
-	object120 =
+	--[[object120 =
 	{
 		name = "text_bait",
 		sprite = "text_bait",
@@ -1893,7 +1895,7 @@ tileslist =
 		tile = {1, 12},
 		grid = {11, 1},
 		layer = 20,
-	},
+	},]]
 	object121 =
 	{
 		name = "text_lure",
@@ -1996,7 +1998,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	object124 = {
+	--[[object124 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2008,7 +2010,7 @@ tileslist =
 		tile = {9, 12},
 		grid = {11, 5},
 		layer = 20,
-	},
+	},]]
 	--[[object124 = {
 		name = "text_persist",
 		sprite = "text_persist",
@@ -2062,6 +2064,34 @@ tileslist =
 		active = {0, 3},
 		tile = {12, 12},
 		grid = {11, 4},
+		layer = 20,
+	},
+	object124 = {
+		name = "text_touch",
+		sprite = "text_touch",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 7,
+		operatortype = "cond_arg",
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {13, 12},
+		grid = {11, 5},
+		layer = 20,
+	},
+	object120 =
+	{
+		name = "text_gravity",
+		sprite = "text_gravity",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 0,
+		colour = {3, 1},
+		active = {3, 3},
+		tile = {14, 12},
+		grid = {11, 1},
 		layer = 20,
 	},
 }

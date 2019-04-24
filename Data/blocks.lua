@@ -28,6 +28,7 @@ function statusblock(ids,undoing_)
 			local up = hasfeature(name,"is","up",unit.fixed)
 			local left = hasfeature(name,"is","left",unit.fixed)
 			local down = hasfeature(name,"is","down",unit.fixed)
+			local gravity = hasfeature(name,"is","gravity",unit.fixed)
 			
 			if (isfloat ~= nil) and (generaldata.values[MODE] == 0) then
 				unit.values[FLOAT] = 1
@@ -39,17 +40,21 @@ function statusblock(ids,undoing_)
 			end
 			
 			if (issleep(unit.fixed) == false) then
-				if (right ~= nil) then
-					updatedir(unit.fixed,0)
-				end
-				if (up ~= nil) then
-					updatedir(unit.fixed,1)
-				end
-				if (left ~= nil) then
-					updatedir(unit.fixed,2)
-				end
-				if (down ~= nil) then
-					updatedir(unit.fixed,3)
+				if gravity ~= nil then
+					updatedir(unit.fixed,gravitydir)
+				else
+					if (right ~= nil) then
+						updatedir(unit.fixed,0)
+					end
+					if (up ~= nil) then
+						updatedir(unit.fixed,1)
+					end
+					if (left ~= nil) then
+						updatedir(unit.fixed,2)
+					end
+					if (down ~= nil) then
+						updatedir(unit.fixed,3)
+					end
 				end
 			end
 			
@@ -500,27 +505,26 @@ function fallblock(things)
 	end
 	
 	local done = false
+	local firstpos = {}
 	
 	while (done == false) do
 		local settled = true
-		
-		if (#checks > 0) then
+
+		if (#checks > 0) and gravitydir ~= -1 then
 			for a,unitid in pairs(checks) do
 				local unit = mmf.newObject(unitid)
 				local x,y,dir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
 				local name = getname(unit)
 				local onground = false
+
+				if not firstpos[unitid] then
+					firstpos[unitid] = {x, y}
+				end
 				
 				while (onground == false) do
-					local falldir = mapdir
-					if falldir == 0 then
-						falldir = 2
-					elseif falldir == 2 then
-						falldir = 0
-					end
-					local ndrs = ndirs[falldir+1]
+					local ndrs = ndirs[gravitydir+1]
 					local ox,oy = ndrs[1],ndrs[2]
-					local below,below_,specials = check(unitid,x,y,falldir,false,"fall")
+					local below,below_,specials = check(unitid,x,y,gravitydir,false,"fall")
 					
 					local result = 0
 					for c,d in pairs(below) do
@@ -551,7 +555,36 @@ function fallblock(things)
 						if (result == 0) then
 							update(unitid,x+ox,y+oy)
 						elseif (result == 2) then
-							gone = move(unitid,0,1,dir,specials,true,true)
+							if not gravityconvert then
+								gone = move(unitid,0,1,dir,specials,true,true)
+							else
+								gone = true
+							end
+						end
+
+						if gravityconvert then
+							for _,v in ipairs(gravityconvert) do
+								local conv = v
+								if v == "text" then
+									conv = "text_" .. name
+								end
+
+								local domake = true
+								local thingshere = findallhere(x+ox,y+oy,unitid)
+								for c,d in ipairs(thingshere) do
+									local thing = mmf.newObject(d)
+									local thingname = thing.strings[UNITNAME]
+									
+									if (thingname == v) or ((thing.strings[UNITTYPE] == "text") and (v == "text")) then
+										print(thingname .. " = " .. conv)
+										domake = false
+									end
+								end
+
+								if domake then
+									create(conv,x+ox,y+oy,gravitydir,x,y)
+								end
+							end
 						end
 						
 						-- Poista tästä kommenttimerkit jos haluat, että fall tsekkaa juttuja per pudottu tile
@@ -573,6 +606,7 @@ function fallblock(things)
 								end
 								]]--
 							end
+
 						else
 							onground = true
 							settled = true
@@ -588,6 +622,12 @@ function fallblock(things)
 			end
 		else
 			done = true
+		end
+	end
+
+	if gravityconvert then
+		for a,unitid in ipairs(checks) do
+			update(unitid,firstpos[unitid][1],firstpos[unitid][2])
 		end
 	end
 end
@@ -1685,7 +1725,7 @@ function findplayer()
 	
 	if (players ~= nil) then
 		for i,v in ipairs(players) do
-			if (v[1] ~= "level") and (v[1] ~= "empty") then
+			if (v[1] ~= "level") and (v[1] ~= "empty") and (v[1] ~= "gravity") then
 				local allplayers = findall(v)
 				
 				if (#allplayers > 0) then

@@ -1445,9 +1445,11 @@ function autocheck(unitid,ignored_)
 		end
 	else
 		local name = ""
-		if unitid ~= 2 and unitid ~= 1 then
+		if unitid ~= 3 and unitid ~= 2 and unitid ~= 1 then
 			local unit = mmf.newObject(unitid)
 			name = getname(unit)
+		elseif unitid == 3 then
+			name = "gravity"
 		elseif unitid == 2 then
 			name = "empty"
 		elseif unitid == 1 then

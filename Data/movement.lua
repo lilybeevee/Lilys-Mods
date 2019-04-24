@@ -760,9 +760,11 @@ function movecommand(ox,oy,dir_,playerid_)
 	modupdate("still")
 	doupdate()
 	code()
+	updategravity(dir_)
 	conversion()
 	doupdate()
 	code()
+	updategravity(dir_)
 	moveblock()
 	
 	if (dir_ ~= nil) then
@@ -771,7 +773,11 @@ function movecommand(ox,oy,dir_,playerid_)
 end
 
 function modupdate(name)
-	if name == "still" and activemod.enabled["still"] then
+	if not activemod.enabled[name] then
+		return
+	end
+
+	if name == "still" then
 		local newstill = {}
 		local newstillid = ""
 		for _,unit in ipairs(units) do
@@ -805,6 +811,12 @@ function modupdate(name)
 		end
 		if newstill[2] then
 			newstillid = newstillid .. "empty1"
+		end
+		if autocheck(3,autoignored) then
+			newstill[3] = (hasmoved[3] == true)
+		end
+		if newstill[3] then
+			newstillid = newstillid .. "gravity1"
 		end
 		addundo({"still",still,stillid,donemove})
 		if donemove < 1 or newstillid ~= stillid then
@@ -1904,4 +1916,60 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 	end
 
 	return fulllist,pushlist,pulllist,result
+end
+
+function updategravity(dir)
+	-- Gravity direction code
+	local newgrav = nil
+
+	if findfeature("gravity","is","stop") then
+		newgrav = -1
+	elseif findfeature("gravity","is","you") then
+		if dir ~= 4 then
+			newgrav = dir
+		else
+			newgrav = gravitydir
+		end
+	elseif findfeature("gravity","is","right") then
+		newgrav = 0
+	elseif findfeature("gravity","is","up") then
+		newgrav = 1
+	elseif findfeature("gravity","is","left") then
+		newgrav = 2
+	elseif findfeature("gravity","is","down") then
+		newgrav = 3
+	end
+
+	if not newgrav then
+		newgrav = 3
+	end
+
+	if newgrav ~= gravitydir then
+		addundo({"gravity",gravitydir,newgrav})
+		updateundo = true
+		hasmoved[3] = true
+	end
+	gravitydir = newgrav
+
+	-- Gravity replacement code
+	--[[local newconvert = nil
+
+	local candidates = findfeature("gravity","is",nil)
+	print(dumpobj(candidates))
+	if candidates then
+		for i,rules in ipairs(candidates) do
+			local rule = rules[1]
+
+			local isnot = string.sub(rule[3], 1, 4) == "not "
+
+			if getmat(rule[3]) and not isnot then
+				if not newconvert then
+					newconvert = {}
+				end
+				table.insert(newconvert, rule[3])
+			end
+		end
+	end
+
+	gravityconvert = newconvert]]
 end

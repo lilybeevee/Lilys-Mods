@@ -725,15 +725,21 @@ function testcond(conds,unitid,x_,y_)
 										end
 									end
 
-									if b ~= "empty" and unitlists[b] ~= nil then
-										for c,d in ipairs(unitlists[b]) do
+									if b ~= "empty" then
+										local ulist = {}
+										if b == "any" then
+											ulist = units
+										elseif unitlists[b] then
+											ulist = unitlists[b]
+										end
+										for c,d in ipairs(ulist) do
 											local dunit = mmf.newObject(d)
 											local tx,ty = dunit.values[XPOS], dunit.values[YPOS]
 											if testcondstack(iconds,d,tx,ty) then
 												table.insert(checkpositions, {tx, ty})
 											end
 										end
-									elseif b == "empty" then
+									else
 										local empties = findempty()
 										for c,d in ipairs(empties) do
 											local tx,ty = d % roomsizex, math.floor(d/roomsizex)
@@ -747,8 +753,9 @@ function testcond(conds,unitid,x_,y_)
 										for e,f in ipairs(allself) do
 											local dx = f[1] - d[1]
 											local dy = f[2] - d[2]
-											--local dist = math.abs(dx) + math.abs(dy)
-											local dist = math.sqrt(dx * dx + dy * dy)
+											--local dist = math.abs(dx) + math.abs(dy) -- Manhattan
+											--local dist = math.sqrt(dx * dx + dy * dy) -- Euclidean
+											local dist = math.max(math.abs(dx), math.abs(dy)) -- Chebyshev
 
 											if dist < closest then
 												closest = dist
@@ -823,6 +830,122 @@ function testcond(conds,unitid,x_,y_)
 					end
 
 					if allfound ~= #params then
+						result = false
+					end
+
+					if isnot ~= condtype then
+						result = not result
+					end
+				elseif (condtype == "touch") or (condtype == "not touch") then
+					valid = true
+					local allfound = 0
+					local alreadyfound = {}
+					
+					if (#params > 0) then
+						for a,b in ipairs(params) do
+							if (unitid ~= 1) then
+								if (b ~= "level") then
+									for _,dir in ipairs(ndirs) do
+										local dx,dy = dir[1],dir[2]
+										if (b ~= "empty") then
+											local tileid = (x + dx) + (y + dy) * roomsizex
+											if (unitmap[tileid] ~= nil) then
+												for c,d in ipairs(unitmap[tileid]) do
+													if (d ~= unitid) then
+														local unit = mmf.newObject(d)
+														local name_ = getname(unit)
+														
+														if ((name_ == b) or (b == "any")) and (alreadyfound[b] == nil) then
+															if testcondstack(iconds,d,(x+dx),(y+dy)) then
+																alreadyfound[b] = 1
+																allfound = allfound + 1
+															end
+														end
+													end
+												end
+											end
+										else
+											local nearempty = false
+									
+											local tileid = (x + dx) + (y + dy) * roomsizex
+											if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then 
+												nearempty = true
+											end
+											
+											if nearempty and (alreadyfound[b] == nil) then
+												if testcondstack(iconds,2,(x+dx),(y+dy)) then
+													alreadyfound[b] = 1
+													allfound = allfound + 1
+												end
+											end
+										end
+									end
+								elseif (b == "level") then
+									if testcondstack(iconds,1,x,y) then
+										alreadyfound[b] = 1
+										allfound = allfound + 1
+									end
+								end
+							else
+								local ulist = false
+							
+								if (b ~= "empty") and (b ~= "level") then
+									if (unitlists[b] ~= nil) then
+										if (#unitlists[b] > 0) then
+											if #iconds == 0 then
+												ulist = true
+											else
+												for c,d in ipairs(unitlists[b]) do
+													if testcondstack(iconds,d,x,y) then
+														ulist = true
+														break
+													end
+												end
+											end
+										end
+									end
+								elseif (b == "empty") then
+									local empties = findempty()
+									
+									if (#findempty > 0) then
+										if #iconds == 0 then
+											ulist = true
+										else
+											for c,d in ipairs(findempty) do
+												if testcondstack(iconds,2,d % roomsizex,math.floor(d/roomsizex)) then
+													ulist = true
+													break
+												end
+											end
+										end
+									end
+								end
+								
+								if (b ~= "text") and (ulist == false) then
+									for e,f in pairs(surrounds) do
+										if (e == "r") or (e == "u") or (e == "d") or (e == "l") then
+											for c,d in ipairs(f) do
+												if (ulist == false) and (d == b) then
+													ulist = true
+												end
+											end
+										end
+									end
+								end
+								
+								if ulist or (#iconds == 0 and (b == "text")) then
+									if (alreadyfound[b] == nil) then
+										alreadyfound[b] = 1
+										allfound = allfound + 1
+									end
+								end
+							end
+						end
+					else
+						print("no parameters given!")
+					end
+
+					if (allfound ~= #params) then
 						result = false
 					end
 
