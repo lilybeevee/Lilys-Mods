@@ -10,6 +10,7 @@ function movecommand(ox,oy,dir_,playerid_)
 	end
 
 	autoignored = {}
+	chosenany = {}
 
 	statusblock(statusblockids)
 
@@ -829,10 +830,12 @@ function movecommand(ox,oy,dir_,playerid_)
 	doupdate()
 	code()
 	updategravity(dir_,true)
+	domaprotation()
 	conversion()
 	doupdate()
 	code()
 	updategravity(dir_,true)
+	domaprotation()
 	moveblock()
 	
 	if (dir_ ~= nil) then
@@ -1869,7 +1872,7 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 	end
 
 	local unit = mmf.newObject(unitid)
-	local x,y = unit.values[XPOS],unit.values[YPOS]
+	local x,y,unitdir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
 	local name = getname(unit)
 
 	local isstop = hasfeature(name,"is","stop",unitid,x,y)
@@ -1903,7 +1906,7 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 	table.insert(alreadychecked, unitid)
 
 	if ignored ~= unitid then
-		table.insert(fulllist, {unitid, x, y})
+		table.insert(fulllist, {unitid, x, y, unitdir})
 	end
 
 	for i=1,4 do
@@ -1942,7 +1945,7 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 		end
 		if foundnone then
 			if i-1 == rotate(dir) then
-				table.insert(pulllist, {unitid, x, y})
+				table.insert(pulllist, {unitid, x, y, unitdir})
 				if not alreadysetcolour then
 					--MF_setcolour(unitid,4,2)
 					alreadysetcolour = true
@@ -1950,7 +1953,7 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 					--MF_setcolour(unitid,3,1)
 				end
 			elseif i-1 == dir then
-				table.insert(pushlist, {unitid, x, y})
+				table.insert(pushlist, {unitid, x, y, unitdir})
 				if not alreadysetcolour then
 					--MF_setcolour(unitid,1,3)
 					alreadysetcolour = true
@@ -1989,17 +1992,23 @@ function updategravity(dir,small)
 	-- Gravity direction code
 	local newgrav = nil
 
-	if not small then
-		if findfeature("gravity","is","turn") then
+	if findfeature("gravity","is","turn") then
+		if not small then
 			if string.lower(activemod.turn_dir) == "cw" then
 				newgrav = (gravitydir - 1) % 4
 			else
 				newgrav = (gravitydir + 1) % 4
 			end
+		else
+			newgrav = gravitydir
 		end
+	end
 
-		if findfeature("gravity","is","move") then
+	if findfeature("gravity","is","move") then
+		if not small then
 			newgrav = rotate(gravitydir)
+		else
+			newgrav = gravitydir
 		end
 	end
 
@@ -2022,11 +2031,7 @@ function updategravity(dir,small)
 	end
 
 	if not newgrav then
-		if not small then
-			newgrav = 3
-		else
-			newgrav = gravitydir
-		end
+		newgrav = 3
 	end
 
 	if newgrav ~= gravitydir then

@@ -56,6 +56,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	autoturn = false
 	doreset = false
 	gravitydir = 3
+	chosenany = {}
 	
 	HACK_MOVES = 0
 	
@@ -164,6 +165,8 @@ function clearunits()
 	updateundo = true
 	hiddenmap = nil
 	levelconversions = {}
+
+	chosenany = {}
 	
 	HACK_MOVES = 0
 	
@@ -215,6 +218,7 @@ function clear()
 	autoturn = false
 	doreset = false
 	gravitydir = 3
+	chosenany = {}
 	
 	HACK_MOVES = 0
 	

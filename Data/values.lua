@@ -2038,7 +2038,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},
-	--[[object120 =
+	object123 =
 	{
 		name = "text_any",
 		sprite = "text_any",
@@ -2049,10 +2049,10 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {11, 12},
-		grid = {11, 1},
+		grid = {11, 4},
 		layer = 20,
-	},]]
-	object123 = 
+	},
+	--[[object123 = 
 	{
 		name = "text_nearest",
 		sprite = "text_nearest",
@@ -2066,7 +2066,7 @@ tileslist =
 		tile = {12, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	object124 = {
 		name = "text_touch",
 		sprite = "text_touch",

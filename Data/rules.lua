@@ -35,7 +35,7 @@ function code()
 		visualfeatures = {}
 		notfeatures = {}
 		macros = {}
-		chosenany = {}
+		hasany = false
 		local firstwords = {}
 		local alreadyused = {}
 		
@@ -104,15 +104,16 @@ function code()
 			
 			--MF_alert("ID comparison: " .. newwordidentifier .. " - " .. wordidentifier)
 
-			addundo({"any",lastchosenany})
-			lastchosenany = chosenany
+			if hasany then
+				updatecode = 1
+			end
 			
 			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1
 				code()
 			else
 				codeloops = 0
-				domaprotation()
+				--domaprotation()
 			end
 		end
 	end
@@ -1167,6 +1168,9 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 
 		local targetnot = string.sub(target, 1, 3)
 		local targetnot_ = string.sub(target, 5)
+
+		local effectnot = string.sub(effect, 1, 3)
+		local effectnot_ = string.sub(effect, 5)
 		
 		if (targetnot == "not") and (objectlist[targetnot_] ~= nil) then
 			for i,mat in pairs(objectlist) do
@@ -1210,13 +1214,12 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 			end
 		end
 
-		if (target == "any") then
-			local newobject = nil
-			--print(simpledump(lastchosenany))
-			--print(simpledump(ids))
-			if lastchosenany then
-				for _,v in ipairs(lastchosenany) do
-					local lastids = v[2]
+		if (target == "any" or targetnot_ == "any") or (effect == "any" or effectnot_ == "any") then
+			local newtarget = nil
+			local neweffect = nil
+			if chosenany then
+				for _,v in ipairs(chosenany) do
+					local lastids = v[3]
 					if #lastids == #ids then
 						local match = true
 						for i,id in ipairs(lastids) do
@@ -1225,31 +1228,56 @@ function addoption(option,conds_,ids,visible,notrule,ignoremeans,baserule)
 							end
 						end
 						if match then
-							newobject = v[1]
+							newtarget = v[1]
+							neweffect = v[2]
 							break
 						end
 					end
 				end
 			end
-			if newobject == nil then
+			if newtarget == nil or neweffect == nil then
 				local options = {}
 				for d,mat in pairs(objectlist) do
-					if (d ~= "group") and (d ~= "all") and (a ~= "any") then
-						table.insert(options, d)
+					if (d ~= "group") and (d ~= "all") and (d ~= "any") and (d ~= "text") then
+						if unitlists[d] and #unitlists[d] > 0 then 
+							table.insert(options, d)
+						end
 					end
 				end
-				if not objectlist["text"] then
+				--[[if not objectlist["text"] then
 					table.insert(options, "text")
+				end]]
+				if #options > 0 then
+					if newtarget == nil and (target == "any" or targetnot_ == "any") then
+						newtarget = options[math.random(1,#options)]
+					end
+					if neweffect == nil and (effect == "any" or effectnot_ == "any") then
+						neweffect = options[math.random(1,#options)]
+					end
 				end
-				newobject = options[math.random(1,#options)]
 			end
-			local rule = {newobject,verb,effect}
-			local newconds = {}
-			for a,b in ipairs(conds) do
-				table.insert(newconds, b)
+			if newtarget or neweffect then
+				table.insert(chosenany,{newtarget,neweffect,ids})
+				if not newtarget then
+					newtarget = target
+				end
+				if not neweffect then
+					neweffect = effect
+				end
+				if targetnot == "not" then
+					newtarget = "not " .. newtarget
+				end
+				if effectnot == "not" then
+					neweffect = "not " .. neweffect
+				end
+				local rule = {newtarget,verb,neweffect}
+				local newconds = {}
+				for a,b in ipairs(conds) do
+					table.insert(newconds, b)
+				end
+				addoption(rule,newconds,ids,false,nil,true)
 			end
-			addoption(rule,newconds,ids,false,nil,true)
-			table.insert(chosenany,{newobject,ids})
+			hasany = true
 		end
 	end
 end

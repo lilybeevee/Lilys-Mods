@@ -24,7 +24,7 @@ function conversion(dolevels_,persistonly_)
 						local target,verb,object = rule[1],rule[2],rule[3]
 						
 						if (target == name) and (verb == "is") and (object ~= name) and (object ~= "word") then
-							if (object ~= "text") and (object ~= "any") then
+							if (object ~= "text") then
 								if (object == "not " .. name) then
 									table.insert(output, {"error", conds})
 								else
@@ -38,15 +38,6 @@ function conversion(dolevels_,persistonly_)
 								if (name ~= object) then
 									table.insert(output, {object, conds})
 								end
-							elseif (object == "any") then
-								local options = {}
-								for d,mat in pairs(objectlist) do
-									if (d ~= "group") and (d ~= "all") and (a ~= "text") and (a ~= "any") then
-										table.insert(options, d)
-									end
-								end
-								local newobject = options[math.random(1,#options)]
-								table.insert(output, {newobject, conds})
 							end
 						end
 					end

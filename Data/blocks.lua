@@ -545,20 +545,45 @@ function fallblock(things)
 				while (onground == false) do
 					local ndrs = ndirs[gravitydir+1]
 					local ox,oy = ndrs[1],ndrs[2]
-					local below,below_,specials = check(unitid,x,y,gravitydir,false,"fall")
-					
+
 					local result = 0
+
+					local below,below_,specials = {},{},{}
+					local allsticky,stickypush,stickypull,stickyresult = stickycheck(unitid,gravitydir,true)
+					if #allsticky > 0 then
+						result = math.max(stickyresult, result)
+						for _,v in ipairs(stickypush) do
+							local nbelow,nbelow_,nspecials = check(v[1],v[2],v[3],gravitydir,false,"fall")
+							for c,d in ipairs(nbelow) do
+								table.insert(below, d)
+							end
+							for c,d in ipairs(nbelow_) do
+								table.insert(below_, d)
+							end
+							for c,d in ipairs(nspecials) do
+								table.insert(specials, d)
+							end
+						end
+						for _,v in ipairs(allsticky) do
+							if not firstpos[v[1]] then
+								firstpos[v[1]] = {v[2], v[3]}
+							end
+						end
+					else
+						below,below_,specials = check(unitid,x,y,gravitydir,false,"fall")
+					end
+					
 					for c,d in pairs(below) do
 						if (d ~= 0) then
 							result = 1
 						else
 							if (below_[c] ~= 0) and (result ~= 1) then
 								if (result ~= 0) then
-									result = 2
+									result = math.max(2, result)
 								else
 									for e,f in ipairs(specials) do
 										if (f[1] == below_[c]) then
-											result = 2
+											result = math.max(2, result)
 										end
 									end
 								end
@@ -574,10 +599,22 @@ function fallblock(things)
 						local gone = false
 						
 						if (result == 0) then
-							update(unitid,x+ox,y+oy)
+							if #allsticky > 0 then
+								for _,v in ipairs(allsticky) do
+									update(v[1],v[2]+ox,v[3]+oy)
+								end
+							else
+								update(unitid,x+ox,y+oy)
+							end
 						elseif (result == 2) then
 							if not gravityconvert then
-								gone = move(unitid,0,1,dir,specials,true,true)
+								if #allsticky > 0 then
+									for _,v in ipairs(allsticky) do
+										gone = gone or move(v[1],ox,oy,v[4],specials,true,true)
+									end
+								else
+									gone = move(unitid,ox,oy,dir,specials,true,true)
+								end
 							else
 								gone = true
 							end
@@ -590,20 +627,29 @@ function fallblock(things)
 									conv = "text_" .. name
 								end
 
-								local domake = true
-								local thingshere = findallhere(x+ox,y+oy,unitid)
-								for c,d in ipairs(thingshere) do
-									local thing = mmf.newObject(d)
-									local thingname = thing.strings[UNITNAME]
-									
-									if (thingname == v) or ((thing.strings[UNITTYPE] == "text") and (v == "text")) then
-										print(thingname .. " = " .. conv)
-										domake = false
+								local function gravitycreate(gid,gx,gy)
+									local domake = true
+									local thingshere = findallhere(gx+ox,gy+oy,gid)
+									for c,d in ipairs(thingshere) do
+										local thing = mmf.newObject(d)
+										local thingname = thing.strings[UNITNAME]
+										
+										if (thingname == v) or ((thing.strings[UNITTYPE] == "text") and (v == "text")) then
+											domake = false
+										end
+									end
+
+									if domake then
+										create(conv,gx+ox,gy+oy,gravitydir,gx,gy)
 									end
 								end
 
-								if domake then
-									create(conv,x+ox,y+oy,gravitydir,x,y)
+								if #allsticky > 0 then
+									for c,d in ipairs(allsticky) do
+										gravitycreate(d[1],d[2],d[3])
+									end
+								else
+									gravitycreate(unitid,x,y)
 								end
 							end
 						end
@@ -647,8 +693,8 @@ function fallblock(things)
 	end
 
 	if gravityconvert then
-		for a,unitid in ipairs(checks) do
-			update(unitid,firstpos[unitid][1],firstpos[unitid][2])
+		for i,v in pairs(firstpos) do
+			update(i,v[1],v[2])
 		end
 	end
 end
@@ -1112,7 +1158,7 @@ function block(small_)
 					domake = false
 				end
 				
-				if (v ~= "text") and (v ~= "all") then
+				if (v ~= "text") and (v ~= "all") and (v ~= "any") then
 					for b,mat in pairs(objectlist) do
 						if (b == v) then
 							exists = true
@@ -1135,7 +1181,7 @@ function block(small_)
 					end
 					
 					if domake then
-						if (v ~= "empty") and (v ~= "all") and (v ~= "text") then
+						if (v ~= "empty") and (v ~= "all") and (v ~= "text") and (v ~= "any") then
 							create(v,x,y,dir,x,y)
 						elseif (v == "all") then
 							for b,mat in pairs(objectlist) do
@@ -1146,7 +1192,7 @@ function block(small_)
 								end
 							end
 						elseif (v == "text") then
-							if (name ~= "empty") and (name ~= "text") and (name ~= "all") then
+							if (name ~= "empty") and (name ~= "text") and (name ~= "all") and (name ~= "any") then
 								create("text_" .. name,x,y,dir,x,y)
 								updatecode = 1
 							end
@@ -1366,7 +1412,7 @@ function startblock(light_)
 					local domake = true
 					local exists = false
 					
-					if (v ~= "text") and (v ~= "all") then
+					if (v ~= "text") and (v ~= "all") and (v ~= "any") then
 						for b,mat in pairs(objectlist) do
 							if (b == v) then
 								exists = true
@@ -1389,7 +1435,7 @@ function startblock(light_)
 						end
 						
 						if domake then
-							if (v ~= "empty") and (v ~= "all") and (v ~= "text") then
+							if (v ~= "empty") and (v ~= "all") and (v ~= "text") and (v ~= "any") then
 								create(v,x,y,dir,x,y)
 							elseif (v == "all") then
 								for b,mat in pairs(objectlist) do
@@ -1400,7 +1446,7 @@ function startblock(light_)
 									end
 								end
 							elseif (v == "text") then
-								if (name ~= "empty") and (name ~= "text") and (name ~= "all") then
+								if (name ~= "empty") and (name ~= "text") and (name ~= "all") and (v ~= "any") then
 									create("text_" .. name,x,y,dir,x,y)
 									updatecode = 1
 								end

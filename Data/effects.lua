@@ -129,13 +129,30 @@ end
 
 function domaprotation()
 	if (featureindex["level"] ~= nil) then
+		updategravity(4,true)
 		for i,v in ipairs(featureindex["level"]) do
 			local rule = v[1]
 			local conds = v[2]
 			
 			if testcond(conds,1) then
 				if (rule[1] == "level") and (rule[2] == "is") then
-					if (rule[3] == "right") then
+					if (rule[3] == "gravity") then
+						addundo({"maprotation",maprotation,mapdir})
+						if gravitydir == 0 then
+							maprotation = 270
+							mapdir = 2
+						elseif gravitydir == 1 then
+							maprotation = 180
+							mapdir = 1
+						elseif gravitydir == 2 then
+							maprotation = 90
+							mapdir = 0
+						elseif gravitydir == 3 then
+							maprotation = 0
+							mapdir = 3
+						end
+						MF_levelrotation(maprotation)
+					elseif (rule[3] == "right") then
 						addundo({"maprotation",maprotation,mapdir})
 						maprotation = 90
 						mapdir = 0

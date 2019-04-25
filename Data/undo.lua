@@ -319,9 +319,6 @@ function undo()
 					still = line[2]
 					stillid = line[3]
 					donemove = line[4]
-				elseif (style == "any") then
-					lastchosenany = line[2]
-					updatecode = 1
 				elseif (style == "gravity") then
 					if not findfeature("gravity","is","persist") then
 						gravitydir = line[2]

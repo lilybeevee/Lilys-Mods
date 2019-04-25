@@ -289,7 +289,7 @@ function getunitswithverb(rule2,delthese_)
 			
 			local name = rule[1]
 			
-			if (rule[2] == rule2) and (conds[1] ~= "never") and (rule[1] ~= "all") and (rule[1] ~= "group") then
+			if (rule[2] == rule2) and (conds[1] ~= "never") and (rule[1] ~= "all") and (rule[1] ~= "group") and (rule[1] ~= "any") then
 				if (group[name] == nil) then
 					group[name] = {}
 				end
