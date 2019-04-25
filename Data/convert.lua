@@ -1,6 +1,4 @@
 function conversion(dolevels_,persistonly_)
-	gravityconvert = nil
-
 	local alreadydone = {}
 	local dolevels = dolevels_ or false
 	
@@ -49,13 +47,8 @@ function conversion(dolevels_,persistonly_)
 					for k,v3 in pairs(output) do
 						local object = v3[1]
 						local conds = v3[2]
-						
-						if name == "gravity" then
-							if not gravityconvert then
-								gravityconvert = {}
-							end
-							table.insert(gravityconvert, object)
-						elseif (object ~= "all") and (object ~= "text") and (object ~= "group") and (object ~= "word") and (object ~= "any") then
+
+						if (object ~= "all") and (object ~= "text") and (object ~= "group") and (object ~= "word") and (object ~= "any") then
 							table.insert(conversions, v3)
 						elseif (object == "all") then
 							addaction(0,{"createall",{name,conds},dolevels})

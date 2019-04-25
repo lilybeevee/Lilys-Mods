@@ -541,19 +541,55 @@ function fallblock(things)
 				if not firstpos[unitid] then
 					firstpos[unitid] = {x, y}
 				end
+
+				local result = 0
 				
 				while (onground == false) do
-					local ndrs = ndirs[gravitydir+1]
+					local falldir = gravitydir
+					local stopat = -1
+
+					local closesteat = 9999
+					for i=0,3 do
+						local ndrs = ndirs[i+1]
+						local ox,oy = 0,0
+
+						local geatdone = false
+
+						while not geatdone do
+							local dist = math.max(math.abs(ox), math.abs(oy))
+							if dist >= closesteat then
+								geatdone = true
+							else
+								local obs = findobstacle(x+ox,y+oy)
+
+								for _,v in ipairs(obs) do
+									if v == -1 then
+										geatdone = true
+									elseif v ~= unitid and gravityeat[v] then
+										falldir = i
+										closesteat = dist
+									end
+								end
+
+								ox = ox + ndrs[1]
+								oy = oy + ndrs[2]
+							end
+						end
+					end
+
+					if closesteat == 0 then
+						result = 1
+					end
+
+					local ndrs = ndirs[falldir+1]
 					local ox,oy = ndrs[1],ndrs[2]
 
-					local result = 0
-
 					local below,below_,specials = {},{},{}
-					local allsticky,stickypush,stickypull,stickyresult = stickycheck(unitid,gravitydir,true)
+					local allsticky,stickypush,stickypull,stickyresult = stickycheck(unitid,falldir,true)
 					if #allsticky > 0 then
 						result = math.max(stickyresult, result)
 						for _,v in ipairs(stickypush) do
-							local nbelow,nbelow_,nspecials = check(v[1],v[2],v[3],gravitydir,false,"fall")
+							local nbelow,nbelow_,nspecials = check(v[1],v[2],v[3],falldir,false,"fall")
 							for c,d in ipairs(nbelow) do
 								table.insert(below, d)
 							end
@@ -570,7 +606,7 @@ function fallblock(things)
 							end
 						end
 					else
-						below,below_,specials = check(unitid,x,y,gravitydir,false,"fall")
+						below,below_,specials = check(unitid,x,y,falldir,false,"fall")
 					end
 					
 					for c,d in pairs(below) do
@@ -620,36 +656,46 @@ function fallblock(things)
 							end
 						end
 
+						local function gravitycreate(conv,gid,gx,gy,oldgx,oldgy)
+							local realconv = conv
+							if conv == "text" then
+								realconv = "text_" .. name
+							end
+
+							local domake = true
+							local thingshere = findallhere(gx,gy,gid)
+							for c,d in ipairs(thingshere) do
+								local thing = mmf.newObject(d)
+								local thingname = thing.strings[UNITNAME]
+								
+								if (thingname == conv) or ((thing.strings[UNITTYPE] == "text") and (conv == "text")) then
+									domake = false
+								end
+							end
+
+							if domake then
+								create(realconv,gx,gy,falldir,oldgx,oldgy)
+							end
+						end
+
 						if gravityconvert then
 							for _,v in ipairs(gravityconvert) do
-								local conv = v
-								if v == "text" then
-									conv = "text_" .. name
-								end
-
-								local function gravitycreate(gid,gx,gy)
-									local domake = true
-									local thingshere = findallhere(gx+ox,gy+oy,gid)
-									for c,d in ipairs(thingshere) do
-										local thing = mmf.newObject(d)
-										local thingname = thing.strings[UNITNAME]
-										
-										if (thingname == v) or ((thing.strings[UNITTYPE] == "text") and (v == "text")) then
-											domake = false
-										end
-									end
-
-									if domake then
-										create(conv,gx+ox,gy+oy,gravitydir,gx,gy)
-									end
-								end
-
 								if #allsticky > 0 then
 									for c,d in ipairs(allsticky) do
-										gravitycreate(d[1],d[2],d[3])
+										gravitycreate(v,d[1],d[2]+ox,d[3]+oy,d[2],d[3])
 									end
 								else
-									gravitycreate(unitid,x,y)
+									gravitycreate(v,unitid,x+ox,y+oy,x,y)
+								end
+							end
+						else
+							for _,v in ipairs(gravitymake) do
+								if #allsticky > 0 then
+									for c,d in ipairs(allsticky) do
+										gravitycreate(v,d[1],d[2],d[3],d[2],d[3])
+									end
+								else
+									gravitycreate(v,unitid,x,y,x,y)
 								end
 							end
 						end

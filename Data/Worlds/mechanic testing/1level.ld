@@ -1,7 +1,7 @@
 [tiles]
 object076_image=text_turn
 object076_name=text_turn
-changed=object076,object048,object054,object068,
+changed=object068,object054,object076,object048,
 
 [general]
 selectorY=-1

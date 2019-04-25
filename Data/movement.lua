@@ -2041,25 +2041,58 @@ function updategravity(dir,small)
 	end
 	gravitydir = newgrav
 
-	-- Gravity replacement code
-	--[[local newconvert = nil
+	-- Gravity specials
+	gravityconvert = nil
+	gravitymake = {}
+	gravityeat = {}
 
-	local candidates = findfeature("gravity","is",nil)
-	print(dumpobj(candidates))
-	if candidates then
-		for i,rules in ipairs(candidates) do
-			local rule = rules[1]
+	if featureindex["gravity"] then
+		for i,v in ipairs(featureindex["gravity"]) do
+			local rule = v[1]
+			local conds = v[2]
 
 			local isnot = string.sub(rule[3], 1, 4) == "not "
 
-			if getmat(rule[3]) and not isnot then
-				if not newconvert then
-					newconvert = {}
+			if rule[1] == "gravity" and rule[2] == "is" and rule[3] == "not gravity" then
+				gravitydir = -1
+			end
+
+			if not isnot then
+				if rule[1] == "gravity" then
+					if testcond(conds,3) then
+						if rule[3] ~= "group" and rule[3] ~= "all" and rule[3] ~= "any" and rule[3] ~= "gravity" then
+							if rule[2] == "is" then
+								if not gravityconvert then
+									gravityconvert = {}
+								end
+								table.insert(gravityconvert, rule[3])
+							elseif rule[2] == "make" then
+								table.insert(gravitymake, rule[3])
+							end
+						end
+					end
+				elseif rule[3] == "gravity" then
+					if rule[1] ~= "group" and rule[1] ~= "all" and rule[1] ~= "any" then
+						if rule[2] == "eat" then
+							if rule[1] == "gravity" then
+								gravitydir = -1
+							else
+								local units = unitlists[rule[1]]
+								if units then
+									print("nyaagh")
+									for _,v in ipairs(units) do
+										print("nyani")
+										if testcond(conds,v) then
+											print("NYOOM")
+											gravityeat[v] = true
+										end
+									end
+								end
+							end
+						end
+					end
 				end
-				table.insert(newconvert, rule[3])
 			end
 		end
 	end
-
-	gravityconvert = newconvert]]
 end
