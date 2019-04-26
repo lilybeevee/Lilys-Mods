@@ -2109,7 +2109,7 @@ function updategravity(dir,small)
 			if not isnot then
 				if rule[1] == "gravity" then
 					if testcond(conds,3) then
-						if rule[3] ~= "group" and rule[3] ~= "all" and rule[3] ~= "any" and rule[3] ~= "gravity" then
+						if rule[3] ~= "group" and rule[3] ~= "all" and rule[3] ~= "any" and rule[3] ~= "gravity" and unitlists[rule[3]] then
 							if rule[2] == "is" then
 								if not gravityconvert then
 									gravityconvert = {}
