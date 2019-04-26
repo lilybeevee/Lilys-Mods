@@ -1129,7 +1129,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 	return result,results,specials
 end
 
-function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
+function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_)
 	local x,y = 0,0
 	local unit = {}
 	local name = ""
@@ -1145,10 +1145,12 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 	end
 	
 	local pulling = pulling_ or false
+	local stickied = stickied_ or {}
 	
+	local sticky = hasfeature(name,"is","sticky",unitid,x_,y_)
 	local weak = hasfeature(name,"is","weak",unitid,x_,y_)
 
-	if not doingsticky then
+	if not stickied[unitid] then
 		local fulllist,pushlist,pulllist,result_ = stickycheck(unitid,dir,pulling)
 		if #fulllist > 0 then
 			if result_ == 1 and (not weak or pulling) then
@@ -1163,16 +1165,24 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 			--local pullndrs = ndirs[pulldir + 1]
 			--local pullox,pulloy = pullndrs[1],pullndrs[2]
 
-			local result = 0
-			for _,push in ipairs(pushlist) do
-				result = math.max(result, trypush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,true))
+			local stuck = {}
+			for i,v in pairs(stickied) do
+				stuck[i] = v
+			end
+			for _,v in ipairs(fulllist) do
+				stuck[v[1]] = true
 			end
 
-			if not weak or pulling then
-				return result
-			else
-				return 0
+			local result = 0
+			for _,push in ipairs(pushlist) do
+				result = math.max(result, trypush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,stuck))
 			end
+
+			if weak and not pulling then
+				result = 0
+			end
+
+			return result
 		end
 	end
 
@@ -1189,7 +1199,7 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 					result = math.max(0, result)
 					done = true
 				elseif (hm == 1) or (hm == -1) then
-					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
+					if (pulling == false) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
 						result = math.max(1, result)
 						done = true
 					else
@@ -1197,8 +1207,8 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 						done = true
 					end
 				else
-					if (pulling == false) then
-						hm = trypush(hm,ox,oy,dir,pulling,x+ox,y+oy,reason,unitid,doingsticky)
+					if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
+						hm = trypush(hm,ox,oy,dir,pulling,x+ox,y+oy,reason,unitid,stickied)
 					else
 						result = math.max(0, result)
 						done = true
@@ -1213,7 +1223,7 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 	end
 end
 
-function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
+function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,stickyspecials)
 	local pid2 = tostring(ox + oy * roomsizex) .. tostring(unitid)
 	pushedunits[pid2] = 1
 	
@@ -1236,8 +1246,10 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 	if (pulling_ ~= nil) then
 		pulling = pulling_
 	end
+	local stickied = stickied_ or {}
 
-	if not doingsticky then
+
+	if not stickied[unitid] then
 		local fulllist,pushlist,pulllist,result_ = stickycheck(unitid,dir,pulling)
 		if #fulllist > 0 then
 			if result_ == 1 then
@@ -1251,13 +1263,21 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 			local pushndrs = ndirs[pushdir + 1]
 			local pushox,pushoy = pushndrs[1],pushndrs[2]
 
-			--local pullndrs = ndirs[pulldir + 1]
+			--local pullndrs = ndirs[rotate(pushdir) + 1]
 			--local pullox,pulloy = pullndrs[1],pullndrs[2]
+
+			local stuck = {}
+			for i,v in pairs(stickied) do
+				stuck[i] = v
+			end
+			for _,v in ipairs(fulllist) do
+				stuck[v[1]] = true
+			end
 
 			local stickyspecials = {}
 			local result = 0
 			for _,push in ipairs(pushlist) do
-				result = math.max(result, dopush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,stickyspecials))
+				result = math.max(result, dopush(push[1],pushox,pushoy,pushdir,false,push[2],push[3],reason,pusherid,stuck,stickyspecials))
 			end 
 
 			if result > 0 then
@@ -1299,6 +1319,20 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 				for _,v in ipairs(pushlist) do
 					if movespecial[v[1]] then
 						moveentry[v[1]][5] = movespecial[v[1]]
+					end
+				end
+				for _,pull in ipairs(pulllist) do
+					local pullobs,pullallobs,pullspecials = check(pull[1],pull[2],pull[3],pushdir,true,reason)
+					for i,v in ipairs(pullobs) do
+						if v < -1 or v > 1 then
+							local paobs = pullallobs[i]
+
+							local hm = trypush(paobs,pushox,pushoy,pushdir,true,pull[2],pull[3],reason,pull[1],stuck)
+							if hm == 0 then
+								pushedunits = {}
+								dopush(paobs,pushox,pushoy,pushdir,true,pull[2],pull[3],reason,pull[1],stuck)
+							end
+						end
 					end
 				end
 			end
@@ -1382,6 +1416,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 		local pullhmlist,pullhms,pullspecials = check(unitid,x,y,dir,true,reason)
 		local result = 0
 		
+		local sticky = hasfeature(name,"is","sticky",unitid,x_,y_)
 		local weak = hasfeature(name,"is","weak",unitid,x_,y_)
 		
 			--MF_alert(name .. " is looking... (" .. tostring(unitid) .. ")" .. ", " .. tostring(pulling))
@@ -1392,7 +1427,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 					result = math.max(0, result)
 					done = true
 				elseif (obs == 1) or (obs == -1) then
-					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
+					if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
 						result = math.max(2, result)
 						done = true
 					else
@@ -1400,7 +1435,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 						done = true
 					end
 				else
-					if (pulling == false) or (pulling and (hms[i] ~= pusherid)) then
+					if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
 						result = math.max(1, result)
 						done = true
 					else
@@ -1415,10 +1450,10 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 		
 		while (finaldone == false) and (HACK_MOVES < 10000) do
 			if (result == 0) then
-				if not doingsticky then
+				if not stickied[unitid] then
 					table.insert(movelist, {unitid,ox,oy,dir,specials})
-				else
-					table.insert(doingsticky, {unitid,specials})
+				elseif stickyspecials then
+					table.insert(stickyspecials, {unitid,specials})
 				end
 				--move(unitid,ox,oy,dir,specials)
 				pushsound = true
@@ -1429,7 +1464,14 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 					for i,obs in ipairs(pullhmlist) do
 						if (obs < -1) or (obs > 1) and (obs ~= pusherid) then
 							if (obs ~= 2) then
-								table.insert(movelist, {obs,ox,oy,dir,pullspecials})
+								local obsunit = mmf.newObject(obs)
+								local obsname = getname(obsunit)
+
+								if hasfeature(obsname,"is","sticky",obs) then
+									dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid,stickied)
+								else
+									table.insert(movelist, {obs,ox,oy,dir,pullspecials})
+								end
 								pushsound = true
 								--move(obs,ox,oy,dir,specials)
 							end
@@ -1438,7 +1480,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 							
 							if (pushedunits[pid] == nil) then
 								pushedunits[pid] = 1
-								hm = dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid)
+								hm = dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid,stickied)
 							end
 						end
 					end
@@ -1450,7 +1492,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 						
 						if (pulling == false) or (pulling and (hms[i] ~= pusherid)) and (pushedunits[pid] == nil) then
 							pushedunits[pid] = 1
-							hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid)
+							hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid,stickied)
 						end
 					end
 				end
@@ -1485,7 +1527,14 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 			for i,obs in pairs(hmlist) do
 				if (obs < -1) or (obs > 1) then
 					if (obs ~= 2) then
-						table.insert(movelist, {obs,ox,oy,dir,specials})
+						local obsunit = mmf.newObject(obs)
+						local obsname = getname(obsunit)
+
+						if hasfeature(obsname,"is","sticky",obs) then
+							dopush(obs,ox,oy,dir,true,x-ox,y-oy,reason,unitid,stickied)
+						else
+							table.insert(movelist, {obs,ox,oy,dir,specials})
+						end
 						pushsound = true
 						--move(obs,ox,oy,dir,specials)
 					end
@@ -1494,7 +1543,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,doingsticky)
 					
 					if (pushedunits[pid] == nil) then
 						pushedunits[pid] = 1
-						hm = dopush(obs,ox,oy,dir,pulling,x-ox,y-oy,reason,unitid)
+						hm = dopush(obs,ox,oy,dir,pulling,x-ox,y-oy,reason,unitid,stickied)
 					end
 				end
 			end
