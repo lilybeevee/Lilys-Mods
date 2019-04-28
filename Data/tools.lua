@@ -1025,7 +1025,7 @@ function isgone(unitid)
 			
 			if (things ~= nil) then
 				for i,v in ipairs(things) do
-					if (v ~= unitid) and (floating(v,unitid)) then
+					if (v ~= unitid) and (floating(v,unitid)) and not issoft(v) then
 						return true
 					end
 				end
@@ -1130,6 +1130,25 @@ function issleep(unitid)
 	local sleep = hasfeature(name,"is","sleep",unitid)
 	
 	if (sleep ~= nil) then
+		return true
+	end
+	
+	return false
+end
+
+function issoft(unitid,x,y)
+	name = ""
+	
+	if (unitid ~= 2) then
+		local unit = mmf.newObject(unitid)
+		name = getname(unit)
+	else
+		name = "empty"
+	end
+	
+	local soft = hasfeature(name,"is","soft",unitid,x,y)
+	
+	if (soft ~= nil) then
 		return true
 	end
 	

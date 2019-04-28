@@ -955,6 +955,38 @@ function testcond(conds,unitid,x_,y_)
 					if isnot ~= condtype then
 						result = not result
 					end
+				elseif (isnot == "reset any") then
+					valid = true
+					if resetcount == 0 then
+						result = false
+					end
+					if isnot ~= condtype then
+						result = not result
+					end
+				elseif (isnot == "reset even") then
+					valid = true
+					if resetcount % 2 == 1 then
+						result = false
+					end
+					if isnot ~= condtype then
+						result = not result
+					end
+				elseif (isnot == "reset odd") then
+					valid = true
+					if resetcount % 2 == 0 then
+						result = false
+					end
+					if isnot ~= condtype then
+						result = not result
+					end
+				elseif (isnot == "reset count") then
+					valid = true
+					if resetmoves == 0 then
+						result = false
+					end
+					if isnot ~= condtype then
+						result = not result
+					end
 				end
 			end
 			

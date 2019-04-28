@@ -7,13 +7,12 @@ function effects(timer)
 	doeffect(timer,"wonder","wonder",1,10,5,{0,3})
 	doeffect(timer,"sad","tear",1,2,20,{3,2})
 	doeffect(timer,"sleep","sleep",1,2,60,{3,2})
+	docustom(timer,"cute","love",1,2,20,{4,2})
 	
 	local rnd = math.random(2,4)
 	doeffect(timer,"end","unlock",1,1,10,{1,rnd},"inwards")
 
-	if activemod.enabled["auto"] then
-		doautoturn()
-	end
+	doautoturn()
 	
 	--rnd = math.random(0,2)
 	--doeffect(timer,"melt","unlock",1,1,10,{4,rnd},"inwards")
@@ -115,6 +114,141 @@ function doeffect(timer,keyword,particle,count,chance,timing,colour,specialrule_
 											local dist = math.sqrt((part.y - my)^2 + (part.x - mx)^2)
 											part.values[XVEL] = math.cos(dir) * (dist * 0.2)
 											part.values[YVEL] = 0 - math.sin(dir) * (dist * 0.2)
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function docustom(timer,keyword,particle,count,chance,timing,colour)
+	local zoom = generaldata2.values[ZOOM]
+	
+	local specialrule = specialrule_ or ""
+	local layer = layer_ or 1
+
+	local newparticles = {}
+	for i,v in ipairs(cuteparticles) do
+		local removed = false
+
+		local part = mmf.newObject(v[1])
+		if not part or type(part) == "number" then
+			print(part)
+			removed = true
+		else
+			v[3] = {v[3][1] + v[4][1], v[3][2] + v[4][2]}
+			part.x = v[3][1]
+			part.y = v[3][2]
+			if v[5] then
+				part.scaleX = part.scaleX - (0.025 * spritedata.values[TILEMULT])
+				part.scaleY = part.scaleY - (0.025 * spritedata.values[TILEMULT])
+				if part.scaleX <= 0 or part.scaleY <= 0 then
+					removed = true
+				end
+			elseif timer == v[2] then
+				v[5] = true
+			end
+		end
+
+		if not removed then
+			table.insert(newparticles, v)
+		else
+			MF_remove(v[1])
+		end
+	end
+	cuteparticles = newparticles
+	
+	if (timer % timing == 0) then
+		local this = findfeature(nil,"is",keyword)
+		
+		local c1 = colour[1]
+		local c2 = colour[2]
+		
+		if (this ~= nil) then
+			for k,v in ipairs(this) do
+				if (v[1] ~= "empty") and (v[1] ~= "all") and (v[1] ~= "level") then
+					local these = findall(v)
+					
+					if (#these > 0) then
+						for a,b in ipairs(these) do
+							local unit = mmf.newObject(b)
+							local x,y = unit.values[XPOS],unit.values[YPOS]
+							if unit.visible then
+								for i=1,count do
+									local partid = 0
+
+									local ox = math.random() - 0.5
+									local oy = math.random() - 0.5
+									
+									if (chance > 1) then
+										if (math.random(chance) == 1) then
+											partid = MF_emptycreate(unitreference[particle],x+ox,y+oy)
+										end
+									else
+										partid = MF_emptycreate(unitreference[particle],x+ox,y+oy)
+									end
+
+									updateundo = false
+
+									if partid ~= 0 then
+										local part = mmf.newObject(partid)
+
+										part.values[ZLAYER] = 30
+										part.values[ONLINE] = 2
+
+										local xvel = (math.random() - 0.5) * 0.1 * spritedata.values[TILEMULT]
+										local yvel = math.random() * -0.5 * spritedata.values[TILEMULT]
+
+										part.scaleX = 0.5 * spritedata.values[TILEMULT]
+										part.scaleY = 0.5 * spritedata.values[TILEMULT]
+
+										MF_setcolour(partid,c1,c2)
+										table.insert(cuteparticles, {partid, timer, {part.x, part.y}, {xvel, yvel}, false})
+									end
+								end
+							end
+						end
+					end
+				else
+					if (v[1] ~= "level") or ((v[1] == "level") and testcond(v[2],1)) then
+						for i=1,roomsizex-2 do
+							for j=1,roomsizey-2 do
+								local tileid = i + j * roomsizex
+								
+								if (unitmap[tileid] == nil) or ((unitmap[tileid] ~= nil) and (#unitmap[tileid] == 0)) then
+									for f=1,count do
+										local partid = 0
+
+										local ox = math.random() - 0.5
+										local oy = math.random() - 0.5
+										
+										if (chance > 1) then
+											if (math.random(chance) == 1) then
+												partid = MF_emptycreate(unitreference[particle],i+ox,j+oy)
+											end
+										else
+											partid = MF_emptycreate(unitreference[particle],i+ox,j+oy)
+										end
+	
+										if partid ~= 0 then
+											local part = mmf.newObject(partid)
+	
+											part.values[ZLAYER] = 30
+											part.values[ONLINE] = 2
+	
+											local xvel = (math.random() - 0.5) * 0.1 * spritedata.values[TILEMULT]
+											local yvel = math.random() * -0.5 * spritedata.values[TILEMULT]
+	
+											part.scaleX = 0.5 * spritedata.values[TILEMULT]
+											part.scaleY = 0.5 * spritedata.values[TILEMULT]
+	
+											MF_setcolour(partid,c1,c2)
+											table.insert(cuteparticles, {partid, timer, {part.x, part.y}, {xvel, yvel}, false})
 										end
 									end
 								end
@@ -591,6 +725,8 @@ function doautoturn()
 		if doreset then
 			resetlevel()
 			MF_update()
+		else
+			resetmoves = math.max(0, resetmoves - 1)
 		end
 	end
 end

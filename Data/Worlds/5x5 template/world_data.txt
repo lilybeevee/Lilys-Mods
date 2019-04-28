@@ -1,0 +1,7 @@
+[levels]
+levelid=4
+
+[general]
+firstlevel=1level
+name=5x5 template
+

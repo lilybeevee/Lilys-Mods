@@ -333,7 +333,7 @@ function doconvert(data,extrarule_)
 				simplename = "text"
 			end
 			
-			if ingameid == baseingameid and activemod.enabled["persist"] then--and findfeature(simplename,"is","persist") ~= nil then
+			if ingameid == baseingameid then--and findfeature(simplename,"is","persist") ~= nil then
 				--print("HECK YOU")
 				ingameid = newid()
 			end

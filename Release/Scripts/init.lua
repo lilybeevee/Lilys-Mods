@@ -57,12 +57,18 @@ mod.alltiles = {
 	"reset",
 	"persist",
 	"auto",
+	"cute",
+	"soft",
 	"copy",
 	"with",
 	"still",
 	"any",
 	"nearest",
 	"touch",
+	"reset any",
+	"reset even",
+	"reset odd",
+	"reset count",
 	"gravity",
 }
 

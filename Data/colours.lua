@@ -69,6 +69,12 @@ function getcolour(unitid,value_)
 	if (value_ ~= nil) then
 		value = value_
 	end
+
+	if unit.values[A] == 1 then
+		return 2,2
+	elseif unit.values[A] == 2 then
+		return 1,3
+	end
 	
 	if (objectcolours[name] ~= nil) then
 		local c = objectcolours[name]

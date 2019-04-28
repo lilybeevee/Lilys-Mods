@@ -1972,7 +1972,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	object121 = 
+	--[[object121 = 
 	{
 		name = "text_turn",
 		sprite = "text_turn",
@@ -1985,8 +1985,8 @@ tileslist =
 		tile = {5, 12},
 		grid = {11, 2},
 		layer = 20,
-	},
-	--[[object125 = {
+	},]]
+	object121 = {
 		name = "text_reset",
 		sprite = "text_reset",
 		sprite_in_root = true,
@@ -1996,10 +1996,10 @@ tileslist =
 		colour = {3, 0},
 		active = {3, 1},
 		tile = {7, 12},
-		grid = {11, 3},
+		grid = {11, 1},
 		layer = 20,
-	},]]
-	object122 = {
+	},
+	--[[object122 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2011,8 +2011,8 @@ tileslist =
 		tile = {9, 12},
 		grid = {11, 0},
 		layer = 20,
-	},
-	--[[object124 = {
+	},]]
+	object122 = {
 		name = "text_persist",
 		sprite = "text_persist",
 		sprite_in_root = true,
@@ -2022,10 +2022,10 @@ tileslist =
 		colour = {0, 2},
 		active = {0, 3},
 		tile = {8, 12},
-		grid = {11, 5},
+		grid = {11, 0},
 		layer = 20,
-	}]]
-	object125 = {
+	},
+	--[[object125 = {
 		name = "text_sticky",
 		sprite = "text_sticky",
 		sprite_in_root = true,
@@ -2037,8 +2037,8 @@ tileslist =
 		tile = {10, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
-	object123 =
+	},]]
+	--[[object123 =
 	{
 		name = "text_any",
 		sprite = "text_any",
@@ -2051,7 +2051,7 @@ tileslist =
 		tile = {11, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	--[[object123 = 
 	{
 		name = "text_nearest",
@@ -2067,7 +2067,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	object124 = {
+	--[[object124 = {
 		name = "text_touch",
 		sprite = "text_touch",
 		sprite_in_root = true,
@@ -2080,8 +2080,8 @@ tileslist =
 		tile = {13, 12},
 		grid = {11, 5},
 		layer = 20,
-	},
-	object120 =
+	},]]
+	--[[object120 =
 	{
 		name = "text_gravity",
 		sprite = "text_gravity",
@@ -2093,6 +2093,88 @@ tileslist =
 		active = {3, 3},
 		tile = {14, 12},
 		grid = {11, 1},
+		layer = 20,
+	},]]
+	--[[object123 = {
+		name = "text_reset any",
+		sprite = "text_reset any",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 3,
+		operatortype = "cond_start",
+		colour = {3, 0},
+		active = {3, 1},
+		tile = {15, 12},
+		grid = {11, 2},
+		layer = 20,
+	},]]
+	--[[object124 = {
+		name = "text_reset even",
+		sprite = "text_reset even",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 3,
+		operatortype = "cond_start",
+		colour = {3, 0},
+		active = {3, 1},
+		tile = {16, 12},
+		grid = {11, 3},
+		layer = 20,
+	},]]
+	object120 = {
+		name = "text_reset odd",
+		sprite = "text_reset odd",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 3,
+		operatortype = "cond_start",
+		colour = {3, 0},
+		active = {3, 1},
+		tile = {17, 12},
+		grid = {11, 4},
+		layer = 20,
+	},
+	object125 = {
+		name = "text_reset count",
+		sprite = "text_reset count",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 3,
+		operatortype = "cond_start",
+		colour = {3, 0},
+		active = {3, 1},
+		tile = {18, 12},
+		grid = {11, 5},
+		layer = 20,
+	},
+	object123 = {
+		name = "text_cute",
+		sprite = "text_cute",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {4, 1},
+		active = {4, 2},
+		tile = {19, 12},
+		grid = {11, 2},
+		layer = 20,
+	},
+	object124 = {
+		name = "text_soft",
+		sprite = "text_soft",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {0, 2},
+		active = {0, 3},
+		tile = {20, 12},
+		grid = {11, 3},
 		layer = 20,
 	},
 }

@@ -57,6 +57,10 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	doreset = false
 	gravitydir = 3
 	chosenany = {}
+	onreset = {}
+	resetcount = 0
+	resetmoves = 0
+	cuteparticles = {}
 	
 	HACK_MOVES = 0
 	
@@ -167,6 +171,8 @@ function clearunits()
 	levelconversions = {}
 
 	chosenany = {}
+	onreset = {}
+	cuteparticles = {}
 	
 	HACK_MOVES = 0
 	
@@ -219,6 +225,10 @@ function clear()
 	doreset = false
 	gravitydir = 3
 	chosenany = {}
+	onreset = {}
+	resetcount = 0
+	resetmoves = 0
+	cuteparticles = {}
 	
 	HACK_MOVES = 0
 	
@@ -253,6 +263,8 @@ function command(key,player_)
 		if doreset then
 			resetlevel()
 			MF_update()
+		else
+			resetmoves = math.max(0, resetmoves - 1)
 		end
 	end
 	

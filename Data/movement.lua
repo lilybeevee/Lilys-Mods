@@ -526,6 +526,7 @@ function movecommand(ox,oy,dir_,playerid_)
 						end
 						
 						local swap = hasfeature(name,"is","swap",data.unitid,x,y)
+						local ignoreweak = true
 						
 						for c,obs in pairs(obslist) do
 							if (solved == false) then
@@ -539,6 +540,7 @@ function movecommand(ox,oy,dir_,playerid_)
 									result = math.max(result, 2)
 									
 									local levelpush_ = findfeature("level","is","push")
+									local levelsoft = hasfeature("level","is","soft",1)
 									
 									if (levelpush_ ~= nil) then
 										for e,f in ipairs(levelpush_) do
@@ -546,6 +548,10 @@ function movecommand(ox,oy,dir_,playerid_)
 												levelpush = dir
 											end
 										end
+									end
+
+									if not levelsoft then
+										ignoreweak = false
 									end
 								else
 									if (swap == nil) then
@@ -556,9 +562,16 @@ function movecommand(ox,oy,dir_,playerid_)
 										if (obs == 1) then
 											local thisobs = allobs[c]
 											local solid = true
+											local soft = false
+
+											for f,g in pairs(specials) do
+												if (g[1] == thisobs) and (g[2] == "soft") then
+													soft = true
+												end
+											end
 											
 											for f,g in pairs(specials) do
-												if (g[1] == thisobs) or (g[1] == pushids[c]) and (g[2] == "weak") then
+												if ((g[1] == thisobs) and not soft) or (g[1] == pushids[c]) and (g[2] == "weak") then
 													solid = false
 													obs = 0
 													result = math.max(result, 0)
@@ -566,6 +579,9 @@ function movecommand(ox,oy,dir_,playerid_)
 											end
 											
 											if solid then
+												if not soft then
+													ignoreweak = false
+												end
 												if (state < 2) then
 													data.state = math.max(data.state, 2)
 													result = math.max(result, 2)
@@ -701,7 +717,7 @@ function movecommand(ox,oy,dir_,playerid_)
 										else
 											local weak = hasfeature(name,"is","weak",data.unitid,x,y)
 											
-											if (weak ~= nil) then
+											if (weak ~= nil) and not ignoreweak then
 												delete(data.unitid,x,y)
 												generaldata.values[SHAKE] = 3
 												
@@ -844,10 +860,6 @@ function movecommand(ox,oy,dir_,playerid_)
 end
 
 function modupdate(name)
-	if not activemod.enabled[name] then
-		return
-	end
-
 	if name == "still" then
 		local newstill = {}
 		local newstillid = ""
@@ -953,6 +965,10 @@ function check(unitid,x,y,dir,pulling_,reason)
 			if (id == -1) then
 				table.insert(result, -1)
 				table.insert(results, -1)
+
+				if hasfeature("level","is","soft",1) then
+					table.insert(specials, {-1, "soft"})
+				end
 			else
 				local obsunit = mmf.newObject(id)
 				local obsname = getname(obsunit)
@@ -1006,15 +1022,19 @@ function check(unitid,x,y,dir,pulling_,reason)
 					end
 					
 					if (weak ~= nil) and (pulling == false) then
-						if (issafe(id) == false) then
+						if (issafe(id) == false) and (issoft(unitid) == false) then
 							--valid = false
 							table.insert(specials, {id, "weak"})
 						end
 					elseif sticky and selfweak and not pulling then
-						if (issafe(id) == false) then
+						if (issafe(unitid) == false) and (issoft(id) == false) then
 							--valid = false
 							table.insert(specials, {unitid, "weak"})
 						end
+					end
+
+					if issoft(id) and not pulling then
+						table.insert(specials, {id, "soft"})
 					end
 				end
 				
@@ -1035,7 +1055,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 					end
 					
 					if (((isstop ~= nil) and (ispush == nil) and ((ispull == nil) or ((ispull ~= nil) and (pulling == false)))) or ((ispull ~= nil) and (pulling == false) and (ispush == nil))) and (isswap == nil) then
-						if (weak == nil) then
+						if (weak == nil) or issoft(unitid) then
 							table.insert(result, 1)
 							table.insert(results, id)
 							localresult = 1
@@ -1090,7 +1110,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 		
 		local weak = hasfeature(bname,"is","weak",2,x+ox,y+oy)
 		if (weak ~= nil) and (pulling == false) then
-			if (issafe(2,x+ox,y+oy) == false) then
+			if (issafe(2,x+ox,y+oy) == false) and (issoft(unitid) == false) then
 				--valid = false
 				table.insert(specials, {2, "weak"})
 			end
@@ -1149,6 +1169,7 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_)
 	
 	local sticky = hasfeature(name,"is","sticky",unitid,x_,y_)
 	local weak = hasfeature(name,"is","weak",unitid,x_,y_)
+	local soft = hasfeature(name,"is","soft",unitid,x_,y_)
 
 	if not stickied[unitid] then
 		local fulllist,pushlist,pulllist,result_ = stickycheck(unitid,dir,pulling)
@@ -1186,40 +1207,52 @@ function trypush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_)
 		end
 	end
 
-	if (weak == nil) or pulling then
-		local hmlist,hms,specials = check(unitid,x,y,dir,false,reason)
+	local result = 0
+	local ignoreweak = true
+
+	local hmlist,hms,specials = check(unitid,x,y,dir,false,reason)
+	
+	for i,hm in pairs(hmlist) do
+		local done = false
 		
-		local result = 0
-		
-		for i,hm in pairs(hmlist) do
-			local done = false
-			
-			while (done == false) do
-				if (hm == 0) then
-					result = math.max(0, result)
+		while (done == false) do
+			if (hm == 0) then
+				result = math.max(0, result)
+				done = true
+			elseif (hm == 1) or (hm == -1) then
+				if (pulling == false) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
+					result = math.max(1, result)
 					done = true
-				elseif (hm == 1) or (hm == -1) then
-					if (pulling == false) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
-						result = math.max(1, result)
-						done = true
-					else
-						result = math.max(0, result)
-						done = true
+
+					local soft = false
+					for _,v in ipairs(specials) do
+						if v[1] == hms[i] and v[2] == "soft" then
+							soft = true
+						end
+					end
+
+					if not soft then
+						ignoreweak = false
 					end
 				else
-					if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
-						hm = trypush(hm,ox,oy,dir,pulling,x+ox,y+oy,reason,unitid,stickied)
-					else
-						result = math.max(0, result)
-						done = true
-					end
+					result = math.max(0, result)
+					done = true
+				end
+			else
+				if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
+					hm = trypush(hm,ox,oy,dir,pulling,x+ox,y+oy,reason,unitid,stickied)
+				else
+					result = math.max(0, result)
+					done = true
 				end
 			end
 		end
-		
-		return result
-	else
+	end
+
+	if weak and not pulling and not ignoreweak then
 		return 0
+	else
+		return result
 	end
 end
 
@@ -1418,6 +1451,8 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 		
 		local sticky = hasfeature(name,"is","sticky",unitid,x_,y_)
 		local weak = hasfeature(name,"is","weak",unitid,x_,y_)
+
+		local ignoreweak = true
 		
 			--MF_alert(name .. " is looking... (" .. tostring(unitid) .. ")" .. ", " .. tostring(pulling))
 		for i,obs in pairs(hmlist) do
@@ -1430,6 +1465,17 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 					if (not pulling and not sticky) or ((pulling or sticky) and (hms[i] ~= pusherid)) then
 						result = math.max(2, result)
 						done = true
+
+						local soft = false
+						for _,v in ipairs(specials) do
+							if v[1] == hms[i] and v[2] == "soft" then
+								soft = true
+							end
+						end
+
+						if not soft then
+							ignoreweak = false
+						end
 					else
 						result = math.max(0, result)
 						done = true
@@ -1493,6 +1539,17 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 						if (pulling == false) or (pulling and (hms[i] ~= pusherid)) and (pushedunits[pid] == nil) then
 							pushedunits[pid] = 1
 							hm = dopush(v,ox,oy,dir,false,x+ox,y+oy,reason,unitid,stickied)
+
+							local soft = false
+							for _,v in ipairs(specials) do
+								if v[1] == hms[i] and v[2] == "soft" then
+									soft = true
+								end
+							end
+
+							if not soft then
+								ignoreweak = false
+							end
 						end
 					end
 				end
@@ -1505,7 +1562,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 			elseif (result == 2) then
 				hm = 1
 				
-				if (weak ~= nil) then
+				if (weak ~= nil) and not ignoreweak then
 					delete(unitid,x,y)
 					
 					local pmult,sound = checkeffecthistory("weak")

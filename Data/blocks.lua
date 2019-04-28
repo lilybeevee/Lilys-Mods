@@ -493,6 +493,8 @@ end
 function fallblock(things)
 	local checks = {}
 
+	updategravity(4,true)
+
 	local gravityfall = findfeature("gravity","is","fall") 
 	local gravityshift = findfeature("gravity","is","shift")
 	
@@ -913,11 +915,10 @@ function block(small_)
 			
 			if (#stuff > 0) then
 				for i,v in ipairs(stuff) do
-					if floating(v,unit.fixed) then
+					if floating(v,unit.fixed) and not issoft(v) then
 						local vunit = mmf.newObject(v)
 						local thistype = vunit.strings[UNITTYPE]
 						if (v ~= unit.fixed) then
-							print("WRYYY")
 							local pmult,sound = checkeffecthistory("weak")
 							MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
 							removalshort = sound
@@ -990,7 +991,7 @@ function block(small_)
 									
 									local weakskull = hasfeature(kname,"is","weak",d)
 									
-									if (weakskull == nil) or ((weakskull ~= nil) and issafe(d)) then
+									if (weakskull == nil) or ((weakskull ~= nil) and (issafe(d) or issoft(unit.fixed))) then
 										doit = true
 									end
 								end
@@ -1144,6 +1145,7 @@ function block(small_)
 
 			local reset = findfeature(nil,"is","reset")
 
+			local newonreset = {}
 			if reset ~= nil then
 				for a,b in ipairs(reset) do
 					if b[1] ~= "empty" then
@@ -1152,13 +1154,21 @@ function block(small_)
 						if #resetunits > 0 then
 							for c,d in ipairs(resetunits) do
 								if floating(d,unit.fixed) then
-									doreset = true
+									if d ~= unit.fixed then
+										if not onreset[d] then
+											doreset = true
+										end
+										newonreset[d] = true
+									else
+										doreset = true
+									end
 								end
 							end
 						end
 					end
 				end
 			end
+			onreset = newonreset
 			
 			local win = findfeature(nil,"is","win")
 			
@@ -1935,4 +1945,6 @@ function resetlevel()
 	undobuffer = {}
 	newundo()
 	doreset = false
+	resetcount = resetcount + 1
+	resetmoves = resetcount
 end

@@ -7,27 +7,33 @@ local mod = activemod
 ---------------------------------------------------
 
 -- Nouns
-mod.enabled["any"] = false
-mod.enabled["gravity"] = false
+mod.enabled["any"]		 			= false -- Checks for ANY object in conditions, acts as a random object elsewhere
+mod.enabled["gravity"] 			= false -- Noun which affects the direction of gravity and more!
 
 -- Conditions
-mod.enabled["with"] = true
-mod.enabled["still"] = true
-mod.enabled["nearest"] = false
-mod.enabled["touch"] = false
+mod.enabled["with"] 				= true -- True if object has all properties
+mod.enabled["still"] 				= true -- True if object hasn't moved the past turn 
+mod.enabled["nearest"] 			= false -- True if object is closest to the given objects (using max distance)
+mod.enabled["touch"] 				= false -- True if object is adjacent to given objects in a + pattern
+mod.enabled["reset any"] 		= false -- True if a reset has happened
+mod.enabled["reset even"] 	= false -- True if the number of resets is even
+mod.enabled["reset odd"] 		= false -- True if the number of resets is odd
+mod.enabled["reset count"] 	= false -- True for the first N turns of a reset, where N is the number of resets
 
 -- Verbs
-mod.enabled["means"] = true
-mod.enabled["copy"] = true
+mod.enabled["means"] 				= true -- Changes the definition of a noun or property
+mod.enabled["copy"] 				= true -- Makes object copy another's movements
 
 -- Properties
-mod.enabled["sticky"] = false
-mod.enabled["bait"] = true
-mod.enabled["lure"] = true
-mod.enabled["turn"] = false
-mod.enabled["reset"] = false
-mod.enabled["persist"] = false
-mod.enabled["auto"] = false
+mod.enabled["sticky"] 			= false -- STICKY objects attach to other STICKY objects and move with them
+mod.enabled["bait"] 				= true -- Attracts LURE objects from afar in a + pattern
+mod.enabled["lure"] 				= true -- Moves to BAIT objects from afar in a + pattern
+mod.enabled["turn"] 				= false -- Makes object rotate CCW or CW (option below) each turn
+mod.enabled["reset"]				= false -- Resets the level when a YOU touches it, like DEFEAT
+mod.enabled["persist"] 			= false -- Makes object ignore UNDO
+mod.enabled["auto"] 				= false -- Makes object do certain things like movement on a timer instead of turns (requires particle effects??)
+mod.enabled["cute"] 				= false -- Heart effect
+mod.enabled["soft"] 				= false -- Prevents WEAK objects from dying on it (BABA IS CUTE AND SOFT)
 
 --------------------------
 --[[ MECHANIC OPTIONS ]]--
@@ -258,4 +264,86 @@ mod.tile["gravity"] = {
 	tile = {14, 12},
 	layer = 20,
 }
--- Current highest tile: {14, 12}
+
+mod.tile["reset any"] = {
+	name = "text_reset any",
+	sprite = "text_reset any",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 3,
+	operatortype = "cond_start",
+	colour = {3, 0},
+	active = {3, 1},
+	tile = {15, 12},
+	layer = 20,
+}
+
+mod.tile["reset even"] = {
+	name = "text_reset even",
+	sprite = "text_reset even",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 3,
+	operatortype = "cond_start",
+	colour = {3, 0},
+	active = {3, 1},
+	tile = {16, 12},
+	layer = 20,
+}
+
+mod.tile["reset odd"] = {
+	name = "text_reset odd",
+	sprite = "text_reset odd",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 3,
+	operatortype = "cond_start",
+	colour = {3, 0},
+	active = {3, 1},
+	tile = {17, 12},
+	layer = 20,
+}
+
+mod.tile["reset count"] = {
+	name = "text_reset count",
+	sprite = "text_reset count",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 3,
+	operatortype = "cond_start",
+	colour = {3, 0},
+	active = {3, 1},
+	tile = {18, 12},
+	layer = 20,
+}
+
+mod.tile["cute"] = {
+	name = "text_cute",
+	sprite = "text_cute",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {4, 1},
+	active = {4, 2},
+	tile = {19, 12},
+	layer = 20,
+}
+
+mod.tile["soft"] = {
+	name = "text_soft",
+	sprite = "text_soft",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {0, 2},
+	active = {0, 3},
+	tile = {20, 12},
+	layer = 20,
+}
+-- Current highest tile: {20, 12}
