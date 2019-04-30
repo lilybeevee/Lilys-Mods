@@ -54,6 +54,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	donemove = 0
 	autotimer = 0
 	autoturn = false
+	timelessturn = false
 	doreset = false
 	gravitydir = 3
 	chosenany = {}
@@ -61,6 +62,9 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	resetcount = 0
 	resetmoves = 0
 	cuteparticles = {}
+	timelessdels = {}
+	isactive = {}
+	timelessrule = {}
 	
 	HACK_MOVES = 0
 	
@@ -173,6 +177,9 @@ function clearunits()
 	chosenany = {}
 	onreset = {}
 	cuteparticles = {}
+	timelessdels = {}
+	isactive = {}
+	timelessrule = {}
 	
 	HACK_MOVES = 0
 	
@@ -222,6 +229,7 @@ function clear()
 	donemove = 0
 	autotimer = 0
 	autoturn = false
+	timelessturn = false
 	doreset = false
 	gravitydir = 3
 	chosenany = {}
@@ -229,6 +237,9 @@ function clear()
 	resetcount = 0
 	resetmoves = 0
 	cuteparticles = {}
+	timelessdels = {}
+	isactive = {}
+	timelessrule = {}
 	
 	HACK_MOVES = 0
 	

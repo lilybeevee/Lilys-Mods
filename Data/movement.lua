@@ -1,5 +1,6 @@
 function movecommand(ox,oy,dir_,playerid_)
 	local statusblockids = nil
+	timelessturn = false
 	if autoturn then
 		statusblockids = {}
 		for id,v in pairs(autounits) do
@@ -7,6 +8,8 @@ function movecommand(ox,oy,dir_,playerid_)
 				table.insert(statusblockids, id)
 			end
 		end
+	elseif dir_ ~= 4 then
+		timelessturn = checktimelessturn(playerid_)
 	end
 
 	autoignored = {}
@@ -51,7 +54,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		end
 	end
 
-	if autocheck(3) then
+	if autocheck(3) and timecheck(3) then
 		updategravity(dir_,false)
 	end
 
@@ -62,11 +65,9 @@ function movecommand(ox,oy,dir_,playerid_)
 			local name = getname(unit)
 
 			local isstop = hasfeature(name,"is","stop",unit.fixed)
-			local ispush = hasfeature(name,"is","push",unit.fixed)
-			local ispull = hasfeature(name,"is","pull",unit.fixed)
 			local isfall = hasfeature(name,"is","fall",unit.fixed)
 
-			if not isstop or ispush or ispull or isfall then
+			if (not isstop or isfall) and autocheck(unit.fixed) and timecheck(unit.fixed) then
 				if not gravitychecks then
 					gravitychecks = {}
 				end
@@ -254,7 +255,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				local shifts = findallfeature(nil,"is","shift",true)
 				
 				for i,v in ipairs(shifts) do
-					if (v ~= 2) and autocheck(v) then
+					if (v ~= 2) and autocheck(v) and timecheck(v) then
 						local affected = {}
 						local unit = mmf.newObject(v)
 						
@@ -287,7 +288,7 @@ function movecommand(ox,oy,dir_,playerid_)
 				
 				local levelshift = findfeature("level","is","shift")
 				
-				if (levelshift ~= nil) and autocheck(1) then
+				if (levelshift ~= nil) and autocheck(1) and timecheck(1) then
 					local leveldir = mapdir
 						
 					for a,unit in ipairs(units) do
@@ -302,7 +303,7 @@ function movecommand(ox,oy,dir_,playerid_)
 
 				local gravityshift = findfeature("gravity","is","shift")
 
-				if gravityshift then
+				if gravityshift and timecheck(3) then
 					local gshifts = {}
 					if gravitychecks then
 						for i,v in ipairs(gravitychecks) do
@@ -395,10 +396,8 @@ function movecommand(ox,oy,dir_,playerid_)
 
 		local new_moving_units = {}
 		for i,data in ipairs(moving_units) do
-			if data.reason == "you" or (data.reason == "copy" and autocheck(data.copy)) or (data.reason == "gravity" and autocheck(3)) or autocheck(data.unitid) then
-				if data.reason ~= "gravity" or (data.reason == "gravity" and autocheck(3)) then
-					table.insert(new_moving_units, data)
-				end
+			if data.reason == "shift" or (data.reason == "you" and timecheck(data.unitid)) or (data.reason == "copy" and autocheck(data.copy) and timecheck(data.unitid)) or (data.reason == "gravity" and autocheck(3) and timecheck(3)) or (autocheck(data.unitid) and timecheck(data.unitid)) then
+				table.insert(new_moving_units, data)
 			end
 		end
 		moving_units = new_moving_units
@@ -1006,7 +1005,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 					if (lockpartner ~= "") and (pulling == false) then
 						local partner = hasfeature(obsname,"is",lockpartner,id)
 						
-						if (partner ~= nil) and ((issafe(id) == false) or (issafe(unitid) == false)) and (floating(id, unitid)) then
+						if (partner ~= nil) and ((issafe(id) == false) or (issafe(unitid) == false)) and (floating(id, unitid)) and ((lockpartner == "shut" and timecheck(unitid)) or (lockpartner == "open" and timecheck(id))) then
 							valid = false
 							table.insert(specials, {id, "lock"})
 						end
@@ -1015,14 +1014,14 @@ function check(unitid,x,y,dir,pulling_,reason)
 					if (eat ~= nil) and (pulling == false) then
 						local eats = hasfeature(name,"eat",obsname,unitid)
 						
-						if (eats ~= nil) and (issafe(id) == false) then
+						if (eats ~= nil) and (issafe(id) == false) and timecheck(unitid) then
 							valid = false
 							table.insert(specials, {id, "eat"})
 						end
 					end
 					
 					if (weak ~= nil) and (pulling == false) then
-						if (issafe(id) == false) and (issoft(unitid) == false) then
+						if (issafe(id) == false) and (issoft(unitid) == false) and timecheck(id) then
 							--valid = false
 							table.insert(specials, {id, "weak"})
 						end
@@ -1093,7 +1092,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 		if (eat ~= nil) and (pulling == false) then
 			local eats = hasfeature(name,"eat",bname,unitid,x+ox,y+oy)
 			
-			if (eats ~= nil) and (issafe(2,x+ox,y+oy) == false) then
+			if (eats ~= nil) and (issafe(2,x+ox,y+oy) == false) and timecheck(unitid) then
 				valid = false
 				table.insert(specials, {2, "eat"})
 			end
@@ -1102,7 +1101,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 		if (lockpartner ~= "") and (pulling == false) then
 			local partner = hasfeature(bname,"is",lockpartner,2,x+ox,y+oy)
 			
-			if (partner ~= nil) and ((issafe(2,x+ox,y+oy) == false) or (issafe(unitid) == false)) then
+			if (partner ~= nil) and ((issafe(2,x+ox,y+oy) == false) or (issafe(unitid) == false)) and ((lockpartner == "shut" and timecheck(unitid)) or (lockpartner == "open" and timecheck(2,x+ox,y+oy))) then
 				valid = false
 				table.insert(specials, {2, "lock"})
 			end
@@ -1110,7 +1109,7 @@ function check(unitid,x,y,dir,pulling_,reason)
 		
 		local weak = hasfeature(bname,"is","weak",2,x+ox,y+oy)
 		if (weak ~= nil) and (pulling == false) then
-			if (issafe(2,x+ox,y+oy) == false) and (issoft(unitid) == false) then
+			if (issafe(2,x+ox,y+oy) == false) and (issoft(unitid) == false) and timecheck(2,x+ox,y+oy) then
 				--valid = false
 				table.insert(specials, {2, "weak"})
 			end
@@ -1377,7 +1376,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 	local swaps = findfeatureat(nil,"is","swap",x+ox,y+oy)
 	if (swaps ~= nil) and ((unitid ~= 2) or ((unitid == 2) and (pulling == false))) then
 		for a,b in ipairs(swaps) do
-			if (pulling == false) or (pulling and (b ~= pusherid)) then
+			if (pulling == false) or (pulling and (b ~= pusherid)) and timecheck(b) then
 				local alreadymoving = findupdate(b,"update")
 				local valid = true
 				
@@ -1395,7 +1394,7 @@ function dopush(unitid,ox,oy,dir,pulling_,x_,y_,reason,pusherid,stickied_,sticky
 	if pulling then
 		local swap = hasfeature(name,"is","swap",unitid,x,y)
 		
-		if swap then
+		if swap and timecheck(unitid) then
 			local swapthese = findallhere(x+ox,y+oy)
 			
 			for a,b in ipairs(swapthese) do
@@ -1684,16 +1683,26 @@ function move(unitid,ox,oy,dir,specials_,instant_,simulate_)
 							local effect2 = false
 							
 							if (issafe(b,bx,by) == false) then
-								delete(b,bx,by)
-								unlocked = true
-								effect1 = true
+								if timecheck(b) then
+									delete(b,bx,by)
+									unlocked = true
+									effect1 = true
+								else
+									table.insert(timelessdels, {"lock",b,bx,by})
+									print(dumpobj(timelessdels))
+								end
 							end
 							
 							if (issafe(unitid) == false) then
-								delete(unitid,x,y)
-								unlocked = true
-								gone = true
-								effect2 = true
+								if timecheck(unitid) then
+									delete(unitid,x,y)
+									unlocked = true
+									gone = true
+									effect2 = true
+								else
+									table.insert(timelessdels, {"lock",unitid,x,y})
+									print(dumpobj(timelessdels))
+								end
 							end
 							
 							if effect1 or effect2 then
@@ -1986,7 +1995,7 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 	local ispull = hasfeature(name,"is","pull",unitid,x,y)
 	local sticky = hasfeature(name,"is","sticky",unitid,x,y)
 
-	if sticky == nil then
+	if sticky == nil or not timecheck(unitid) then
 		return fulllist,pushlist,pulllist,result
 	end
 
@@ -2095,6 +2104,10 @@ function stickycheck(unitid,dir,pulling,ignored,alreadychecked,fromdir,lastpull,
 end
 
 function updategravity(dir,small)
+	if not timecheck(3) then
+		return
+	end
+
 	-- Gravity direction code
 	local newgrav = nil
 
@@ -2201,4 +2214,71 @@ function updategravity(dir,small)
 			end
 		end
 	end
+end
+
+function checktimelessturn(playerid_)
+	local players = {}
+	local empty = {}
+	local playerid = 1
+
+	if (playerid_ ~= nil) then
+		playerid = playerid_
+	end
+	
+	if (playerid == 1) then
+		players,empty = findallfeature(nil,"is","you")
+	elseif (playerid == 2) then
+		players,empty = findallfeature(nil,"is","you2")
+		
+		if (#players == 0) then
+			players,empty = findallfeature(nil,"is","you")
+		end
+	end
+
+	local players,empty = findallfeature(nil,"is","you")
+	local result = true
+	if #players == 0 then
+		result = false
+	else
+		local allsleep = true
+		for i,v in ipairs(players) do
+			if (v ~= 2) then
+				local unit = mmf.newObject(v)
+				
+				local name = getname(unit)
+				local sleep = hasfeature(name,"is","sleep",v)
+				local timeless = hasfeature(name,"is","timeless",v)
+				
+				if not sleep then
+					allsleep = false
+					if not timeless then
+						result = false
+					end
+				end
+			else
+				local thisempty = empty[i]
+				
+				for a,b in pairs(thisempty) do
+					local x = a % roomsizex
+					local y = math.floor(a / roomsizex)
+					
+					local sleep = hasfeature("empty","is","sleep",2,x,y)
+					local timeless = hasfeature("empty","is","timeless",2,x,y)
+
+					if not sleep then
+						allsleep = false
+						if not timeless then
+							result = false
+						end
+					end
+				end
+			end
+		end
+
+		if allsleep then
+			result = false
+		end
+	end
+
+	return result
 end

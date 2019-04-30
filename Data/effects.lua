@@ -32,7 +32,7 @@ function doeffect(timer,keyword,particle,count,chance,timing,colour,specialrule_
 		
 		if (this ~= nil) then
 			for k,v in ipairs(this) do
-				if (v[1] ~= "empty") and (v[1] ~= "all") and (v[1] ~= "level") then
+				if (v[1] ~= "empty") and (v[1] ~= "all") and (v[1] ~= "level") and specialrule ~= "level" then
 					local these = findall(v)
 					
 					if (#these > 0) then
@@ -103,8 +103,8 @@ function doeffect(timer,keyword,particle,count,chance,timing,colour,specialrule_
 											local part = mmf.newObject(partid)
 											
 											part.values[ONLINE] = 2
-											local mx = x * tilesize + tilesize * 0.5
-											local my = y * tilesize + tilesize * 0.5
+											local mx = i * tilesize + tilesize * 0.5
+											local my = j * tilesize + tilesize * 0.5
 											part.x = Xoffset + mx + math.random(0-tilesize * 1.5,tilesize * 1.5)
 											part.y = Yoffset + my + math.random(0-tilesize * 1.5,tilesize * 1.5)
 											part.values[XPOS] = part.x

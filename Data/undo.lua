@@ -48,6 +48,7 @@ function addundo(line)
 			table.insert(currentundo[1], v)
 			text = text .. tostring(v) .. " "
 		end
+		table.insert(currentundo[1], {"timeless", timelessturn})
 		
 		--MF_alert(text)
 	end
@@ -60,6 +61,14 @@ function undo()
 		local persisted = {}
 		
 		if (currentundo ~= nil) then
+			local timeless = currentundo[#currentundo]
+				
+			if timeless[2] then
+				timelessturn = true
+			else
+				timelessturn = false
+			end
+
 			for i,line in ipairs(currentundo) do
 				local style = line[1]
 				

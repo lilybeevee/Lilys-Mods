@@ -1,4 +1,7 @@
 function code()
+	if timelessturn and not findfeature("text","is","timeless") then
+		return
+	end
 	if (updatecode == 1) then
 		--MF_alert("code being updated!")
 		
@@ -35,6 +38,8 @@ function code()
 		visualfeatures = {}
 		notfeatures = {}
 		macros = {}
+		isactive = {}
+		timelessrule = {}
 		hasany = false
 		local firstwords = {}
 		local alreadyused = {}
@@ -1322,8 +1327,13 @@ function postrules()
 								
 								if (bunit.strings[UNITTYPE] == "text") then
 									setcolour(b,"active")
+									isactive[b] = true
 								end
 								newruleids[b] = 1
+
+								if rule[3] == "timeless" then
+									timelessrule[b] = true
+								end
 								
 								if (ruleids[b] == nil) and ((#undobuffer > 1) or autoturn) then
 									if (ruleeffectlimiter[b] == nil) then

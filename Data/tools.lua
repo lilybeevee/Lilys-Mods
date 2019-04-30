@@ -1480,3 +1480,22 @@ function autocheck(unitid,ignored_)
 	end
 	return true
 end
+
+function timecheck(unitid,x_,y_)
+	if not timelessturn then
+		return true
+	else
+		local name = ""
+		if unitid == 1 then
+			name = "level"
+		elseif unitid == 2 then
+			name = "empty"
+		elseif unitid == 3 then
+			name = "gravity"
+		else
+			local unit = mmf.newObject(unitid)
+			name = getname(unit)
+		end
+		return hasfeature(name,"is","timeless",unitid,x_,y_)
+	end
+end

@@ -2123,7 +2123,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	object120 = {
+	--[[object120 = {
 		name = "text_reset odd",
 		sprite = "text_reset odd",
 		sprite_in_root = true,
@@ -2136,7 +2136,7 @@ tileslist =
 		tile = {17, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	object125 = {
 		name = "text_reset count",
 		sprite = "text_reset count",
@@ -2175,6 +2175,19 @@ tileslist =
 		active = {0, 3},
 		tile = {20, 12},
 		grid = {11, 3},
+		layer = 20,
+	},
+	object120 = {
+		name = "text_timeless",
+		sprite = "text_timeless",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {2, 1},
+		active = {2, 2},
+		tile = {21, 12},
+		grid = {11, 4},
 		layer = 20,
 	},
 }

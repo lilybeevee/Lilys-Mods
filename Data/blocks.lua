@@ -40,7 +40,7 @@ function statusblock(ids,undoing_)
 			local down = hasfeature(name,"is","down",unit.fixed)
 			local gravity = hasfeature(name,"is","gravity",unit.fixed)
 			
-			if (issleep(unit.fixed) == false) then
+			if (issleep(unit.fixed) == false) and timecheck(unit.fixed) then
 				if gravity ~= nil then
 					updatedir(unit.fixed,gravitydir)
 				else
@@ -60,7 +60,7 @@ function statusblock(ids,undoing_)
 			end
 			
 			if (generaldata.values[MODE] == 0) then
-				if (featureindex["back"] ~= nil) then
+				if (featureindex["back"] ~= nil) and timecheck(unit.fixed) then
 					local isback = hasfeature(name,"is","back",unit.fixed)
 					
 					if (isback == nil) then
@@ -124,7 +124,7 @@ function moveblock()
 			
 			if (#allfollows > 0) then
 				for k,l in ipairs(allfollows) do
-					if (issleep(l) == false) and autocheck(l) then
+					if (issleep(l) == false) and autocheck(l) and timecheck(l) then
 						local unit = mmf.newObject(l)
 						local x,y,name = unit.values[XPOS],unit.values[YPOS],unit.strings[UNITNAME]
 						local unitrules = {}
@@ -345,7 +345,7 @@ function moveblock()
 			
 			local undotargetid = undooffset + unit.values[MISC_B] + 1
 			
-			if (undotargetid < #undobuffer) and (undotargetid > 0) then
+			if (undotargetid < #undobuffer) and (undotargetid > 0) and timecheck(unitid) then
 				local currentundo = undobuffer[undotargetid]
 				
 				if (currentundo ~= nil) then
@@ -391,7 +391,7 @@ function moveblock()
 	doupdate()
 	
 	for i,unitid in ipairs(istele) do
-		if (isgone(unitid) == false) and autocheck(unitid) then
+		if (isgone(unitid) == false) and autocheck(unitid) and timecheck(unitid) then
 			local unit = mmf.newObject(unitid)
 			local name = getname(unit)
 			local x,y = unit.values[XPOS],unit.values[YPOS]
@@ -409,7 +409,7 @@ function moveblock()
 					-- Luultavasti ei väliä, onko kohde tuhoutumassa?
 					targetgone = false
 					
-					if (targetgone == false) and floating(v,unitid) then
+					if (targetgone == false) and floating(v,unitid) and timecheck(v) then
 						local targetname = getname(vunit)
 						if (objectdata[v] == nil) then
 							objectdata[v] = {}
@@ -498,28 +498,30 @@ function fallblock(things)
 	local gravityfall = findfeature("gravity","is","fall") 
 	local gravityshift = findfeature("gravity","is","shift")
 	
-	if gravityfall then
-		for a,unit in ipairs(units) do
-			local name = getname(unit)
+	if timecheck(3) then
+		if gravityfall then
+			for a,unit in ipairs(units) do
+				local name = getname(unit)
 
-			local isstop = hasfeature(name,"is","stop",unit.fixed)
-			local ispush = hasfeature(name,"is","push",unit.fixed)
-			local ispull = hasfeature(name,"is","pull",unit.fixed)
-			local isfall = hasfeature(name,"is","fall",unit.fixed)
+				local isstop = hasfeature(name,"is","stop",unit.fixed)
+				local ispush = hasfeature(name,"is","push",unit.fixed)
+				local ispull = hasfeature(name,"is","pull",unit.fixed)
+				local isfall = hasfeature(name,"is","fall",unit.fixed)
 
-			if not isstop or ispush or ispull or isfall then
-				table.insert(checks, unit.fixed)
+				if (not isstop or isfall) and timecheck(unit.fixed) then
+					table.insert(checks, unit.fixed)
+				end
 			end
-		end
-	elseif (things == nil) then
-		local isfall = findallfeature(nil,"is","fall",true)
+		elseif (things == nil) then
+			local isfall = findallfeature(nil,"is","fall",true)
 
-		for a,unitid in ipairs(isfall) do
-			table.insert(checks, unitid)
-		end
-	else
-		for a,unitid in ipairs(things) do
-			table.insert(checks, unitid)
+			for a,unitid in ipairs(isfall) do
+				table.insert(checks, unitid)
+			end
+		else
+			for a,unitid in ipairs(things) do
+				table.insert(checks, unitid)
+			end
 		end
 	end
 	
@@ -807,11 +809,26 @@ function block(small_)
 				unit.values[A] = 2
 			end
 		end
+
+		for _,unit in ipairs(units) do
+			local c1,c2 = 0,0
+			if isactive[unit.fixed] then
+				c1,c2 = getcolour(unit.fixed,"active")
+			else
+				c1,c2 = getcolour(unit.fixed)
+			end
+			local timelesstext = unit.strings[UNITNAME] == "text_timeless"
+			if timecheck(unit.fixed) or (timelesstext and isactive[unit.fixed]) then
+				MF_setcolour(unit.fixed,c1,c2)
+			else
+				MF_setcolour(unit.fixed,0,math.min(3,c2))
+			end
+		end
 		
 		local ismore = getunitswitheffect("more",delthese)
 		
 		for id,unit in ipairs(ismore) do
-			if autocheck(unit.fixed) then
+			if autocheck(unit.fixed) and timecheck(unit.fixed) then
 				local x,y = unit.values[XPOS],unit.values[YPOS]
 				local name = unit.strings[UNITNAME]
 				local doblocks = {}
@@ -870,7 +887,7 @@ function block(small_)
 			if (#water > 0) then
 				for a,b in ipairs(water) do
 					if floating(b,unit.fixed) then
-						if (issafe(b) == false) and (b ~= unit.fixed) then
+						if (issafe(b) == false) and (b ~= unit.fixed) and (timecheck(b) or timecheck(unit.fixed)) then
 							local dosink = true
 							
 							for c,d in ipairs(delthese) do
@@ -881,7 +898,11 @@ function block(small_)
 							
 							if dosink then
 								generaldata.values[SHAKE] = 3
-								table.insert(delthese, b)
+								if timecheck(b) then
+									table.insert(delthese, b)
+								else
+									table.insert(timelessdels, {"sink",b,x,y})
+								end
 								
 								local pmult,sound = checkeffecthistory("sink")
 								removalshort = sound
@@ -899,7 +920,11 @@ function block(small_)
 			end
 			
 			if sunk then
-				table.insert(delthese, unit.fixed)
+				if timecheck(unit.fixed) then
+					table.insert(delthese, unit.fixed)
+				else
+					table.insert(timelessdels, {"sink",unit.fixed,x,y})
+				end
 			end
 		end
 	end
@@ -909,7 +934,7 @@ function block(small_)
 	local isweak = getunitswitheffect("weak",delthese)
 	
 	for id,unit in ipairs(isweak) do
-		if (issafe(unit.fixed) == false) then
+		if (issafe(unit.fixed) == false) and timecheck(unit.fixed) then
 			local x,y = unit.values[XPOS],unit.values[YPOS]
 			local stuff = findallhere(x,y)
 			
@@ -941,13 +966,13 @@ function block(small_)
 		local hot = findfeature(nil,"is","hot")
 		local x,y = unit.values[XPOS],unit.values[YPOS]
 		
-		if (hot ~= nil) then
+		if (hot ~= nil) and timecheck(unit.fixed) then
 			for a,b in ipairs(hot) do
 				local lava = findtype(b,x,y,0)
 			
 				if (#lava > 0) and (issafe(unit.fixed) == false) then
 					for c,d in ipairs(lava) do
-						if floating(d,unit.fixed) then
+						if floating(d,unit.fixed) and timecheck(d) then
 							local pmult,sound = checkeffecthistory("hot")
 							MF_particles("smoke",x,y,5 * pmult,0,1,1,1)
 							generaldata.values[SHAKE] = 5
@@ -975,7 +1000,7 @@ function block(small_)
 		local x,y = unit.values[XPOS],unit.values[YPOS]
 		local defeat = findfeature(nil,"is","defeat")
 		
-		if (defeat ~= nil) then
+		if (defeat ~= nil) and timecheck(unit.fixed) then
 			for a,b in ipairs(defeat) do
 				if (b[1] ~= "empty") then
 					local skull = findtype(b,x,y,0)
@@ -999,7 +1024,7 @@ function block(small_)
 								doit = true
 							end
 							
-							if doit then
+							if doit and timecheck(d) then
 								local pmult,sound = checkeffecthistory("defeat")
 								MF_particles("destroy",x,y,5 * pmult,0,3,1,1)
 								generaldata.values[SHAKE] = 5
@@ -1029,17 +1054,25 @@ function block(small_)
 				if (#key > 0) then
 					local doparts = false
 					for a,b in ipairs(key) do
-						if (b ~= 0) and floating(b,unit.fixed) then
+						if (b ~= 0) and floating(b,unit.fixed) and (timecheck(b) or timecheck(unit.fixed)) then
 							if (issafe(unit.fixed) == false) then
-								generaldata.values[SHAKE] = 8
-								table.insert(delthese, unit.fixed)
-								doparts = true
-								online = false
+								if timecheck(unit.fixed) then
+									generaldata.values[SHAKE] = 8
+									table.insert(delthese, unit.fixed)
+									doparts = true
+									online = false
+								else
+									table.insert(timelessdels, {"lock",unit.fixed,x,y})
+								end
 							end
 							
 							if (b ~= unit.fixed) and (issafe(b) == false) then
-								table.insert(delthese, b)
-								doparts = true
+								if timecheck(b) then
+									table.insert(delthese, b)
+									doparts = true
+								else
+									table.insert(timelessdels, {"lock",b,x,y})
+								end
 							end
 							
 							if doparts then
@@ -1057,6 +1090,38 @@ function block(small_)
 	end
 	
 	delthese,doremovalsound = handledels(delthese,doremovalsound)
+
+	if not timelessturn then
+		for i,v in ipairs(timelessdels) do
+			local type = v[1]
+			local unitid = v[2]
+			local unit = nil
+			local x,y = v[3],v[3]
+			if unitid ~= 2 then
+				unit = mmf.newObject(unitid)
+				x,y = unit.values[XPOS],unit.values[YPOS]
+			end
+
+			if unitid == 2 or (unit ~= nil and not unit.flags[DEAD]) and not issafe(unitid) then
+				table.insert(delthese, unitid)
+				if type == "lock" then
+					generaldata.values[SHAKE] = 8
+					local pmult,sound = checkeffecthistory("unlock")
+					setsoundname("turn",7,sound)
+					MF_particles("unlock",x,y,15 * pmult,2,4,1,1)
+				elseif type == "sink" then
+					local pmult,sound = checkeffecthistory("sink")
+					removalshort = sound
+					removalsound = 3
+					local c1,c2 = getcolour(unitid)
+					MF_particles("destroy",x,y,15 * pmult,c1,c2,1,1)
+				end
+			end
+		end
+		timelessdels = {}
+	end
+
+	delthese,doremovalsound = handledels(delthese,doremovalsound)
 	
 	local iseat = getunitswithverb("eat",delthese)
 	
@@ -1067,9 +1132,9 @@ function block(small_)
 			local x,y = unit.values[XPOS],unit.values[YPOS]
 			local things = findtype({v,nil},x,y,unit.fixed)
 			
-			if (#things > 0) then
+			if (#things > 0) and timecheck(unit.fixed) then
 				for a,b in ipairs(things) do
-					if (issafe(b) == false) and floating(b,unit.fixed) and (b ~= unit.fixed) then
+					if (issafe(b) == false) and floating(b,unit.fixed) and (b ~= unit.fixed) and timecheck(b) then
 						generaldata.values[SHAKE] = 4
 						table.insert(delthese, b)
 						
@@ -1096,7 +1161,7 @@ function block(small_)
 		if (unit.flags[DEAD] == false) and (delthese[unit.fixed] == nil) then
 			local x,y = unit.values[XPOS],unit.values[YPOS]
 			
-			if (small == false) then
+			if (small == false) and timecheck(unit.fixed) then
 				local bonus = findfeature(nil,"is","bonus")
 				
 				if (bonus ~= nil) then
@@ -1106,7 +1171,7 @@ function block(small_)
 							
 							if (#flag > 0) then
 								for c,d in ipairs(flag) do
-									if floating(d,unit.fixed) then
+									if floating(d,unit.fixed) and timecheck(d) then
 										local pmult,sound = checkeffecthistory("bonus")
 										MF_particles("bonus",x,y,10 * pmult,4,1,1,1)
 										removalshort = sound
@@ -1146,14 +1211,14 @@ function block(small_)
 			local reset = findfeature(nil,"is","reset")
 
 			local newonreset = {}
-			if reset ~= nil then
+			if reset ~= nil and timecheck(unit.fixed) then
 				for a,b in ipairs(reset) do
 					if b[1] ~= "empty" then
 						local resetunits = findtype(b,x,y,0)
 
 						if #resetunits > 0 then
 							for c,d in ipairs(resetunits) do
-								if floating(d,unit.fixed) then
+								if floating(d,unit.fixed) and timecheck(d) then
 									if d ~= unit.fixed then
 										if not onreset[d] then
 											doreset = true
@@ -1172,14 +1237,14 @@ function block(small_)
 			
 			local win = findfeature(nil,"is","win")
 			
-			if (win ~= nil) and not doreset then
+			if (win ~= nil) and not doreset and timecheck(unit.fixed) then
 				for a,b in ipairs(win) do
 					if (b[1] ~= "empty") then
 						local flag = findtype(b,x,y,0)
 						
 						if (#flag > 0) then
 							for c,d in ipairs(flag) do
-								if floating(d,unit.fixed) then
+								if floating(d,unit.fixed) and timecheck(d) then
 									local pmult = checkeffecthistory("win")
 									
 									MF_particles("win",x,y,10 * pmult,2,4,1,1)
@@ -1210,7 +1275,7 @@ function block(small_)
 				local domake = true
 				local exists = false
 
-				if not autocheck(unit.fixed) then
+				if not autocheck(unit.fixed) or not timecheck(unit.fixed) then
 					domake = false
 				end
 				
@@ -1314,7 +1379,7 @@ function startblock(light_)
 			local rule = v[1]
 			local conds = v[2]
 			
-			if testcond(conds,1) then
+			if testcond(conds,1) and timecheck(1) then
 				if (rule[1] == "level") and (rule[2] == "is") then
 					if (rule[3] == "right") then
 						maprotation = 90
@@ -1394,7 +1459,7 @@ function startblock(light_)
 				unit.values[FLOAT] = 1
 			end
 			
-			if sleep then
+			if sleep and timecheck(unitid) then
 				if (unit.values[TILING] == 2) or (unit.values[TILING] == 3) then
 					unit.values[VISUALDIR] = -1
 					unit.direction = ((unit.values[DIR] * 8 + unit.values[VISUALDIR]) + 32) % 32
@@ -1411,7 +1476,7 @@ function startblock(light_)
 				unit.values[A] = 1
 			end
 			
-			if (light == false) and (#isfollow > 0) then
+			if (light == false) and (#isfollow > 0) and timecheck(unitid) then
 				local x,y = unit.values[XPOS],unit.values[YPOS]
 				local distance = 9999
 				local targetdir = -1
@@ -1460,7 +1525,7 @@ function startblock(light_)
 				end
 			end
 				
-			if (light == false) and (#ismake > 0) and (isgone(unitid) == false) then
+			if (light == false) and (#ismake > 0) and (isgone(unitid) == false) and timecheck(unitid) and autocheck(unitid) then
 				local x,y,dir = unit.values[XPOS],unit.values[YPOS],unit.values[DIR]
 				local thingshere = findallhere(x,y)
 				
@@ -1526,7 +1591,7 @@ function levelblock()
 		end
 	end
 	
-	if (#things > 0) then
+	if (#things > 0) and timecheck(1) then
 		for i,rules in ipairs(things) do
 			local rule = rules[1]
 			local conds = rules[2]
@@ -1558,7 +1623,7 @@ function levelblock()
 							local doit = false
 							
 							for c,d in ipairs(allyous) do
-								if floating_level(d) then
+								if floating_level(d) and timecheck(d) then
 									doit = true
 								end
 							end
@@ -1598,7 +1663,7 @@ function levelblock()
 								
 								if (#allyous > 0) then
 									for c,d in ipairs(allyous) do
-										if (issafe(d) == false) and floating_level(d) then
+										if (issafe(d) == false) and floating_level(d) and timecheck(d) then
 											local unit = mmf.newObject(d)
 											
 											local pmult,sound = checkeffecthistory("defeat")
@@ -1634,7 +1699,7 @@ function levelblock()
 							
 							if (#allmelts > 0) then
 								for c,d in ipairs(allmelts) do
-									if (issafe(d) == false) and floating_level(d) then
+									if (issafe(d) == false) and floating_level(d) and timecheck(d) then
 										local unit = mmf.newObject(d)
 										
 										local pmult,sound = checkeffecthistory("hot")
@@ -1658,7 +1723,7 @@ function levelblock()
 								local allhots = findall(b)
 								
 								for c,d in ipairs(allhots) do
-									if floating_level(d) then
+									if floating_level(d) and timecheck(d) then
 										doit = true
 									end
 								end
@@ -1707,7 +1772,7 @@ function levelblock()
 								local allopens = findall(b)
 								
 								for c,d in ipairs(allopens) do
-									if floating_level(d) then
+									if floating_level(d) and timecheck(d) then
 										doit = true
 									end
 								end
@@ -1745,7 +1810,7 @@ function levelblock()
 							setsoundname("turn",6,sound)
 						end
 					end
-				elseif (action == "move") then
+				elseif (action == "move") and autocheck(1) then
 					local dir = mapdir
 					
 					local drs = ndirs[dir + 1]
@@ -1754,7 +1819,7 @@ function levelblock()
 					addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,dir,dir})
 					MF_scrollroom(ox * tilesize,oy * tilesize)
 					updateundo = true
-				elseif (action == "fall") then
+				elseif (action == "fall") and autocheck(1) then
 					local drop = 20
 					local dir = mapdir
 					
@@ -1886,6 +1951,10 @@ function findplayer()
 	else
 		MF_musicstate(1)
 		generaldata2.values[NOPLAYER] = 1
+	end
+
+	if timelessturn then
+		MF_musicstate(1)
 	end
 end
 
