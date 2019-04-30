@@ -1499,3 +1499,15 @@ function timecheck(unitid,x_,y_)
 		return hasfeature(name,"is","timeless",unitid,x_,y_)
 	end
 end
+
+function timelessdelete(data)
+	local realid = nil
+	if data[2] ~= 2 then
+		local unit = mmf.newObject(data[2])
+		realid = unit.values[ID]
+	end
+	if realid ~= nil then
+		table.insert(data, realid)
+	end
+	table.insert(timelessdels, data)
+end

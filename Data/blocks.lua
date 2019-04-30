@@ -820,8 +820,10 @@ function block(small_)
 			local timelesstext = unit.strings[UNITNAME] == "text_timeless"
 			if timecheck(unit.fixed) or (timelesstext and isactive[unit.fixed]) then
 				MF_setcolour(unit.fixed,c1,c2)
+				addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
 			else
 				MF_setcolour(unit.fixed,0,math.min(3,c2))
+				addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
 			end
 		end
 		
@@ -901,7 +903,7 @@ function block(small_)
 								if timecheck(b) then
 									table.insert(delthese, b)
 								else
-									table.insert(timelessdels, {"sink",b,x,y})
+									timelessdelete({"sink",b,x,y})
 								end
 								
 								local pmult,sound = checkeffecthistory("sink")
@@ -923,7 +925,7 @@ function block(small_)
 				if timecheck(unit.fixed) then
 					table.insert(delthese, unit.fixed)
 				else
-					table.insert(timelessdels, {"sink",unit.fixed,x,y})
+					timelessdelete({"sink",unit.fixed,x,y})
 				end
 			end
 		end
@@ -1062,7 +1064,7 @@ function block(small_)
 									doparts = true
 									online = false
 								else
-									table.insert(timelessdels, {"lock",unit.fixed,x,y})
+									timelessdelete({"lock",unit.fixed,x,y})
 								end
 							end
 							
@@ -1071,7 +1073,7 @@ function block(small_)
 									table.insert(delthese, b)
 									doparts = true
 								else
-									table.insert(timelessdels, {"lock",b,x,y})
+									timelessdelete({"lock",b,x,y})
 								end
 							end
 							
@@ -1097,7 +1099,10 @@ function block(small_)
 			local unitid = v[2]
 			local unit = nil
 			local x,y = v[3],v[3]
-			if unitid ~= 2 then
+			if v[5] ~= nil then
+				unitid = getunitid(v[5])
+			end
+			if unitid ~= 2 and unitid ~= 0 then
 				unit = mmf.newObject(unitid)
 				x,y = unit.values[XPOS],unit.values[YPOS]
 			end
@@ -1118,6 +1123,9 @@ function block(small_)
 				end
 			end
 		end
+		--[[if #timelessdels > 0 then
+			addundo({"timeless","clear",timelessdels})
+		end]]
 		timelessdels = {}
 	end
 

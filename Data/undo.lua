@@ -321,9 +321,11 @@ function undo()
 					end
 				elseif (style == "colour") then
 					local unitid = getunitid(line[2])
-					MF_setcolour(unitid,line[3],line[4])
-					local unit = mmf.newObject(unitid)
-					unit.values[A] = line[5]
+					if unitid ~= 0 then
+						MF_setcolour(unitid,line[3],line[4])
+						local unit = mmf.newObject(unitid)
+						unit.values[A] = line[5]
+					end
 				elseif (style == "still") then
 					still = line[2]
 					stillid = line[3]
@@ -334,6 +336,51 @@ function undo()
 					else
 						table.insert(persisted, line)
 					end
+				elseif (style == "timeless") then
+					local persisteddels = {}
+					for _,v in ipairs(timelessdels) do
+						local unitid = v[2]
+						local x,y = 0,0
+						local name = ""
+						if v[5] ~= nil then
+							unitid = getunitid(v[5])
+						end
+						if unitid ~= 2 and unitid ~= 0 then
+							local unit = mmf.newObject(unitid)
+							name = getname(unit)
+							x,y = unit.values[XPOS],unit.values[YPOS]
+						elseif unitid == 2 then
+							name = "empty"
+							x,y = v[3],v[4]
+						end
+						if unitid ~= 0 and hasfeature(name,"is","persist",unitid,x,y) then
+							table.insert(persisteddels, v)
+						end
+					end
+					timelessdels = {}
+					for _,v in ipairs(persisteddels) do
+						table.insert(timelessdels, v)
+					end
+					for _,v in ipairs(line[3]) do
+						local unitid = v[2]
+						local x,y = 0,0
+						local name = ""
+						if v[5] ~= nil then
+							unitid = getunitid(v[5])
+						end
+						if unitid ~= 2 and unitid ~= 0 then
+							local unit = mmf.newObject(unitid)
+							name = getname(unit)
+							x,y = unit.values[XPOS],unit.values[YPOS]
+						elseif unitid == 2 then
+							name = "empty"
+							x,y = v[3],v[4]
+						end
+						if unitid ~= 0 and not hasfeature(name,"is","persist",unitid,x,y) then
+							table.insert(timelessdels, v)
+						end
+					end
+					print(simpledump(timelessdels))
 				end
 			end
 		end

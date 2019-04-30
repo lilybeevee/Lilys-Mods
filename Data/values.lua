@@ -1986,7 +1986,7 @@ tileslist =
 		grid = {11, 2},
 		layer = 20,
 	},]]
-	object121 = {
+	--[[object121 = {
 		name = "text_reset",
 		sprite = "text_reset",
 		sprite_in_root = true,
@@ -1998,8 +1998,8 @@ tileslist =
 		tile = {7, 12},
 		grid = {11, 1},
 		layer = 20,
-	},
-	--[[object122 = {
+	},]]
+	object121 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2009,9 +2009,9 @@ tileslist =
 		colour = {0, 2},
 		active = {0, 3},
 		tile = {9, 12},
-		grid = {11, 0},
+		grid = {11, 1},
 		layer = 20,
-	},]]
+	},
 	object122 = {
 		name = "text_persist",
 		sprite = "text_persist",
@@ -2025,7 +2025,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	--[[object125 = {
+	object125 = {
 		name = "text_sticky",
 		sprite = "text_sticky",
 		sprite_in_root = true,
@@ -2035,9 +2035,9 @@ tileslist =
 		colour = {5, 1},
 		active = {5, 3},
 		tile = {10, 12},
-		grid = {11, 3},
+		grid = {11, 5},
 		layer = 20,
-	},]]
+	},
 	--[[object123 =
 	{
 		name = "text_any",
@@ -2137,7 +2137,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	object125 = {
+	--[[object125 = {
 		name = "text_reset count",
 		sprite = "text_reset count",
 		sprite_in_root = true,
@@ -2150,7 +2150,7 @@ tileslist =
 		tile = {18, 12},
 		grid = {11, 5},
 		layer = 20,
-	},
+	},]]
 	object123 = {
 		name = "text_cute",
 		sprite = "text_cute",

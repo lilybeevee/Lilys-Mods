@@ -8,9 +8,16 @@ function movecommand(ox,oy,dir_,playerid_)
 				table.insert(statusblockids, id)
 			end
 		end
-	elseif dir_ ~= 4 then
+	end
+	if dir_ ~= 4 or autoturn then
 		timelessturn = checktimelessturn(playerid_)
 	end
+
+	local timelessdelcopy = {}
+	for _,v in ipairs(timelessdels) do
+		table.insert(timelessdelcopy, v)
+	end
+	addundo({"timeless","delete",timelessdelcopy})
 
 	autoignored = {}
 	chosenany = {}
@@ -1688,8 +1695,7 @@ function move(unitid,ox,oy,dir,specials_,instant_,simulate_)
 									unlocked = true
 									effect1 = true
 								else
-									table.insert(timelessdels, {"lock",b,bx,by})
-									print(dumpobj(timelessdels))
+									timelessdelete({"lock",b,bx,by})
 								end
 							end
 							
@@ -1700,8 +1706,7 @@ function move(unitid,ox,oy,dir,specials_,instant_,simulate_)
 									gone = true
 									effect2 = true
 								else
-									table.insert(timelessdels, {"lock",unitid,x,y})
-									print(dumpobj(timelessdels))
+									timelessdelete({"lock",unitid,x,y})
 								end
 							end
 							
@@ -2217,68 +2222,91 @@ function updategravity(dir,small)
 end
 
 function checktimelessturn(playerid_)
-	local players = {}
-	local empty = {}
-	local playerid = 1
+	if not autoturn then
+		local players = {}
+		local empty = {}
+		local playerid = 1
 
-	if (playerid_ ~= nil) then
-		playerid = playerid_
-	end
-	
-	if (playerid == 1) then
-		players,empty = findallfeature(nil,"is","you")
-	elseif (playerid == 2) then
-		players,empty = findallfeature(nil,"is","you2")
-		
-		if (#players == 0) then
-			players,empty = findallfeature(nil,"is","you")
+		if (playerid_ ~= nil) then
+			playerid = playerid_
 		end
-	end
+		
+		if (playerid == 1) then
+			players,empty = findallfeature(nil,"is","you")
+		elseif (playerid == 2) then
+			players,empty = findallfeature(nil,"is","you2")
+			
+			if (#players == 0) then
+				players,empty = findallfeature(nil,"is","you")
+			end
+		end
 
-	local players,empty = findallfeature(nil,"is","you")
-	local result = true
-	if #players == 0 then
-		result = false
-	else
-		local allsleep = true
-		for i,v in ipairs(players) do
-			if (v ~= 2) then
-				local unit = mmf.newObject(v)
-				
-				local name = getname(unit)
-				local sleep = hasfeature(name,"is","sleep",v)
-				local timeless = hasfeature(name,"is","timeless",v)
-				
-				if not sleep then
-					allsleep = false
-					if not timeless then
+		local players,empty = findallfeature(nil,"is","you")
+		local result = true
+		if #players == 0 then
+			result = false
+		else
+			local allsleep = true
+			for i,v in ipairs(players) do
+				if (v ~= 2) then
+					local unit = mmf.newObject(v)
+					
+					local name = getname(unit)
+					local sleep = hasfeature(name,"is","sleep",v)
+					local timeless = hasfeature(name,"is","timeless",v)
+					
+					if timeless and not sleep then
+						allsleep = false
+					elseif not timeless then
 						result = false
 					end
-				end
-			else
-				local thisempty = empty[i]
-				
-				for a,b in pairs(thisempty) do
-					local x = a % roomsizex
-					local y = math.floor(a / roomsizex)
+				else
+					local thisempty = empty[i]
 					
-					local sleep = hasfeature("empty","is","sleep",2,x,y)
-					local timeless = hasfeature("empty","is","timeless",2,x,y)
+					for a,b in pairs(thisempty) do
+						local x = a % roomsizex
+						local y = math.floor(a / roomsizex)
+						
+						local sleep = hasfeature("empty","is","sleep",2,x,y)
+						local timeless = hasfeature("empty","is","timeless",2,x,y)
 
-					if not sleep then
-						allsleep = false
-						if not timeless then
+						if timeless and not sleep then
+							allsleep = false
+						elseif not timeless then
 							result = false
 						end
 					end
 				end
+			end
+
+			if allsleep then
+				result = false
+			end
+		end
+
+		return result
+	else
+		local result = true
+		local allsleep = true
+
+		for unitid,_ in pairs(autounits) do
+			local unit = mmf.newObject(unitid)
+			local name = getname(unit)
+			
+			local sleep = hasfeature(name,"is","sleep",unitid)
+			local timeless = hasfeature(name,"is","timeless",unitid)
+
+			if timeless and not sleep then
+				allsleep = false
+			elseif not timeless then
+				result = false
 			end
 		end
 
 		if allsleep then
 			result = false
 		end
-	end
 
-	return result
+		return result
+	end
 end
