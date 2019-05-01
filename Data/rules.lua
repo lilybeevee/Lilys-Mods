@@ -1,9 +1,7 @@
 function code()
-	if timelessturn and not findfeature("text","is","timeless") then
-		return
-	end
 	if (updatecode == 1) then
 		--MF_alert("code being updated!")
+		print("code being updated!")
 		
 		MF_removeblockeffect(0)
 		
@@ -39,7 +37,6 @@ function code()
 		notfeatures = {}
 		macros = {}
 		isactive = {}
-		timelessrule = {}
 		hasany = false
 		local firstwords = {}
 		local alreadyused = {}
@@ -105,6 +102,8 @@ function code()
 			postrules()
 			updatecode = 0
 			
+			local timelesschanged = updatetimeless()
+			dotimelesscolours(timelessturn)
 			local newwordunits,newwordidentifier = findwordunits()
 			
 			--MF_alert("ID comparison: " .. newwordidentifier .. " - " .. wordidentifier)
@@ -113,7 +112,7 @@ function code()
 				updatecode = 1
 			end
 			
-			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
+			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) or timelesschanged then
 				updatecode = 1
 				code()
 			else
@@ -891,17 +890,42 @@ function codecheck(unitid,ox,oy)
 	
 	local tileid = x + y * roomsizex
 	
-	if (unitmap[tileid] ~= nil) then
-		for i,b in ipairs(unitmap[tileid]) do
-			local v = mmf.newObject(b)
-			
-			if (v.strings[UNITTYPE] == "text") then
-				table.insert(result, b)
-			else
-				if (#wordunits > 0) then
-					for c,d in ipairs(wordunits) do
-						if (b == d[1]) and testcond(d[2], d[1]) then
-							table.insert(result, b)
+	if not timelessturn then
+		if (unitmap[tileid] ~= nil) then
+			for i,b in ipairs(unitmap[tileid]) do
+				local v = mmf.newObject(b)
+				
+				if (v.strings[UNITTYPE] == "text") then
+					table.insert(result, b)
+				else
+					if (#wordunits > 0) then
+						for c,d in ipairs(wordunits) do
+							if (b == d[1]) and testcond(d[2], d[1]) then
+								table.insert(result, b)
+							end
+						end
+					end
+				end
+			end
+		end
+	else
+		if gettag("timepos",unit) then
+			local newpos = gettag("timepos",unit)
+			x,y = newpos[1]+ox,newpos[2]+oy
+			tileid = x + y * roomsizex
+		end
+		if (timemap[tileid] ~= nil) then
+			for i,b in ipairs(timemap[tileid]) do
+				local v = mmf.newObject(b)
+				
+				if (v.strings[UNITTYPE] == "text") then
+					table.insert(result, b)
+				else
+					if (#wordunits > 0) then
+						for c,d in ipairs(wordunits) do
+							if (b == d[1]) and testcond(d[2], d[1]) then
+								table.insert(result, b)
+							end
 						end
 					end
 				end
@@ -1330,10 +1354,6 @@ function postrules()
 									isactive[b] = true
 								end
 								newruleids[b] = 1
-
-								if rule[3] == "timeless" then
-									timelessrule[b] = true
-								end
 								
 								if (ruleids[b] == nil) and ((#undobuffer > 1) or autoturn) then
 									if (ruleeffectlimiter[b] == nil) then

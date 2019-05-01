@@ -59,6 +59,7 @@ function undo()
 		local currentundo = undobuffer[2]
 
 		local persisted = {}
+		local timelesschanged = false
 		
 		if (currentundo ~= nil) then
 			local timeless = currentundo[#currentundo]
@@ -128,7 +129,7 @@ function undo()
 					local baseuid = line[7] or -1
 					
 					if (paradox[uid] == nil) and (paradox[baseuid] == nil) then
-						local x,y,dir,levelfile,levelname,vislevel,complete,visstyle,maplevel,colour,clearcolour = line[3],line[4],line[5],line[8],line[9],line[10],line[11],line[12],line[13],line[14],line[15]
+						local x,y,dir,levelfile,levelname,vislevel,complete,visstyle,maplevel,colour,clearcolour,tags = line[3],line[4],line[5],line[8],line[9],line[10],line[11],line[12],line[13],line[14],line[15],line[16]
 						local name = line[2]
 						
 						local unitname = ""
@@ -204,6 +205,8 @@ function undo()
 							if (visibility ~= nil) then
 								unit.visible = false
 							end
+
+							settags(unit,tags)
 						else
 							table.insert(persisted, line)
 							MF_remove(unitid)
@@ -337,50 +340,64 @@ function undo()
 						table.insert(persisted, line)
 					end
 				elseif (style == "timeless") then
-					local persisteddels = {}
-					for _,v in ipairs(timelessdels) do
-						local unitid = v[2]
-						local x,y = 0,0
-						local name = ""
-						if v[5] ~= nil then
-							unitid = getunitid(v[5])
+					if line[2] == "delete" then
+						local persisteddels = {}
+						for _,v in ipairs(timelessdels) do
+							local unitid = v[2]
+							local x,y = 0,0
+							local name = ""
+							if v[5] ~= nil then
+								unitid = getunitid(v[5])
+							end
+							if unitid ~= 2 and unitid ~= 0 then
+								local unit = mmf.newObject(unitid)
+								name = getname(unit)
+								x,y = unit.values[XPOS],unit.values[YPOS]
+							elseif unitid == 2 then
+								name = "empty"
+								x,y = v[3],v[4]
+							end
+							if unitid ~= 0 and hasfeature(name,"is","persist",unitid,x,y) then
+								table.insert(persisteddels, v)
+							end
 						end
-						if unitid ~= 2 and unitid ~= 0 then
-							local unit = mmf.newObject(unitid)
-							name = getname(unit)
-							x,y = unit.values[XPOS],unit.values[YPOS]
-						elseif unitid == 2 then
-							name = "empty"
-							x,y = v[3],v[4]
-						end
-						if unitid ~= 0 and hasfeature(name,"is","persist",unitid,x,y) then
-							table.insert(persisteddels, v)
-						end
-					end
-					timelessdels = {}
-					for _,v in ipairs(persisteddels) do
-						table.insert(timelessdels, v)
-					end
-					for _,v in ipairs(line[3]) do
-						local unitid = v[2]
-						local x,y = 0,0
-						local name = ""
-						if v[5] ~= nil then
-							unitid = getunitid(v[5])
-						end
-						if unitid ~= 2 and unitid ~= 0 then
-							local unit = mmf.newObject(unitid)
-							name = getname(unit)
-							x,y = unit.values[XPOS],unit.values[YPOS]
-						elseif unitid == 2 then
-							name = "empty"
-							x,y = v[3],v[4]
-						end
-						if unitid ~= 0 and not hasfeature(name,"is","persist",unitid,x,y) then
+						timelessdels = {}
+						for _,v in ipairs(persisteddels) do
 							table.insert(timelessdels, v)
 						end
+						for _,v in ipairs(line[3]) do
+							local unitid = v[2]
+							local x,y = 0,0
+							local name = ""
+							if v[5] ~= nil then
+								unitid = getunitid(v[5])
+							end
+							if unitid ~= 2 and unitid ~= 0 then
+								local unit = mmf.newObject(unitid)
+								name = getname(unit)
+								x,y = unit.values[XPOS],unit.values[YPOS]
+							elseif unitid == 2 then
+								name = "empty"
+								x,y = v[3],v[4]
+							end
+							if unitid ~= 0 and not hasfeature(name,"is","persist",unitid,x,y) then
+								table.insert(timelessdels, v)
+							end
+						end
+					elseif line[2] == "update" then
+						local unitid = getunitid(line[3])
+						if unitid ~= nil and unitid ~= 0 then
+							local unit = mmf.newObject(unitid)
+							local name = getname(unit)
+							if not hasfeature(name,"is","persist",unitid) then
+								settag("timeless",unit,line[4])
+								settag("timepos",unit,line[5])
+								timelesschanged = true
+							else
+								table.insert(persisted,line)
+							end
+						end
 					end
-					print(simpledump(timelessdels))
 				end
 			end
 		end
@@ -397,6 +414,10 @@ function undo()
 			end
 		end
 		table.remove(undobuffer, 2)
+
+		if timelesschanged then
+			updatetimemap()
+		end
 	end
 end
 

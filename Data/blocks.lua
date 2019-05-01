@@ -370,7 +370,7 @@ function moveblock()
 							if (paradox[uid] == nil) then
 								local name = unit.strings[UNITNAME]
 								
-								addundo({"remove",unit.strings[UNITNAME],unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR]})
+								addundo({"remove",unit.strings[UNITNAME],unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit)})
 								
 								if (name ~= "cursor") then
 									delunit(unitid)
@@ -807,23 +807,6 @@ function block(small_)
 				
 				addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
 				unit.values[A] = 2
-			end
-		end
-
-		for _,unit in ipairs(units) do
-			local c1,c2 = 0,0
-			if isactive[unit.fixed] then
-				c1,c2 = getcolour(unit.fixed,"active")
-			else
-				c1,c2 = getcolour(unit.fixed)
-			end
-			local timelesstext = unit.strings[UNITNAME] == "text_timeless"
-			if timecheck(unit.fixed) or (timelesstext and isactive[unit.fixed]) then
-				MF_setcolour(unit.fixed,c1,c2)
-				addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
-			else
-				MF_setcolour(unit.fixed,0,math.min(3,c2))
-				addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
 			end
 		end
 		
@@ -1378,6 +1361,7 @@ function handledels(delthese,doremovalsound)
 end
 
 function startblock(light_)
+	print("startblock")
 	local light = light_ or false
 	
 	if (light == false) and (featureindex["level"] ~= nil) then
@@ -2024,4 +2008,29 @@ function resetlevel()
 	doreset = false
 	resetcount = resetcount + 1
 	resetmoves = resetcount
+end
+
+function dotimelesscolours(timeless)
+	local oldtimeless = timelessturn
+	timelessturn = timeless
+	for _,unit in ipairs(units) do
+		local c1,c2 = 0,0
+		if isactive[unit.fixed] then
+			c1,c2 = getcolour(unit.fixed,"active")
+		else
+			c1,c2 = getcolour(unit.fixed)
+		end
+		local timelesstext = unit.strings[UNITNAME] == "text_timeless"
+		if timelesstext and not timecheck(unit.fixed) then
+			c1,c2 = 4,2
+		end
+		if timecheck(unit.fixed) or (not timecheck(unit.fixed) and timelesstext and isactive[unit.fixed]) then
+			MF_setcolour(unit.fixed,c1,c2)
+			addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
+		else
+			MF_setcolour(unit.fixed,0,math.min(3,c2))
+			addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
+		end
+	end
+	timelessturn = oldtimeless
 end

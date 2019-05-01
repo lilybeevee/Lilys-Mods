@@ -158,6 +158,8 @@ function delunit(unitid)
 			data[2] = "DELETED"
 		end
 	end
+
+	cleartags(unit)
 end
 
 function findtype(typedata,x,y,unitid_)
@@ -390,7 +392,7 @@ function delete(unitid,x_,y_,total_)
 		end
 		
 		if (unitid ~= 2) then
-			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR]})
+			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit)})
 			unit = {}
 			delunit(unitid)
 			MF_remove(unitid)
@@ -1481,7 +1483,7 @@ function autocheck(unitid,ignored_)
 	return true
 end
 
-function timecheck(unitid,x_,y_)
+function timecheck(unitid,x_,y_,old)
 	if not timelessturn then
 		return true
 	else
@@ -1494,7 +1496,11 @@ function timecheck(unitid,x_,y_)
 			name = "gravity"
 		else
 			local unit = mmf.newObject(unitid)
-			name = getname(unit)
+			if old then
+				return gettag("timeless",unit) or gettag("lasttimeless",unit)
+			else
+				return gettag("timeless",unit)
+			end
 		end
 		return hasfeature(name,"is","timeless",unitid,x_,y_)
 	end
@@ -1510,4 +1516,106 @@ function timelessdelete(data)
 		table.insert(data, realid)
 	end
 	table.insert(timelessdels, data)
+end
+
+function updatetimeless()
+	local result = 0
+	for _,unit in ipairs(units) do
+		local name = getname(unit)
+		local timeless = hasfeature(name,"is","timeless",unit.fixed)
+		local localresult = 0
+		local oldtimeless = gettag("timeless",unit)
+		local oldtimepos = gettag("timepos",unit)
+		if gettag("timeless",unit) and not timeless then
+			localresult = 2
+		elseif not gettag("timeless",unit) and timeless then
+			localresult = 2
+		end
+		settag("lasttimeless",unit,oldtimeless)
+		settag("timeless",unit,timeless)
+		if timecheck(unit.fixed,0,0,true) then
+			settag("timepos",unit,{unit.values[XPOS],unit.values[YPOS]})
+			if not oldtimepos or unit.values[XPOS] ~= oldtimepos[1] or unit.values[YPOS] ~= oldtimepos[2] then
+				if timelessturn then
+					localresult = 2
+				else
+					localresult = math.max(localresult, 1)
+				end
+			end
+		end
+		if localresult > 0 then
+			result = math.max(result, localresult)
+			addundo({"timeless","update",unit.values[ID],oldtimeless,oldtimepos})
+		end
+	end
+	if result > 0 then
+		updatetimemap()
+	end
+	if result == 2 then
+		return true
+	else
+		return false
+	end
+end
+
+function updatetimemap()
+	timemap = {}
+	for i=1,roomsizex-2 do
+		for j=1,roomsizey-2 do
+			local tileid = i + j * roomsizex
+
+			if unitmap[tileid] ~= nil then
+				for _,v in ipairs(unitmap[tileid]) do
+					local unit = mmf.newObject(v)
+
+					if not timecheck(v,0,0,true) and gettag("timepos",unit) then
+						local newpos = gettag("timepos",unit)
+						local newtileid = newpos[1] + newpos[2] * roomsizex
+						if not timemap[newtileid] then
+							timemap[newtileid] = {}
+						end
+						table.insert(timemap[newtileid], v)
+					else
+						if not timemap[tileid] then
+							timemap[tileid] = {}
+						end
+						table.insert(timemap[tileid], v)
+					end
+				end
+			end
+		end
+	end
+end
+
+function gettag(name,unit)
+	if not unittags[unit] then
+		unittags[unit] = {}
+	end
+	if unittags[unit][name] then
+		return unittags[unit][name]
+	else
+		return nil
+	end
+end
+
+function gettags(unit)
+	if not unittags[unit] then
+		unittags[unit] = {}
+	end
+	return unittags[unit]
+end
+
+function settag(name,unit,value)
+	if not unittags[unit] then
+		unittags[unit] = {}
+	end
+	unittags[unit][name] = value
+end
+
+function settags(unit,values)
+	unittags[unit] = values
+end
+
+function cleartags(unit)
+	unittags[unit] = nil
 end

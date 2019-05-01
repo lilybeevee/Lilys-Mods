@@ -49,6 +49,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	mapdir = 3
 	levelconversions = {}
 
+	unittags = {}
 	still = {}
 	stillid = ""
 	donemove = 0
@@ -64,7 +65,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	cuteparticles = {}
 	timelessdels = {}
 	isactive = {}
-	timelessrule = {}
+	timemap = {}
 	
 	HACK_MOVES = 0
 	
@@ -142,6 +143,10 @@ function addunit(id,undoing_)
 	if (unit.strings[UNITNAME] == "text_back") then
 		memoryneeded = true
 	end
+
+	if unit.strings[UNITNAME] == "text_timeless" then
+		settag("timeless",unit,true)
+	end
 end
 
 function clearunits()
@@ -174,12 +179,13 @@ function clearunits()
 	hiddenmap = nil
 	levelconversions = {}
 
+	unittags = {}
 	chosenany = {}
 	onreset = {}
 	cuteparticles = {}
 	timelessdels = {}
 	isactive = {}
-	timelessrule = {}
+	timemap = {}
 	
 	HACK_MOVES = 0
 	
@@ -224,6 +230,7 @@ function clear()
 	maprotation = 0
 	mapdir = 3
 
+	unittags = {}
 	still = {}
 	stillid = ""
 	donemove = 0
@@ -239,7 +246,7 @@ function clear()
 	cuteparticles = {}
 	timelessdels = {}
 	isactive = {}
-	timelessrule = {}
+	timemap = {}
 	
 	HACK_MOVES = 0
 	
@@ -434,7 +441,7 @@ function setunitmap()
 	
 	for i,unit in ipairs(delthese) do
 		local x,y,dir,unitname = unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.strings[UNITNAME]
-		addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR]})
+		addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit)})
 		delunit(unit.fixed)
 		MF_remove(unit.fixed)
 	end

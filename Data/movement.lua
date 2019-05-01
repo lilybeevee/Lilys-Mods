@@ -1,5 +1,6 @@
 function movecommand(ox,oy,dir_,playerid_)
 	local statusblockids = nil
+	local wastimeless = timelessturn
 	timelessturn = false
 	if autoturn then
 		statusblockids = {}
@@ -18,6 +19,10 @@ function movecommand(ox,oy,dir_,playerid_)
 		table.insert(timelessdelcopy, v)
 	end
 	addundo({"timeless","delete",timelessdelcopy})
+
+	if wastimeless ~= timelessturn then
+		updatecode = 1
+	end
 
 	autoignored = {}
 	chosenany = {}
@@ -859,6 +864,7 @@ function movecommand(ox,oy,dir_,playerid_)
 	updategravity(dir_,true)
 	domaprotation()
 	moveblock()
+	dotimelesscolours(checktimelessturn(playerid_))
 	
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)
