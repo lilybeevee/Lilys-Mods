@@ -143,10 +143,6 @@ function addunit(id,undoing_)
 	if (unit.strings[UNITNAME] == "text_back") then
 		memoryneeded = true
 	end
-
-	if unit.strings[UNITNAME] == "text_timeless" then
-		settag("timeless",unit,true)
-	end
 end
 
 function clearunits()
@@ -276,6 +272,7 @@ function command(key,player_)
 		local dir = keyid
 		
 		autoturn = false
+		doingundo = false
 		movecommand(ox,oy,dir,player)
 		MF_update()
 		if doreset then
@@ -441,7 +438,7 @@ function setunitmap()
 	
 	for i,unit in ipairs(delthese) do
 		local x,y,dir,unitname = unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.strings[UNITNAME]
-		addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit)})
+		addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit.fixed)})
 		delunit(unit.fixed)
 		MF_remove(unit.fixed)
 	end

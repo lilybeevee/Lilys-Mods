@@ -1957,7 +1957,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	--[[object123 =
+	object125 =
 	{
 		name = "text_still",
 		sprite = "text_still",
@@ -1969,9 +1969,9 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {5, 12},
-		grid = {11, 4},
+		grid = {11, 5},
 		layer = 20,
-	},]]
+	},
 	--[[object121 = 
 	{
 		name = "text_turn",
@@ -2025,7 +2025,7 @@ tileslist =
 		grid = {11, 0},
 		layer = 20,
 	},
-	object125 = {
+	--[[object125 = {
 		name = "text_sticky",
 		sprite = "text_sticky",
 		sprite_in_root = true,
@@ -2037,7 +2037,7 @@ tileslist =
 		tile = {10, 12},
 		grid = {11, 5},
 		layer = 20,
-	},
+	},]]
 	--[[object123 =
 	{
 		name = "text_any",

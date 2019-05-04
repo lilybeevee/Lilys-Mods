@@ -370,7 +370,7 @@ function moveblock()
 							if (paradox[uid] == nil) then
 								local name = unit.strings[UNITNAME]
 								
-								addundo({"remove",unit.strings[UNITNAME],unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unit)})
+								addundo({"remove",unit.strings[UNITNAME],unit.values[XPOS],unit.values[YPOS],unit.values[DIR],unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unitid)})
 								
 								if (name ~= "cursor") then
 									delunit(unitid)
@@ -1570,6 +1570,8 @@ function startblock(light_)
 			end
 		end
 	end
+
+	updatetimeless(true)
 end
 
 function levelblock()
@@ -2010,9 +2012,7 @@ function resetlevel()
 	resetmoves = resetcount
 end
 
-function dotimelesscolours(timeless)
-	local oldtimeless = timelessturn
-	timelessturn = timeless
+function dotimelesscolours()
 	for _,unit in ipairs(units) do
 		local c1,c2 = 0,0
 		if isactive[unit.fixed] then
@@ -2032,5 +2032,4 @@ function dotimelesscolours(timeless)
 			addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
 		end
 	end
-	timelessturn = oldtimeless
 end

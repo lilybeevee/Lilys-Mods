@@ -1,8 +1,7 @@
 function code()
 	if (updatecode == 1) then
 		--MF_alert("code being updated!")
-		print("code being updated!")
-		
+
 		MF_removeblockeffect(0)
 		
 		local checkthese = {}
@@ -102,8 +101,9 @@ function code()
 			postrules()
 			updatecode = 0
 			
-			local timelesschanged = updatetimeless()
-			dotimelesscolours(timelessturn)
+			if doingundo then
+				dotimelesscolours()
+			end
 			local newwordunits,newwordidentifier = findwordunits()
 			
 			--MF_alert("ID comparison: " .. newwordidentifier .. " - " .. wordidentifier)
@@ -112,7 +112,7 @@ function code()
 				updatecode = 1
 			end
 			
-			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) or timelesschanged then
+			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1
 				code()
 			else
@@ -909,8 +909,8 @@ function codecheck(unitid,ox,oy)
 			end
 		end
 	else
-		if gettag("timepos",unit) then
-			local newpos = gettag("timepos",unit)
+		if gettag(unitid,"timepos") then
+			local newpos = gettag(unitid,"timepos")
 			x,y = newpos[1]+ox,newpos[2]+oy
 			tileid = x + y * roomsizex
 		end

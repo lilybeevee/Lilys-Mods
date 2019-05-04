@@ -720,6 +720,7 @@ function doautoturn()
 	if hasfinals then
 		autounits = finals
 		autoturn = true
+		doingundo = false
 		movecommand(0,0,4,1)
 		MF_update()
 		if doreset then

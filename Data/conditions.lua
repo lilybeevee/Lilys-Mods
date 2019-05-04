@@ -90,8 +90,6 @@ function testcond(conds,unitid,x_,y_)
 											if (d ~= unitid) then
 												local unit = mmf.newObject(d)
 												local name_ = getname(unit)
-
-												print(name .. " " .. condtype .. " " .. b)
 												
 												if ((name_ == b) or (b == "any")) and (alreadyfound[b] == nil) then
 													if testcondstack(iconds,d,x,y) then

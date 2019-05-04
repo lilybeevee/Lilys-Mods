@@ -2,6 +2,9 @@ function newundo(force)
 	if ((updateundo == false) or (doundo == false)) and not force and not kindaupdateundo then
 		table.remove(undobuffer, 1)
 	else
+		if undobuffer[1] then
+			table.insert(undobuffer[1], {"turninfo", wastimeless, lastplayerid})
+		end
 		generaldata2.values[UNDOTOOLTIPTIMER] = 0
 	end
 	
@@ -48,13 +51,14 @@ function addundo(line)
 			table.insert(currentundo[1], v)
 			text = text .. tostring(v) .. " "
 		end
-		table.insert(currentundo[1], {"timeless", timelessturn})
 		
 		--MF_alert(text)
 	end
 end
 
 function undo()
+	doingundo = true
+
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
 
@@ -62,13 +66,10 @@ function undo()
 		local timelesschanged = false
 		
 		if (currentundo ~= nil) then
-			local timeless = currentundo[#currentundo]
-				
-			if timeless[2] then
-				timelessturn = true
-			else
-				timelessturn = false
-			end
+			local turninfo = currentundo[#currentundo]
+
+			timelessturn = turninfo[2] or false
+			lastplayerid = turninfo[3] or 1
 
 			for i,line in ipairs(currentundo) do
 				local style = line[1]
@@ -206,7 +207,7 @@ function undo()
 								unit.visible = false
 							end
 
-							settags(unit,tags)
+							settags(unitid,tags)
 						else
 							table.insert(persisted, line)
 							MF_remove(unitid)
@@ -390,12 +391,27 @@ function undo()
 							local unit = mmf.newObject(unitid)
 							local name = getname(unit)
 							if not hasfeature(name,"is","persist",unitid) then
-								settag("timeless",unit,line[4])
-								settag("timepos",unit,line[5])
+								if(unit.strings[UNITNAME] == "text_you") then
+									print(simpledump(line[4]) .. " - " .. simpledump(line[5]) .. " - " .. simpledump(line[6]))
+								end
+								settag("lasttimeless",unit,line[4])
+								settag("timeless",unit,line[5])
+								settag("timepos",unit,line[6])
 								timelesschanged = true
 							else
 								table.insert(persisted,line)
 							end
+						end
+					end
+					updatecode = 1
+				elseif (style == "tags") then
+					local unitid = getunitid(line[3])
+
+					if unitid ~= nil and unitid ~= 0 then
+						if line[2] == "set" then
+							settag(unitid,line[4],line[5])
+						elseif line[3] == "all" then
+							settags(unitid,line[4])
 						end
 					end
 				end
@@ -415,9 +431,7 @@ function undo()
 		end
 		table.remove(undobuffer, 2)
 
-		if timelesschanged then
-			updatetimemap()
-		end
+		updatetimemap()
 	end
 end
 

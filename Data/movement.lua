@@ -1,6 +1,7 @@
 function movecommand(ox,oy,dir_,playerid_)
 	local statusblockids = nil
-	local wastimeless = timelessturn
+	lastplayerid = playerid_
+	wastimeless = timelessturn
 	timelessturn = false
 	if autoturn then
 		statusblockids = {}
@@ -22,6 +23,7 @@ function movecommand(ox,oy,dir_,playerid_)
 
 	if wastimeless ~= timelessturn then
 		updatecode = 1
+		updateundo = true
 	end
 
 	autoignored = {}
@@ -855,16 +857,18 @@ function movecommand(ox,oy,dir_,playerid_)
 
 	modupdate("still")
 	doupdate()
+	updatetimeless()
 	code()
 	updategravity(dir_,true)
 	domaprotation()
 	conversion()
 	doupdate()
+	updatetimeless()
 	code()
 	updategravity(dir_,true)
 	domaprotation()
 	moveblock()
-	dotimelesscolours(checktimelessturn(playerid_))
+	dotimelesscolours()
 	
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)
@@ -2259,7 +2263,7 @@ function checktimelessturn(playerid_)
 					
 					local name = getname(unit)
 					local sleep = hasfeature(name,"is","sleep",v)
-					local timeless = hasfeature(name,"is","timeless",v)
+					local timeless = gettag(v,"timeless")
 					
 					if timeless and not sleep then
 						allsleep = false
@@ -2300,7 +2304,7 @@ function checktimelessturn(playerid_)
 			local name = getname(unit)
 			
 			local sleep = hasfeature(name,"is","sleep",unitid)
-			local timeless = hasfeature(name,"is","timeless",unitid)
+			local timeless = gettag(unitid,"timeless")
 
 			if timeless and not sleep then
 				allsleep = false
