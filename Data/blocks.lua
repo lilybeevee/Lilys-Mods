@@ -858,6 +858,8 @@ function block(small_)
 			end
 		end
 	end
+
+	dotimelesscolours()
 	
 	local issink = getunitswitheffect("sink",delthese)
 	

@@ -408,10 +408,15 @@ function undo()
 					local unitid = getunitid(line[3])
 
 					if unitid ~= nil and unitid ~= 0 then
-						if line[2] == "set" then
-							settag(unitid,line[4],line[5])
-						elseif line[3] == "all" then
-							settags(unitid,line[4])
+						local unit = mmf.newObject(unitid)
+						local name = getname(unit)
+
+						if not hasfeature(name,"is","persist",unitid) then
+							if line[2] == "set" then
+								settag(unitid,line[4],line[5])
+							elseif line[3] == "all" then
+								settags(unitid,line[4])
+							end
 						end
 					end
 				end

@@ -868,7 +868,6 @@ function movecommand(ox,oy,dir_,playerid_)
 	updategravity(dir_,true)
 	domaprotation()
 	moveblock()
-	dotimelesscolours()
 	
 	if (dir_ ~= nil) then
 		MF_mapcursor(ox,oy,dir_)

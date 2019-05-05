@@ -60,6 +60,7 @@ mod.alltiles = {
 	"turn",
 	"reset",
 	"persist",
+	"timeless",
 	"auto",
 	"cute",
 	"soft",

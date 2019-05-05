@@ -7,33 +7,34 @@ local mod = activemod
 ---------------------------------------------------
 
 -- Nouns
-mod.enabled["any"]		 			= false -- Checks for ANY object in conditions, acts as a random object elsewhere
-mod.enabled["gravity"] 			= false -- Noun which affects the direction of gravity and more!
+mod.enabled["any"]          = false -- Checks for ANY object in conditions, acts as a random object elsewhere
+mod.enabled["gravity"]      = false -- Noun which affects the direction of gravity and more!
 
 -- Conditions
-mod.enabled["with"] 				= true -- True if object has all properties
-mod.enabled["still"] 				= true -- True if object hasn't moved the past turn 
-mod.enabled["nearest"] 			= false -- True if object is closest to the given objects (using max distance)
-mod.enabled["touch"] 				= false -- True if object is adjacent to given objects in a + pattern
-mod.enabled["reset any"] 		= false -- True if a reset has happened
-mod.enabled["reset even"] 	= false -- True if the number of resets is even
-mod.enabled["reset odd"] 		= false -- True if the number of resets is odd
-mod.enabled["reset count"] 	= false -- True for the first N turns of a reset, where N is the number of resets
+mod.enabled["with"]         = true -- True if object has all properties
+mod.enabled["still"]        = true -- True if object hasn't moved the past turn 
+mod.enabled["nearest"]      = false -- True if object is closest to the given objects (using max distance)
+mod.enabled["touch"]        = false -- True if object is adjacent to given objects in a + pattern
+mod.enabled["reset any"]    = false -- True if a reset has happened
+mod.enabled["reset even"]   = false -- True if the number of resets is even
+mod.enabled["reset odd"]    = false -- True if the number of resets is odd
+mod.enabled["reset count"]  = false -- True for the first N turns of a reset, where N is the number of resets
 
 -- Verbs
-mod.enabled["means"] 				= true -- Changes the definition of a noun or property
-mod.enabled["copy"] 				= true -- Makes object copy another's movements
+mod.enabled["means"]        = true -- Changes the definition of a noun or property
+mod.enabled["copy"]         = true -- Makes object copy another's movements
 
 -- Properties
-mod.enabled["sticky"] 			= false -- STICKY objects attach to other STICKY objects and move with them
-mod.enabled["bait"] 				= true -- Attracts LURE objects from afar in a + pattern
-mod.enabled["lure"] 				= true -- Moves to BAIT objects from afar in a + pattern
-mod.enabled["turn"] 				= false -- Makes object rotate CCW or CW (option below) each turn
-mod.enabled["reset"]				= false -- Resets the level when a YOU touches it, like DEFEAT
-mod.enabled["persist"] 			= false -- Makes object ignore UNDO
-mod.enabled["auto"] 				= false -- Makes object do certain things like movement on a timer instead of turns (requires particle effects??)
-mod.enabled["cute"] 				= false -- Heart effect
-mod.enabled["soft"] 				= false -- Prevents WEAK objects from dying on it (BABA IS CUTE AND SOFT)
+mod.enabled["sticky"]       = false -- STICKY objects attach to other STICKY objects and move with them
+mod.enabled["bait"]         = true -- Attracts LURE objects from afar in a + pattern
+mod.enabled["lure"]         = true -- Moves to BAIT objects from afar in a + pattern
+mod.enabled["turn"]         = false -- Makes object rotate CCW or CW (option below) each turn
+mod.enabled["reset"]        = false -- Resets the level when a YOU touches it, like DEFEAT
+mod.enabled["persist"]      = false -- Makes object ignore UNDO
+mod.enabled["timeless"]     = false -- Applied to YOU, makes you (or other TIMELESS things) move around in stopped time until you wait
+mod.enabled["auto"]         = false -- Makes object do certain things like movement on a timer instead of turns (requires particle effects??)
+mod.enabled["cute"]         = false -- Heart effect
+mod.enabled["soft"]         = false -- Prevents WEAK objects from dying on it (BABA IS CUTE AND SOFT)
 
 --------------------------
 --[[ MECHANIC OPTIONS ]]--
@@ -346,4 +347,17 @@ mod.tile["soft"] = {
 	tile = {20, 12},
 	layer = 20,
 }
--- Current highest tile: {20, 12}
+
+mod.tile["timeless"] = {
+	name = "text_timeless",
+	sprite = "text_timeless",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {2, 1},
+	active = {2, 2},
+	tile = {21, 12},
+	layer = 20,
+}
+-- Current highest tile: {21, 12}
