@@ -18,10 +18,21 @@ Data/Palettes/
 Data/Worlds/baba/
 
 Data/Sprites/*
+!Data/Sprites/text_any*
+!Data/Sprites/text_auto*
 !Data/Sprites/text_bait*
+!Data/Sprites/text_copy*
+!Data/Sprites/text_cute*
+!Data/Sprites/text_gravity*
 !Data/Sprites/text_lure*
 !Data/Sprites/text_means*
-!Data/Sprites/text_with*
-!Data/Sprites/text_copy*
-!Data/Sprites/text_turn*
+!Data/Sprites/text_nearest*
+!Data/Sprites/text_persist*
+!Data/Sprites/text_reset*
+!Data/Sprites/text_soft*
+!Data/Sprites/text_sticky*
 !Data/Sprites/text_still*
+!Data/Sprites/text_timeless*
+!Data/Sprites/text_touch*
+!Data/Sprites/text_turn*
+!Data/Sprites/text_with*
