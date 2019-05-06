@@ -5,6 +5,7 @@
 
 #Linux Files
 release.py
+patch.py
 run.sh
 bin32/
 bin64/
