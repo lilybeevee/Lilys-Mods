@@ -17,7 +17,7 @@ check `Scripts/options.lua` to enable or disable features
 - **STICKY** - STICKY objects attach to other STICKY objects and move with them
 - **BAIT** - Attracts LURE objects from afar in a + pattern
 - **LURE** - Moves to BAIT objects from afar in a + pattern
-- **TURN** - Makes object rotate CCW or CW (option below) each turn
+- **TURN** - Makes object rotate CCW or CW (in options.lua) each turn
 - **RESET** - Resets the level when a YOU touches it, like DEFEAT
 - **PERSIST** - Makes object ignore UNDO
 - **TIMELESS** - Applied to YOU, makes you (or other TIMELESS things) move around in stopped time until you wait

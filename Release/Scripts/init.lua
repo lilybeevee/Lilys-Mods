@@ -11,6 +11,7 @@ mod.tilecount = 0
 function mod.load(dir)
 	-- Load mod's script replacements
 	loadscript(dir .. "blocks")
+	loadscript(dir .. "changes")
 	loadscript(dir .. "colours")
 	loadscript(dir .. "conditions")
 	loadscript(dir .. "convert")
@@ -40,6 +41,7 @@ function mod.unload(dir)
 
 	-- Restore modified scripts
 	loadscript("Data/blocks")
+	loadscript("Data/changes")
 	loadscript("Data/colours")
 	loadscript("Data/conditions")
 	loadscript("Data/convert")

@@ -4,6 +4,7 @@
 *.zip
 
 #Linux Files
+release.py
 run.sh
 bin32/
 bin64/

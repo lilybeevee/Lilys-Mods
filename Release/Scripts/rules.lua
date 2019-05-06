@@ -665,18 +665,18 @@ function docode(firstwords)
 										local argtype = {0}
 										local argextra = {}
 										
+										if (tileslist[realname] ~= nil) then
+											local wvalues = tileslist[realname]
+											verbtype = wvalues.operatortype or verbtype
+											argtype = wvalues.argtype or argtype
+											argextra = wvalues.argextra or argextra
+										end
+
 										if (changes[realname] ~= nil) then
 											local wchanges = changes[realname]
-											verbtype = wchanges.operatortype or ""
-											argtype = wchanges.argtype or {0}
-											argextra = wchanges.argextra or {}
-										end
-										
-										if (verbtype == "") then
-											local wvalues = tileslist[realname] or {}
-											verbtype = wvalues.operatortype or ""
-											argtype = wvalues.argtype or {0}
-											argextra = wvalues.argextra or {}
+											verbtype = wchanges.operatortype or verbtype
+											argtype = wchanges.argtype or argtype
+											argextra = wchanges.argextra or argextra
 										end
 										
 										if (verbtype == "") then
