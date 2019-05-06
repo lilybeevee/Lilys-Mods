@@ -28,6 +28,9 @@ function savechange(target,params,updateid_)
 		local activecolour = params[7]
 		local root = params[8]
 		local layer = params[9]
+		local operatortype = params[10]
+		local argtype = params[11]
+		local argextra = params[12]
 		
 		if (name ~= nil) then
 			if (string.len(name) > 0) then
@@ -123,12 +126,105 @@ function savechange(target,params,updateid_)
 				end
 			end
 		end
+
+		if (operatortype ~= nil) then
+			if (string.len(operatortype) > 0) then
+				this.operatortype = operatortype
+
+				if (operatortype == default.operatortype) then
+					this.operatortype = nil
+				end
+			end
+		end
+
+		if (argtype ~= nil) then
+			if (string.len(argtype) > 0) then
+				local function returntable()
+					return load("return " .. argtype)()
+				end
+				local status,result = pcall(returntable)
+				if status then
+					this.argtype = result
+
+					local anychanged = false
+					if this.argtype ~= nil and default.argtype ~= nil then
+						if #this.argtype ~= #default.argtype then
+							anychanged = true
+						else
+							for i,v in ipairs(this.argtype) do
+								if default.argtype[i] ~= v then
+									anychanged = true
+								end
+							end
+						end
+					elseif this.argtype ~= default.argtype then
+						anychanged = true
+					end
+
+					if not anychanged then
+						this.argtype = nil
+					end
+				else
+					print(result)
+				end
+			end
+		end
+
+		if (argextra ~= nil) then
+			if (string.len(argextra) > 0) then
+				local function returntable()
+					return load("return " .. argextra)()
+				end
+				local status,result = pcall(returntable)
+				if status then
+					this.argextra = result
+
+					local anychanged = false
+					if this.argextra ~= nil and default.argextra ~= nil then
+						if #this.argextra ~= #default.argextra then
+							anychanged = true
+						else
+							for i,v in ipairs(this.argextra) do
+								if default.argextra[i] ~= v then
+									anychanged = true
+								end
+							end
+						end
+					elseif this.argextra ~= default.argextra then
+						anychanged = true
+					end
+
+					if not anychanged then
+						this.argextra = nil
+					end
+				else
+					print(result)
+				end
+			end
+		end
 	end
 	
 	if (updateid ~= 0) then
 		dochanges(updateid)
 	else
 		MF_alert("updateid == 0, changes.lua line 124")
+	end
+end
+
+function changedump(o)
+	if type(o) == 'table' then
+		local s = '{'
+		for k,v in pairs(o) do
+			s = s .. changedump(v)
+			if k < #o then
+				s = s .. ','
+			end
+		end
+		return s .. '}'
+	elseif type(o) == 'string' then
+		return '"' .. o .. '"'
+	else
+		return tostring(o)
 	end
 end
 
@@ -142,7 +238,11 @@ function storechanges()
 				MF_store("level","icons",tostring(i) .. "root",icondata.root)
 			end
 		else
-			for i,thing in pairs(this) do
+			for i,thing_ in pairs(this) do
+				local thing = thing_
+				if type(thing) == "table" then
+					thing = changedump(thing)
+				end
 				MF_store("level","tiles",target .. "_" .. i,thing)
 			end
 			
@@ -362,7 +462,7 @@ function addchange(unitid)
 	
 	local default = tileslist[name]
 	
-	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer"}
+	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer","operatortype","argtype","argextra"}
 	local allchanges = {}
 	
 	for i,v in ipairs(things) do
