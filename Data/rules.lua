@@ -1,4 +1,8 @@
 function code()
+	if featureindex["beam"] and #featureindex["beam"] > 0 then
+		updatecode = 1
+	end
+
 	if (updatecode == 1) then
 		--MF_alert("code being updated!")
 
@@ -98,6 +102,7 @@ function code()
 			docode(firstwords,wordunits)
 			grouprules()
 			altfeatures,notaltfeatures,meansidentifier = meansrules()
+			dobeams()
 			postrules()
 			updatecode = 0
 			
@@ -1414,7 +1419,7 @@ function postrules()
 								table.insert(newcond[2], n)
 							end
 						end
-						
+
 						table.insert(newconds, newcond)
 					end
 				else
@@ -2441,3 +2446,82 @@ function getaltfeatures(target)
 	return result,hasmeans
 end
 -- MEANS END
+
+function dobeams()
+	for _,unit in ipairs(units) do
+		if gettag(unit.fixed,"beamed") then
+			settag(unit.fixed,"beamed",nil,true)
+		end
+	end
+
+	local beams = {}
+	if (featureindex["beam"] ~= nil) then
+		for i,v in ipairs(featureindex["beam"]) do
+			local usable = false
+			local rule = v[1]
+			local conds = v[2]
+
+			if conds[1] ~= "never" then
+				local name = rule[1]
+
+				if rule[2] == "beam" and getmat(name) then
+					local targets = findall({name,conds})
+
+					for _,a in ipairs(targets) do
+						if not beams[a] then
+							beams[a] = {}
+						end
+						table.insert(beams[a], rule[3])
+					end
+				end
+			end
+		end
+	end
+
+	for unitid,effects in pairs(beams) do
+		local unit = mmf.newObject(unitid)
+
+		local beamdir = unit.values[DIR]
+		local x,y = unit.values[XPOS],unit.values[YPOS]
+
+		local ndrs = ndirs[beamdir + 1]
+		local ox,oy = ndrs[1],ndrs[2]
+
+		local stopped = false
+		while not stopped do
+			local obs = findobstacle(x+ox,y+oy)
+			for i,ob in ipairs(obs) do
+				if ob == -1 then
+					stopped = true
+				else
+					local obsunit = mmf.newObject(ob)
+					local obsname = getname(obsunit)
+
+					local ispush = hasfeature(obsname,"is","push",ob)
+					local ispull = hasfeature(obsname,"is","pull",ob)
+					local isstop = hasfeature(obsname,"is","stop",ob)
+
+					if ispush or ispull or isstop then
+						stopped = true
+					end
+
+					local newbeamed = {}
+					if gettag(ob,"beamed") then
+						for _,v in ipairs(gettag(ob,"beamed")) do
+							table.insert(newbeamed, v)
+						end
+					end
+					table.insert(newbeamed, unit.values[ID])
+
+					settag(ob,"beamed",newbeamed)
+
+					for _,effect in ipairs(effects) do
+						addoption({obsname,"is",effect},{{"beamed",{unit.values[ID]}}},{},false,nil,true)
+					end
+				end
+			end
+			ox = ox + ndrs[1]
+			oy = oy + ndrs[2]
+		end
+	end
+end

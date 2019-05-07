@@ -1999,7 +1999,7 @@ tileslist =
 		grid = {11, 1},
 		layer = 20,
 	},]]
-	object121 = {
+	--[[object121 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2011,7 +2011,7 @@ tileslist =
 		tile = {9, 12},
 		grid = {11, 1},
 		layer = 20,
-	},
+	},]]
 	object122 = {
 		name = "text_persist",
 		sprite = "text_persist",
@@ -2188,6 +2188,20 @@ tileslist =
 		active = {2, 2},
 		tile = {21, 12},
 		grid = {11, 4},
+		layer = 20,
+	},
+	object121 = {
+		name = "text_beam",
+		sprite = "text_beam",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 1,
+		operatortype = "verb_all",
+		colour = {0, 1},
+		active = {0, 3},
+		tile = {22, 12},
+		grid = {11, 1},
 		layer = 20,
 	},
 }

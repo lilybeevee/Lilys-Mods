@@ -23,6 +23,7 @@ Data/Sprites/*
 !Data/Sprites/text_any*
 !Data/Sprites/text_auto*
 !Data/Sprites/text_bait*
+!Data/Sprites/text_beam*
 !Data/Sprites/text_copy*
 !Data/Sprites/text_cute*
 !Data/Sprites/text_gravity*
