@@ -2486,9 +2486,22 @@ function dobeams(loop_)
 			end
 		end
 	end
-	local beams= {}
+	local beams = {}
 	for unitid,effects in pairs(beamdict) do
-		table.insert(beams,{unitid,effects})
+		local unit = mmf.newObject(unitid)
+		local name = getname(unit)
+
+		if hasfeature(name,"is","cross",unitid) then
+			for i=1,4 do
+				table.insert(beams,{unitid,effects,i-1})
+			end
+		elseif hasfeature(name,"is","split",unitid) then
+			local splitdir = (unit.values[DIR] + 1) % 4
+			table.insert(beams,{unitid,effects,splitdir})
+			table.insert(beams,{unitid,effects,rotate(splitdir)})
+		else
+			table.insert(beams,{unitid,effects})
+		end
 	end
 
 	local alreadybeamed = {}
@@ -2507,7 +2520,7 @@ function dobeams(loop_)
 		local x,y = unit.values[XPOS],unit.values[YPOS]
 
 		local offset = activemod.beam_offset
-		if data[3] ~= nil then
+		if data[4] then
 			if not activemod.beam_on_reflect then
 				offset = 1
 			else
@@ -2557,6 +2570,7 @@ function dobeams(loop_)
 
 					local isreflect = hasfeature(obsname,"is","reflect",ob)
 					local issplit = hasfeature(obsname,"is","split",ob)
+					local iscross = hasfeature(obsname,"is","cross",ob)
 
 					local split = false
 
@@ -2569,14 +2583,26 @@ function dobeams(loop_)
 						if isreflect then
 							newdir = obsunit.values[DIR]
 						end
-						if issplit and (not data[3] or (data[3] and (not firstbeam or ob ~= unitid))) then
-							local nextdir = (beamdir + 1) % 4
-							local oppositedir = rotate(nextdir)
-							table.insert(beams, {ob, shallowcopy(effects), nextdir})
-							table.insert(beams, {ob, shallowcopy(effects), oppositedir})
-							split = true
-							if not newdir then
-								stopped = true
+						if not data[3] or (data[3] and (not firstbeam or ob ~= unitid)) then
+							if iscross then
+								for i=1,4 do
+									if i-1 ~= rotate(beamdir) or activemod.beam_cross_back then
+										table.insert(beams, {ob, shallowcopy(effects), i-1, true})
+									end
+								end
+								split = true
+								if newdir ~= rotate(beamdir) or activemod.beam_cross_back then
+									stopped = true
+								end
+							elseif issplit then
+								local nextdir = (beamdir + 1) % 4
+								local oppositedir = rotate(nextdir)
+								table.insert(beams, {ob, shallowcopy(effects), nextdir, true})
+								table.insert(beams, {ob, shallowcopy(effects), oppositedir, true})
+								split = true
+								if not newdir then
+									stopped = true
+								end
 							end
 						end
 
@@ -2664,9 +2690,7 @@ function dobeams(loop_)
 						for a,mat in pairs(objectlist) do
 							if (a == object) and (object ~= "empty") and (object ~= "group") then
 								if (object ~= "all") then
-									if not found then
-										table.insert(created, create(object,x+ox,y+oy,beamdir))
-									end
+									table.insert(created, create(object,x+ox,y+oy,beamdir))
 								else
 									local all = createall({object,{}},x+ox,y+oy,beamdir)
 									for _,v in ipairs(all) do
@@ -2676,10 +2700,8 @@ function dobeams(loop_)
 							end
 						end
 					else
-						if not found then
-							table.insert(created, create("text_" .. name,x+ox,y+oy,beamdir))
-							updatecode = 1
-						end
+						table.insert(created, create("text_" .. name,x+ox,y+oy,beamdir))
+						updatecode = 1
 					end
 				end
 			end
@@ -2722,4 +2744,6 @@ function dobeams(loop_)
 			delete(unitid)
 		end
 	end
+
+	print("update code: " .. updatecode)
 end
