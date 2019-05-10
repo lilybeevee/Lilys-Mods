@@ -434,7 +434,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) then
+														if (name_ == b) and (d ~= unitid) then
 															result = false
 														end
 													end

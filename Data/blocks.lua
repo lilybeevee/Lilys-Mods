@@ -1324,9 +1324,64 @@ function levelblock()
 	local things = {}
 	local donethings = {}
 	
+	local emptythings = {}
+	
 	if (featureindex["level"] ~= nil) then
 		for i,v in ipairs(featureindex["level"]) do
 			table.insert(things, v)
+		end
+	end
+	
+	if (featureindex["empty"] ~= nil) then
+		for i,v in ipairs(featureindex["empty"]) do
+			local rule = v[1]
+			
+			if (rule[1] == "empty") and (rule[2] == "is") then
+				table.insert(emptythings, v)
+			end
+		end
+	end
+	
+	if (#emptythings > 0) then
+		for i=1,roomsizex-2 do
+			for j=1,roomsizey-2 do
+				local tileid = i + j * roomsizex
+				
+				if (unitmap[tileid] == nil) or (#unitmap[tileid] == 0) then
+					--MF_alert(tostring(i) .. ", " .. tostring(j))
+					local keypair = ""
+					local unlock = false
+					
+					for a,rules in ipairs(emptythings) do
+						local rule = rules[1]
+						local conds = rules[2]
+						
+						if (rule[3] == "open") and testcond(conds,2,i,j) then
+							if (string.len(keypair) == 0) then
+								keypair = "shut"
+							elseif (keypair == "open") then
+								unlock = true
+							end
+						elseif (rule[3] == "shut") and testcond(conds,2,i,j) then
+							if (string.len(keypair) == 0) then
+								keypair = "open"
+							elseif (keypair == "shut") then
+								unlock = true
+							end
+						end
+					end
+					
+					if unlock then
+						setsoundname("turn",7)
+						
+						if (math.random(1,4) == 1) then
+							MF_particles("unlock",i,j,1,2,4,1,1)
+						end
+						
+						delete(2,i,j)
+					end
+				end
+			end
 		end
 	end
 	
