@@ -36,8 +36,6 @@ end
 
 function addundo(line)
 	if doundo then
-		print(simpledump(line))
-
 		if #undobuffer == 1 and autoturn then
 			newundo(true)
 		end
@@ -71,6 +69,7 @@ function undo()
 		local timelesschanged = false
 		
 		if (currentundo ~= nil) then
+			print("undoing")
 			local turninfo = currentundo.turninfo
 
 			timelessturn = turninfo[1] or false

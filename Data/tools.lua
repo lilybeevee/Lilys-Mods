@@ -392,7 +392,7 @@ function delete(unitid,x_,y_,total_)
 		end
 		
 		if (unitid ~= 2) then
-			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unitid)})
+			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],shallowcopy(gettags(unitid))})
 			unit = {}
 			delunit(unitid)
 			MF_remove(unitid)
@@ -1035,6 +1035,7 @@ function isgone(unitid)
 		end
 	end
 	
+	print("its gone!")
 	return false
 end
 
@@ -1617,7 +1618,7 @@ function settag(unitid,name,value,undo)
 		addundo({"tags","set",id,name,unittags[unitid][name]})
 	end
 	unittags[unitid][name] = value
-	return equal
+	return not equal
 end
 
 function settags(unitid,values,undo)
@@ -1686,4 +1687,18 @@ function deepeq(a,b)
 	else
 		return a == b
 	end
+end
+
+function shallowcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+			copy = {}
+			for orig_key, orig_value in pairs(orig) do
+					copy[orig_key] = orig_value
+			end
+	else -- number, string, boolean, etc
+			copy = orig
+	end
+	return copy
 end

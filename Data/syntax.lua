@@ -223,10 +223,6 @@ function clear()
 	maprotation = 0
 	mapdir = 3
 
-	unittags = {}
-	still = {}
-	stillid = ""
-	donemove = 0
 	autotimer = 0
 	autoturn = false
 	timelessturn = false
@@ -323,6 +319,8 @@ function createall(matdata,x_,y_,id_,dolevels_)
 			table.insert(test, v)
 		end
 	end
+
+	local created = {}
 	
 	if (#test > 0) then
 		for i,v in ipairs(test) do
@@ -339,7 +337,7 @@ function createall(matdata,x_,y_,id_,dolevels_)
 							local tmat = findtext(x,y)
 							
 							if (#mat == 0) then
-								create(b,x,y,dir)
+								table.insert(created, create(b,x,y,dir))
 								
 								if (matdata[1] == "text") and (#tmat > 0) then
 									for c,d in ipairs(tmat) do
@@ -364,12 +362,14 @@ function createall(matdata,x_,y_,id_,dolevels_)
 						local protect = hasfeature(matdata[1],"is","not " .. b,2,x,y)
 						
 						if (protect == nil) then
-							create(b,x,y,dir)
+							table.insert(created, create(b,x,y,dir))
 						end
 					end
 				end
 			end
 		end
+
+		return created
 	end
 	
 	if (matdata[1] == "level") and dolevels then

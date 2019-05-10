@@ -31,6 +31,7 @@ Data/Sprites/*
 !Data/Sprites/text_means*
 !Data/Sprites/text_nearest*
 !Data/Sprites/text_persist*
+!Data/Sprites/text_reflect*
 !Data/Sprites/text_reset*
 !Data/Sprites/text_soft*
 !Data/Sprites/text_sticky*

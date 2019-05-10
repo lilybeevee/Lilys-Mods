@@ -9,6 +9,8 @@ activemod.enabled["persist"] = true
 activemod.condition_stacking = true
 activemod.auto_speed = 20
 activemod.turn_dir = "ccw"
+activemod.beam_offset = 1
+activemod.beam_on_reflect = false
 
 activemod.macros["{x} is conduct"] = {
 	"{x} near any with hot is hot",
@@ -1941,7 +1943,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	object120 =
+	--[[object120 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1956,7 +1958,7 @@ tileslist =
 		tile = {3, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	object125 =
 	{
 		name = "text_still",
@@ -2038,7 +2040,7 @@ tileslist =
 		grid = {11, 5},
 		layer = 20,
 	},]]
-	object124 =
+	--[[object124 =
 	{
 		name = "text_any",
 		sprite = "text_any",
@@ -2051,7 +2053,7 @@ tileslist =
 		tile = {11, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
+	},]]
 	--[[object123 = 
 	{
 		name = "text_nearest",
@@ -2202,6 +2204,34 @@ tileslist =
 		active = {0, 3},
 		tile = {22, 12},
 		grid = {11, 1},
+		layer = 20,
+	},
+	object120 = 
+	{
+		name = "text_reflect",
+		sprite = "text_reflect",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {1, 3},
+		active = {1, 4},
+		tile = {23, 12},
+		grid = {11, 4},
+		layer = 20,
+	},
+	object124 = 
+	{
+		name = "text_split",
+		sprite = "text_split",
+		sprite_in_root = true,
+		unittype = "text",
+		tiling = -1,
+		type = 2,
+		colour = {1, 3},
+		active = {1, 4},
+		tile = {24, 12},
+		grid = {11, 3},
 		layer = 20,
 	},
 }
