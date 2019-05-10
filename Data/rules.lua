@@ -131,12 +131,12 @@ end
 
 function dumpobj(o)
    if type(o) == 'table' then
-      local s = '{ '
+      local s = '{'
       for k,v in pairs(o) do
          if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dumpobj(v) .. ','
+         s = s .. '['..k..'] = ' .. simpledump(v) .. ','
       end
-      return s .. '} '
+      return s .. '}'
    else
       return tostring(o)
    end
@@ -144,14 +144,18 @@ end
 
 function simpledump(o)
 	if type(o) == 'table' then
-		local s = '{'
-		for k,v in pairs(o) do
-			s = s .. simpledump(v)
-			if k < #o then
-				s = s .. ','
+		if o[1] == nil then
+			return dumpobj(o)
+		else
+			local s = '{'
+			for k,v in pairs(o) do
+				s = s .. simpledump(v)
+				if k < #o then
+					s = s .. ','
+				end
 			end
+			return s .. '}'
 		end
-		return s .. '}'
 	else
 		return tostring(o)
 	end

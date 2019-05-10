@@ -50,9 +50,6 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	levelconversions = {}
 
 	unittags = {}
-	still = {}
-	stillid = ""
-	donemove = 0
 	autotimer = 0
 	autoturn = false
 	timelessturn = false

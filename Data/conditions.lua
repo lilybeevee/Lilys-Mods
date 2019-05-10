@@ -645,12 +645,12 @@ function testcond(conds,unitid,x_,y_)
 					end
 				elseif (condtype == "still") then
 					valid = true
-					if still[unitid] ~= true then
+					if gettag(unitid,"still") ~= true then
 						result = false
 					end
 				elseif (condtype == "not still") then
 					valid = true
-					if still[unitid] ~= false then
+					if gettag(unitid,"still") ~= false then
 						result = false
 					end
 				elseif (condtype == "with") then

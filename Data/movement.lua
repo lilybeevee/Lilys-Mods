@@ -1,8 +1,8 @@
 function movecommand(ox,oy,dir_,playerid_)
-	local statusblockids = nil
-	lastplayerid = playerid_
 	wastimeless = timelessturn
 	timelessturn = false
+
+	local statusblockids = nil
 	if autoturn then
 		statusblockids = {}
 		for id,v in pairs(autounits) do
@@ -11,7 +11,10 @@ function movecommand(ox,oy,dir_,playerid_)
 			end
 		end
 	end
-	if dir_ ~= 4 or autoturn then
+
+	if autoturn then
+		timelessturn = wastimeless or false
+	elseif dir_ ~= 4 then
 		timelessturn = checktimelessturn(playerid_)
 	end
 
@@ -855,7 +858,7 @@ function movecommand(ox,oy,dir_,playerid_)
 		updateundo = true
 	end
 
-	modupdate("still")
+	updatestill()
 	doupdate()
 	updatetimeless()
 	code()
@@ -874,57 +877,26 @@ function movecommand(ox,oy,dir_,playerid_)
 	end
 end
 
-function modupdate(name)
-	if name == "still" then
-		local newstill = {}
-		local newstillid = ""
-		for _,unit in ipairs(units) do
-			if autocheck(unit.fixed,autoignored) then
-				if hasmoved[unit.fixed] then
-					newstill[unit.fixed] = false
-					newstillid = newstillid .. getname(unit) .. "0"
-				else
-					newstill[unit.fixed] = true
-					newstillid = newstillid .. getname(unit) .. "1"
-				end
-			else
-				if still[unit.fixed] ~= nil then
-					newstill[unit.fixed] = still[unit.fixed]
-					if still[unit.fixed] == true then
-						newstillid = newstillid .. getname(unit) .. "1"
-					else
-						newstillid = newstillid .. getname(unit) .. "0"
-					end
-				end
+function updatestill()
+	local haschanged = false
+	for _,unit in ipairs(units) do
+		if autocheck(unit.fixed,autoignored) and timecheck(unit.fixed) then
+			local newstill = not (hasmoved[unit.fixed] or false)
+			if settag(unit.fixed,"still",newstill,true) then
+				haschanged = true
 			end
 		end
-		if autocheck(1,autoignored) then
-			newstill[1] = (hasmoved[1] == true)
+	end
+	for i=1,3 do
+		if autocheck(i,autoignored) and timecheck(i) then
+			local newstill = not (hasmoved[i] or false)
+			if settag(i,"still",newstill,true) then
+				haschanged = true
+			end
 		end
-		if newstill[1] then
-			newstillid = newstillid .. "level1"
-		end
-		if autocheck(2,autoignored) then
-			newstill[2] = (hasmoved[2] == true)
-		end
-		if newstill[2] then
-			newstillid = newstillid .. "empty1"
-		end
-		if autocheck(3,autoignored) then
-			newstill[3] = (hasmoved[3] == true)
-		end
-		if newstill[3] then
-			newstillid = newstillid .. "gravity1"
-		end
-		addundo({"still",still,stillid,donemove})
-		if donemove < 1 or newstillid ~= stillid then
-			donemove = donemove + 1
-			doundo = true
-		end
-		if donemove >= 1 then
-			still = newstill
-			stillid = newstillid
-		end
+	end
+	if haschanged then
+		forceupdateundo = true
 	end
 end
 

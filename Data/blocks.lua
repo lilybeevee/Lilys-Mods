@@ -2028,10 +2028,10 @@ function dotimelesscolours()
 		end
 		if timecheck(unit.fixed) or (not timecheck(unit.fixed) and timelesstext and isactive[unit.fixed]) then
 			MF_setcolour(unit.fixed,c1,c2)
-			addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
+			--addundo({"colour",unit.values[ID],c1,c2,unit.values[A]})
 		else
 			MF_setcolour(unit.fixed,0,math.min(3,c2))
-			addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
+			--addundo({"colour",unit.values[ID],0,math.min(3,c2),unit.values[A]})
 		end
 	end
 end

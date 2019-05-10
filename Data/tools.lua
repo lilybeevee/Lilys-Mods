@@ -1607,28 +1607,83 @@ function settag(unitid,name,value,undo)
 	if not unittags[unitid] then
 		unittags[unitid] = {}
 	end
-	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","set",unit.values[ID],name,unittags[unitid][name]})
+	local equal = eq(unittags[unitid][name],value)
+	if undo and not equal then
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","set",id,name,unittags[unitid][name]})
 	end
 	unittags[unitid][name] = value
+	return equal
 end
 
 function settags(unitid,values,undo)
 	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","all",unit.values[ID],name,unittags[unitid]})
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","all",id,name,unittags[unitid]})
 	end
 	unittags[unitid] = values
 end
 
 function cleartags(unitid,undo)
 	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","all",unit.values[ID],name,unittags[unitid]})
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","all",id,name,unittags[unitid]})
 	end
 	unittags[unitid] = nil
+end
+
+function eq(a,b)
+	if type(a) == "table" or type(b) == "table" then
+		if type(a) ~= "table" or type(b) ~= "table" then
+			return false
+		end
+		local result = true
+		if #a == #b then
+			for i,v in pairs(a) do
+				if v ~= b[i] then
+					result = false
+					break
+				end
+			end
+		else
+			result = false
+		end
+		return result
+	else
+		return a == b
+	end
+end
+
+function deepeq(a,b)
+	if type(a) == "table" or type(b) == "table" then
+		if type(a) ~= "table" or type(b) ~= "table" then
+			return false
+		end
+		local result = true
+		if #a == #b then
+			for i,v in pairs(a) do
+				result = deepeq(v,b[i])
+				if not result then
+					break
+				end
+			end
+		else
+			result = false
+		end
+		return result
+	else
+		return a == b
+	end
 end

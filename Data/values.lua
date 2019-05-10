@@ -1941,7 +1941,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	--[[object123 =
+	object120 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1956,7 +1956,7 @@ tileslist =
 		tile = {3, 12},
 		grid = {11, 4},
 		layer = 20,
-	},]]
+	},
 	object125 =
 	{
 		name = "text_still",
@@ -1999,7 +1999,7 @@ tileslist =
 		grid = {11, 1},
 		layer = 20,
 	},]]
-	--[[object121 = {
+	--[[object124 = {
 		name = "text_auto",
 		sprite = "text_auto",
 		sprite_in_root = true,
@@ -2009,7 +2009,7 @@ tileslist =
 		colour = {0, 2},
 		active = {0, 3},
 		tile = {9, 12},
-		grid = {11, 1},
+		grid = {11, 3},
 		layer = 20,
 	},]]
 	object122 = {
@@ -2038,7 +2038,7 @@ tileslist =
 		grid = {11, 5},
 		layer = 20,
 	},]]
-	--[[object123 =
+	object124 =
 	{
 		name = "text_any",
 		sprite = "text_any",
@@ -2049,9 +2049,9 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {11, 12},
-		grid = {11, 4},
+		grid = {11, 3},
 		layer = 20,
-	},]]
+	},
 	--[[object123 = 
 	{
 		name = "text_nearest",
@@ -2164,7 +2164,7 @@ tileslist =
 		grid = {11, 2},
 		layer = 20,
 	},
-	object124 = {
+	--[[object124 = {
 		name = "text_soft",
 		sprite = "text_soft",
 		sprite_in_root = true,
@@ -2176,8 +2176,8 @@ tileslist =
 		tile = {20, 12},
 		grid = {11, 3},
 		layer = 20,
-	},
-	object120 = {
+	},]]
+	--[[object120 = {
 		name = "text_timeless",
 		sprite = "text_timeless",
 		sprite_in_root = true,
@@ -2189,7 +2189,7 @@ tileslist =
 		tile = {21, 12},
 		grid = {11, 4},
 		layer = 20,
-	},
+	},]]
 	object121 = {
 		name = "text_beam",
 		sprite = "text_beam",
