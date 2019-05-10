@@ -1,6 +1,6 @@
 function testcond(conds,unitid,x_,y_)
 	local result = true
-	
+
 	local x,y,name,dir = 0,0,"",4
 	local surrounds = {}
 	
@@ -66,7 +66,7 @@ function testcond(conds,unitid,x_,y_)
 				
 				if (condtype ~= "never") then
 					local conddata = conditions[isnot]
-					if (conddata.argextra ~= nil) then
+					if conddata and (conddata.argextra ~= nil) then
 						extras = conddata.argextra
 					end
 				end
@@ -530,7 +530,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) or (b == "any") then
+														if ((name_ == b) or (b == "any")) and (d ~= unitid) then
 															if testcondstack(iconds,d,(x+g),(y+h)) then
 																result = false
 															end
@@ -645,12 +645,12 @@ function testcond(conds,unitid,x_,y_)
 					end
 				elseif (condtype == "still") then
 					valid = true
-					if still[unitid] ~= true then
+					if gettag(unitid,"still") ~= true then
 						result = false
 					end
 				elseif (condtype == "not still") then
 					valid = true
-					if still[unitid] ~= false then
+					if gettag(unitid,"still") ~= false then
 						result = false
 					end
 				elseif (condtype == "with") then
@@ -985,11 +985,32 @@ function testcond(conds,unitid,x_,y_)
 					if isnot ~= condtype then
 						result = not result
 					end
+				elseif (isnot == "beamed") then
+					valid = true
+					local beamtarget = params[1]
+					local beamed = gettag(unitid,"beamed")
+					local foundone = false
+					if beamed then
+						for _,beamer in ipairs(beamed) do
+							if beamer == beamtarget then
+								foundone = true
+							end
+						end
+					end
+					if not foundone then
+						result = false
+					end
+					if isnot ~= condtype then
+						result = not result
+					end
 				end
 			end
 			
 			if (valid == false) then
-				print("invalid condition: " .. condtype)
+				print("invalid condition:")
+				for i,cond in ipairs(conds) do
+					print("- " .. cond[1])
+				end
 				result = true
 			end
 		end

@@ -1,9 +1,9 @@
 function newundo(force)
-	if ((updateundo == false) or (doundo == false)) and not force and not kindaupdateundo then
+	if ((updateundo == false) or (doundo == false)) and not force and not forceupdateundo then
 		table.remove(undobuffer, 1)
 	else
 		if undobuffer[1] then
-			table.insert(undobuffer[1], {"turninfo", wastimeless, lastplayerid})
+			undobuffer[1].turninfo = {wastimeless}
 		end
 		generaldata2.values[UNDOTOOLTIPTIMER] = 0
 	end
@@ -25,10 +25,12 @@ function newundo(force)
 				table.insert(thisundo.wordunits, wunit.values[ID])
 			end
 		end
+
+		thisundo.turninfo = {}
 	end
 	
 	updateundo = false
-	kindaupdateundo = false
+	forceupdateundo = false
 end
 
 function addundo(line)
@@ -40,7 +42,7 @@ function addundo(line)
 		local currentundo = undobuffer[1]
 		if autoturn then
 			currentundo = undobuffer[2]
-			kindaupdateundo = true
+			forceupdateundo = true
 		end
 		local text = tostring(#undobuffer) .. ", "
 		
@@ -66,10 +68,9 @@ function undo()
 		local timelesschanged = false
 		
 		if (currentundo ~= nil) then
-			local turninfo = currentundo[#currentundo]
+			local turninfo = currentundo.turninfo
 
-			timelessturn = turninfo[2] or false
-			lastplayerid = turninfo[3] or 1
+			timelessturn = turninfo[1] or false
 
 			for i,line in ipairs(currentundo) do
 				local style = line[1]
@@ -330,10 +331,6 @@ function undo()
 						local unit = mmf.newObject(unitid)
 						unit.values[A] = line[5]
 					end
-				elseif (style == "still") then
-					still = line[2]
-					stillid = line[3]
-					donemove = line[4]
 				elseif (style == "gravity") then
 					if not findfeature("gravity","is","persist") then
 						gravitydir = line[2]
@@ -385,38 +382,37 @@ function undo()
 								table.insert(timelessdels, v)
 							end
 						end
-					elseif line[2] == "update" then
-						local unitid = getunitid(line[3])
-						if unitid ~= nil and unitid ~= 0 then
-							local unit = mmf.newObject(unitid)
-							local name = getname(unit)
-							if not hasfeature(name,"is","persist",unitid) then
-								if(unit.strings[UNITNAME] == "text_you") then
-									print(simpledump(line[4]) .. " - " .. simpledump(line[5]) .. " - " .. simpledump(line[6]))
-								end
-								settag("lasttimeless",unit,line[4])
-								settag("timeless",unit,line[5])
-								settag("timepos",unit,line[6])
-								timelesschanged = true
-							else
-								table.insert(persisted,line)
-							end
-						end
 					end
 					updatecode = 1
 				elseif (style == "tags") then
-					local unitid = getunitid(line[3])
+					local unitid
+					if line[3] < 0 then
+						unitid = -line[3]
+					else
+						unitid = getunitid(line[3])
+					end
 
 					if unitid ~= nil and unitid ~= 0 then
-						local unit = mmf.newObject(unitid)
-						local name = getname(unit)
+						local name = ""
+						if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+							local unit = mmf.newObject(unitid)
+							name = getname(unit)
+						elseif unitid == 1 then
+							name = "level"
+						elseif unitid == 2 then
+							name = "empty"
+						elseif unitid == 3 then
+							name = "gravity"
+						end
 
-						if not hasfeature(name,"is","persist",unitid) then
+						if not hasfeature(name,"is","persist",unitid,0,0) then
 							if line[2] == "set" then
 								settag(unitid,line[4],line[5])
 							elseif line[3] == "all" then
 								settags(unitid,line[4])
 							end
+						else
+							table.insert(persisted, line)
 						end
 					end
 				end
@@ -437,6 +433,7 @@ function undo()
 		table.remove(undobuffer, 2)
 
 		updatetimemap()
+		dotimelesscolours()
 	end
 end
 

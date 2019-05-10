@@ -12,6 +12,7 @@ check `Scripts/options.lua` to enable or disable features
 #### Verbs
 - **MEANS** - Changes the definition of a noun or property
 - **COPY** - Makes object copy another's movements
+- **BEAM** - Creates objects/gives objects properties in a line in front of BEAMer, affected by REFLECT and others
 
 #### Properties
 - **STICKY** - STICKY objects attach to other STICKY objects and move with them
@@ -24,6 +25,9 @@ check `Scripts/options.lua` to enable or disable features
 - **AUTO** - Makes object do certain things like movement on a timer instead of turns (requires particle effects??)
 - **CUTE** - Heart effect
 - **SOFT** - Prevents WEAK objects from dying on it (BABA IS CUTE AND SOFT)
+- **REFLECT** - Redirects beams in the direction the object is facing
+- **SPLIT** - Splits beam into two
+- **CROSS** - Splits beam out in every direction
 
 #### Conditions
 - **WITH** - True if object has all given properties

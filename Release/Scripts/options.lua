@@ -23,6 +23,7 @@ mod.enabled["reset count"]  = false -- True for the first N turns of a reset, wh
 -- Verbs
 mod.enabled["means"]        = true -- Changes the definition of a noun or property
 mod.enabled["copy"]         = true -- Makes object copy another's movements
+mod.enabled["beam"]         = false -- Creates objects/gives objects properties in a line in front of BEAMer, affected by REFLECT and others
 
 -- Properties
 mod.enabled["sticky"]       = false -- STICKY objects attach to other STICKY objects and move with them
@@ -35,6 +36,9 @@ mod.enabled["timeless"]     = false -- Applied to YOU, makes you (or other TIMEL
 mod.enabled["auto"]         = false -- Makes object do certain things like movement on a timer instead of turns (requires particle effects??)
 mod.enabled["cute"]         = false -- Heart effect
 mod.enabled["soft"]         = false -- Prevents WEAK objects from dying on it (BABA IS CUTE AND SOFT)
+mod.enabled["reflect"]      = false -- Redirects beams in the direction the object is facing
+mod.enabled["split"]        = false -- Splits beam into two
+mod.enabled["cross"]        = false -- Splits beam out in every direction
 
 --------------------------
 --[[ MECHANIC OPTIONS ]]--
@@ -44,6 +48,10 @@ activemod.condition_stacking = true
 activemod.auto_speed = 20
 -- ccw = counter-clockwise, cw = clockwise
 activemod.turn_dir = "ccw"
+
+activemod.beam_offset = 1 -- number of tiles beam starts out from beam caster
+activemod.beam_on_reflect = false -- true if beam is created on top of reflect objects
+activemod.beam_cross_back = false -- true if CROSS sends a fourth beam back where it came from
 
 -------------------------------------------------
 --[[   MACROS (CUSTOM FEATURES FROM RULES)   ]]--
@@ -361,11 +369,10 @@ mod.tile["timeless"] = {
 	layer = 20,
 }
 
-
 mod.tile["beam"] = {
 	name = "text_beam",
 	sprite = "text_beam",
-	sprite_in_root = true,
+	sprite_in_root = false,
 	unittype = "text",
 	tiling = -1,
 	type = 1,

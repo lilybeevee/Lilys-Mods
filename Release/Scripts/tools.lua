@@ -363,7 +363,13 @@ end
 function delete(unitid,x_,y_,total_)
 	local total = total_ or false
 	
-	if (deleted[unitid] == nil) then
+	local check = unitid
+	
+	if (unitid == 2) then
+		check = 200 + x_ + y_ * roomsizex
+	end
+	
+	if (deleted[check] == nil) then
 		local unit = {}
 		local x,y,dir = 0,0,4
 		local unitname = ""
@@ -392,7 +398,7 @@ function delete(unitid,x_,y_,total_)
 		end
 		
 		if (unitid ~= 2) then
-			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],gettags(unitid)})
+			addundo({"remove",unitname,x,y,dir,unit.values[ID],unit.values[ID],unit.strings[U_LEVELFILE],unit.strings[U_LEVELNAME],unit.values[VISUALLEVEL],unit.values[COMPLETED],unit.values[VISUALSTYLE],unit.flags[MAPLEVEL],unit.strings[COLOUR],unit.strings[CLEARCOLOUR],shallowcopy(gettags(unitid))})
 			unit = {}
 			delunit(unitid)
 			MF_remove(unitid)
@@ -400,7 +406,7 @@ function delete(unitid,x_,y_,total_)
 			dynamicat(x,y)
 		end
 		
-		deleted[unitid] = 1
+		deleted[check] = 1
 	else
 		print("already deleted")
 	end
@@ -1035,6 +1041,7 @@ function isgone(unitid)
 		end
 	end
 	
+	print("its gone!")
 	return false
 end
 
@@ -1607,28 +1614,97 @@ function settag(unitid,name,value,undo)
 	if not unittags[unitid] then
 		unittags[unitid] = {}
 	end
-	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","set",unit.values[ID],name,unittags[unitid][name]})
+	local equal = eq(unittags[unitid][name],value)
+	if undo and not equal then
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","set",id,name,unittags[unitid][name]})
 	end
 	unittags[unitid][name] = value
+	return not equal
 end
 
 function settags(unitid,values,undo)
 	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","all",unit.values[ID],name,unittags[unitid]})
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","all",id,name,unittags[unitid]})
 	end
 	unittags[unitid] = values
 end
 
 function cleartags(unitid,undo)
 	if undo then
-		local unit = mmf.newObject(unitid)
-
-		addundo({"tags","all",unit.values[ID],name,unittags[unitid]})
+		local id = -unitid
+		if unitid ~= 1 and unitid ~= 2 and unitid ~= 3 then
+			local unit = mmf.newObject(unitid)
+			id = unit.values[ID]
+		end
+		addundo({"tags","all",id,name,unittags[unitid]})
 	end
 	unittags[unitid] = nil
+end
+
+function eq(a,b)
+	if type(a) == "table" or type(b) == "table" then
+		if type(a) ~= "table" or type(b) ~= "table" then
+			return false
+		end
+		local result = true
+		if #a == #b then
+			for i,v in pairs(a) do
+				if v ~= b[i] then
+					result = false
+					break
+				end
+			end
+		else
+			result = false
+		end
+		return result
+	else
+		return a == b
+	end
+end
+
+function deepeq(a,b)
+	if type(a) == "table" or type(b) == "table" then
+		if type(a) ~= "table" or type(b) ~= "table" then
+			return false
+		end
+		local result = true
+		if #a == #b then
+			for i,v in pairs(a) do
+				result = deepeq(v,b[i])
+				if not result then
+					break
+				end
+			end
+		else
+			result = false
+		end
+		return result
+	else
+		return a == b
+	end
+end
+
+function shallowcopy(orig)
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+			copy = {}
+			for orig_key, orig_value in pairs(orig) do
+					copy[orig_key] = orig_value
+			end
+	else -- number, string, boolean, etc
+			copy = orig
+	end
+	return copy
 end

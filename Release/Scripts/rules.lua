@@ -1,4 +1,8 @@
 function code()
+	if featureindex["beam"] and #featureindex["beam"] > 0 then
+		updatecode = 1
+	end
+
 	if (updatecode == 1) then
 		--MF_alert("code being updated!")
 
@@ -98,8 +102,9 @@ function code()
 			docode(firstwords,wordunits)
 			grouprules()
 			altfeatures,notaltfeatures,meansidentifier = meansrules()
-			postrules()
 			updatecode = 0
+			dobeams()
+			postrules()
 			
 			if doingundo then
 				dotimelesscolours()
@@ -114,10 +119,13 @@ function code()
 			
 			if (newwordidentifier ~= wordidentifier) or (meansidentifier ~= prevmeansidentifier) then
 				updatecode = 1
-				code()
 			else
 				codeloops = 0
 				--domaprotation()
+			end
+
+			if updatecode == 1 then
+				code()
 			end
 		end
 	end
@@ -126,12 +134,12 @@ end
 
 function dumpobj(o)
    if type(o) == 'table' then
-      local s = '{ '
+      local s = '{'
       for k,v in pairs(o) do
          if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dumpobj(v) .. ','
+         s = s .. '['..k..'] = ' .. simpledump(v) .. ','
       end
-      return s .. '} '
+      return s .. '}'
    else
       return tostring(o)
    end
@@ -139,14 +147,18 @@ end
 
 function simpledump(o)
 	if type(o) == 'table' then
-		local s = '{'
-		for k,v in pairs(o) do
-			s = s .. simpledump(v)
-			if k < #o then
-				s = s .. ','
+		if o[1] == nil then
+			return dumpobj(o)
+		else
+			local s = '{'
+			for k,v in pairs(o) do
+				s = s .. simpledump(v)
+				if k < #o then
+					s = s .. ','
+				end
 			end
+			return s .. '}'
 		end
-		return s .. '}'
 	else
 		return tostring(o)
 	end
@@ -1414,7 +1426,7 @@ function postrules()
 								table.insert(newcond[2], n)
 							end
 						end
-						
+
 						table.insert(newconds, newcond)
 					end
 				else
@@ -2441,3 +2453,287 @@ function getaltfeatures(target)
 	return result,hasmeans
 end
 -- MEANS END
+
+function dobeams(loop_)
+	local loop = loop_ or 0
+
+	if loop > 20 then
+		return
+	end
+
+	local beamdict = {}
+	if (featureindex["beam"] ~= nil) then
+		for i,v in ipairs(featureindex["beam"]) do
+			local usable = false
+			local rule = v[1]
+			local conds = v[2]
+
+			if conds[1] ~= "never" then
+				local name = rule[1]
+
+				if rule[2] == "beam" and getmat(name) then
+					local targets = findall({name,conds})
+
+					for _,a in ipairs(targets) do
+						if not gettag(a,"beamer") then
+							if not beamdict[a] then
+								beamdict[a] = {}
+							end
+							table.insert(beamdict[a], rule[3])
+						end
+					end
+				end
+			end
+		end
+	end
+	local beams = {}
+	for unitid,effects in pairs(beamdict) do
+		local unit = mmf.newObject(unitid)
+		local name = getname(unit)
+
+		if hasfeature(name,"is","cross",unitid) then
+			for i=1,4 do
+				table.insert(beams,{unitid,effects,i-1})
+			end
+		elseif hasfeature(name,"is","split",unitid) then
+			local splitdir = (unit.values[DIR] + 1) % 4
+			table.insert(beams,{unitid,effects,splitdir})
+			table.insert(beams,{unitid,effects,rotate(splitdir)})
+		else
+			table.insert(beams,{unitid,effects})
+		end
+	end
+
+	local alreadybeamed = {}
+	local hasbeamed = {}
+	local needsloop = false
+
+	for _,data in pairs(beams) do
+		local unitid = data[1]
+		local effects = data[2]
+		settag(unitid,"beamer",true)
+
+		local unit = mmf.newObject(unitid)
+		local name = getname(unit)
+
+		local beamdir = data[3] or unit.values[DIR]
+		local x,y = unit.values[XPOS],unit.values[YPOS]
+
+		local offset = activemod.beam_offset
+		if data[4] then
+			if not activemod.beam_on_reflect then
+				offset = 1
+			else
+				offset = 0
+			end
+		end
+
+		local ndrs = ndirs[beamdir + 1]
+		local ox,oy = ndrs[1]*offset, ndrs[2]*offset
+
+		local firstbeam = true
+		local stopped = false
+		while not stopped do
+			local tileid = (x+ox) + (y+oy) * roomsizex
+			if alreadybeamed[tileid] and alreadybeamed[tileid][unitid] then
+				if alreadybeamed[tileid][unitid][beamdir] then
+					stopped = true
+					break
+				end
+			else
+				if not alreadybeamed[tileid] then
+					alreadybeamed[tileid] = {}
+				end
+				if not alreadybeamed[tileid][unitid] then
+					alreadybeamed[tileid][unitid] = {}
+				end
+			end
+			alreadybeamed[tileid][unitid][beamdir] = true
+
+			local hits = {}
+			local alreadyhit = {}
+
+			local objects = {}
+
+			local obs = findobstacle(x+ox,y+oy)
+			for i,ob in ipairs(obs) do
+				if ob == -1 then
+					stopped = true
+				else
+					local obsunit = mmf.newObject(ob)
+					local obsname = getname(obsunit)
+
+					local ispush = hasfeature(obsname,"is","push",ob)
+					local ispull = hasfeature(obsname,"is","pull",ob)
+					local isstop = hasfeature(obsname,"is","stop",ob)
+
+					local isreflect = hasfeature(obsname,"is","reflect",ob)
+					local issplit = hasfeature(obsname,"is","split",ob)
+					local iscross = hasfeature(obsname,"is","cross",ob)
+
+					local reflected = false
+
+					if not (gettag(ob,"tempbeam") or gettag(ob,"new tempbeam")) then
+						if ispush or ispull or isstop then
+							stopped = true
+						end
+
+						if not data[3] or (data[3] and (not firstbeam or ob ~= unitid)) then
+							if isreflect then
+								table.insert(beams, {ob, shallowcopy(effects), obsunit.values[DIR], true})
+								reflected = true
+							end
+
+							if iscross then
+								for i=1,4 do
+									if i-1 ~= rotate(beamdir) or activemod.beam_cross_back then
+										table.insert(beams, {ob, shallowcopy(effects), i-1, true})
+									end
+								end
+								reflected = true
+							elseif issplit then
+								local nextdir = (beamdir + 1) % 4
+								local oppositedir = rotate(nextdir)
+								table.insert(beams, {ob, shallowcopy(effects), nextdir, true})
+								table.insert(beams, {ob, shallowcopy(effects), oppositedir, true})
+								reflected = true
+							end
+						end
+
+						if reflected then
+							stopped = true
+						end
+					end
+
+					if (not firstbeam or ob ~= unitid) and not reflected then
+						hasbeamed[ob] = true
+
+						if not (gettag(ob,"tempbeam") or gettag(ob,"new tempbeam")) then
+							local newbeamed = {}
+							if gettag(ob,"new beamed") then
+								for _,v in ipairs(gettag(ob,"new beamed")) do
+									table.insert(newbeamed, v)
+								end
+							end
+							table.insert(newbeamed, unit.values[ID])
+
+							settag(ob,"new beamed",newbeamed)
+						end
+
+						table.insert(hits, {ob, obsname})
+					end
+				end
+			end
+
+			for _,effect in ipairs(effects) do
+				local effname = unitreference["text_" .. effect]
+				local efftype = -1
+
+				if effname ~= nil then
+					if tileslist[effname] then
+						efftype = tileslist[effname].type or efftype
+					end
+					if changes[effname] then
+						efftype = changes[effname].type or efftype
+					end
+				end
+
+				local duplicates = {}
+				local hasduplicate = false
+				for _,hit in ipairs(hits) do
+					local hitunit = mmf.newObject(hit[1])
+					local hitbeam = gettag(hit[1],"tempbeam") or gettag(hit[1],"new tempbeam")
+					if hit[2] == effect and hitunit.values[DIR] == beamdir and hitbeam then
+						duplicates[hit[1]] = true
+						hasduplicate = true
+						settag(hit[1],"new tempbeam",true)
+
+						local hitbeamed = gettag(hit[1],"new beamed")
+						if hitbeamed then
+							local newhitbeamed = {}
+							for _,v in ipairs(hitbeamed) do
+								if v ~= unit.values[ID] then
+									table.insert(newhitbeamed, v)
+								end
+							end
+							settag(hit[1],"new beamed",newhitbeamed)
+						end
+					end
+				end
+
+				if efftype == 2 then
+					for _,hit in ipairs(hits) do
+						if not alreadyhit[hit[2]] then
+							addoption({hit[2],"is",effect},{{"beamed",{unit.values[ID]}}},{},false,nil,true)
+							alreadyhit[hit[2]] = true
+						end
+					end
+				elseif efftype == 0 then
+					if not hasduplicate then
+						table.insert(objects, effect)
+					end
+				end
+			end
+
+			local created = {}
+			if not stopped and (not reflected or activemod.beam_on_reflect) then
+				for _,object in ipairs(objects) do
+					if (object ~= "text") then
+						for a,mat in pairs(objectlist) do
+							if (a == object) and (object ~= "empty") and (object ~= "group") then
+								if (object ~= "all") then
+									table.insert(created, create(object,x+ox,y+oy,beamdir))
+								else
+									local all = createall({object,{}},x+ox,y+oy,beamdir)
+									for _,v in ipairs(all) do
+										table.insert(created, v)
+									end
+								end
+							end
+						end
+					else
+						table.insert(created, create("text_" .. name,x+ox,y+oy,beamdir))
+						updatecode = 1
+					end
+				end
+			end
+			for _,v in ipairs(created) do
+				needsloop = true
+				updateundo = true
+				settag(v,"new tempbeam",true)
+			end
+
+			ox = ox + ndrs[1]
+			oy = oy + ndrs[2]
+			firstbeam = false
+		end
+	end
+
+	if needsloop then
+		dobeams(loop + 1)
+	else
+		local delunits = {}
+		for _,unit in ipairs(units) do
+			settag(unit.fixed,"beamed",gettag(unit.fixed,"new beamed"),true)
+			if gettag(unit.fixed,"beamer") then
+				settag(unit.fixed,"beamer",nil)
+			end
+			if gettag(unit.fixed,"tempbeam") and not gettag(unit.fixed,"new tempbeam") then
+				table.insert(delunits,unit.fixed)
+				updateundo = true
+			else
+				settag(unit.fixed,"tempbeam",gettag(unit.fixed,"new tempbeam"),true)
+			end
+
+			settag(unit.fixed,"new beamed",nil)
+			settag(unit.fixed,"new tempbeam",nil)
+		end
+		for _,unitid in ipairs(delunits) do
+			local unit = mmf.newObject(unitid)
+			if unit.strings[UNITTYPE] == "text" then
+				updatecode = 1
+			end
+			delete(unitid)
+		end
+	end
+end
