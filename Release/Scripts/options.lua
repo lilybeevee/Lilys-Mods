@@ -360,4 +360,58 @@ mod.tile["timeless"] = {
 	tile = {21, 12},
 	layer = 20,
 }
--- Current highest tile: {21, 12}
+
+
+mod.tile["beam"] = {
+	name = "text_beam",
+	sprite = "text_beam",
+	sprite_in_root = true,
+	unittype = "text",
+	tiling = -1,
+	type = 1,
+	operatortype = "verb_all",
+	colour = {0, 1},
+	active = {0, 3},
+	tile = {22, 12},
+	layer = 20,
+}
+
+mod.tile["reflect"] = {
+	name = "text_reflect",
+	sprite = "text_reflect",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {1, 3},
+	active = {1, 4},
+	tile = {23, 12},
+	layer = 20,
+}
+
+mod.tile["split"] = {
+	name = "text_split",
+	sprite = "text_split",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {1, 3},
+	active = {1, 4},
+	tile = {24, 12},
+	layer = 20,
+}
+
+mod.tile["cross"] = {
+	name = "text_cross",
+	sprite = "text_cross",
+	sprite_in_root = false,
+	unittype = "text",
+	tiling = -1,
+	type = 2,
+	colour = {1, 3},
+	active = {1, 4},
+	tile = {25, 12},
+	layer = 20,
+}
+-- Current highest tile: {25, 12}

@@ -10,8 +10,8 @@ activemod.condition_stacking = true
 activemod.auto_speed = 20
 activemod.turn_dir = "ccw"
 activemod.beam_offset = 1
-activemod.beam_on_reflect = true
-activemod.beam_cross_back = true
+activemod.beam_on_reflect = false
+activemod.beam_cross_back = false
 
 activemod.macros["{x} is conduct"] = {
 	"{x} near any with hot is hot",
@@ -1944,7 +1944,7 @@ tileslist =
 		grid = {11, 4},
 		layer = 20,
 	},]]
-	--[[object120 =
+	object122 =
 	{
 		name = "text_with",
 		sprite = "text_with",
@@ -1957,9 +1957,9 @@ tileslist =
 		colour = {0, 1},
 		active = {0, 3},
 		tile = {3, 12},
-		grid = {11, 4},
+		grid = {11, 0},
 		layer = 20,
-	},]]
+	},
 	object125 =
 	{
 		name = "text_still",
@@ -2015,7 +2015,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	object122 = {
+	--[[object122 = {
 		name = "text_persist",
 		sprite = "text_persist",
 		sprite_in_root = true,
@@ -2027,7 +2027,7 @@ tileslist =
 		tile = {8, 12},
 		grid = {11, 0},
 		layer = 20,
-	},
+	},]]
 	--[[object125 = {
 		name = "text_sticky",
 		sprite = "text_sticky",

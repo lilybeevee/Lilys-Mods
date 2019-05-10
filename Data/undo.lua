@@ -1,5 +1,4 @@
 function newundo(force)
-	print("new undo")
 	if ((updateundo == false) or (doundo == false)) and not force and not forceupdateundo then
 		table.remove(undobuffer, 1)
 	else
@@ -69,7 +68,6 @@ function undo()
 		local timelesschanged = false
 		
 		if (currentundo ~= nil) then
-			print("undoing")
 			local turninfo = currentundo.turninfo
 
 			timelessturn = turninfo[1] or false

@@ -2554,7 +2554,6 @@ function dobeams(loop_)
 			local alreadyhit = {}
 
 			local objects = {}
-			local reflected = false
 
 			local obs = findobstacle(x+ox,y+oy)
 			for i,ob in ipairs(obs) do
@@ -2572,48 +2571,41 @@ function dobeams(loop_)
 					local issplit = hasfeature(obsname,"is","split",ob)
 					local iscross = hasfeature(obsname,"is","cross",ob)
 
-					local split = false
+					local reflected = false
 
 					if not (gettag(ob,"tempbeam") or gettag(ob,"new tempbeam")) then
 						if ispush or ispull or isstop then
 							stopped = true
 						end
 
-						local newdir
-						if isreflect then
-							newdir = obsunit.values[DIR]
-						end
 						if not data[3] or (data[3] and (not firstbeam or ob ~= unitid)) then
+							if isreflect then
+								table.insert(beams, {ob, shallowcopy(effects), obsunit.values[DIR], true})
+								reflected = true
+							end
+
 							if iscross then
 								for i=1,4 do
 									if i-1 ~= rotate(beamdir) or activemod.beam_cross_back then
 										table.insert(beams, {ob, shallowcopy(effects), i-1, true})
 									end
 								end
-								split = true
-								if newdir ~= rotate(beamdir) or activemod.beam_cross_back then
-									stopped = true
-								end
+								reflected = true
 							elseif issplit then
 								local nextdir = (beamdir + 1) % 4
 								local oppositedir = rotate(nextdir)
 								table.insert(beams, {ob, shallowcopy(effects), nextdir, true})
 								table.insert(beams, {ob, shallowcopy(effects), oppositedir, true})
-								split = true
-								if not newdir then
-									stopped = true
-								end
+								reflected = true
 							end
 						end
 
-						if newdir ~= nil then
-							reflected = true
-							beamdir = newdir
-							ndrs = ndirs[beamdir + 1]
+						if reflected then
+							stopped = true
 						end
 					end
 
-					if (not firstbeam or ob ~= unitid) and (not reflected or activemod.beam_on_reflect) and not split then
+					if (not firstbeam or ob ~= unitid) and not reflected then
 						hasbeamed[ob] = true
 
 						if not (gettag(ob,"tempbeam") or gettag(ob,"new tempbeam")) then
@@ -2744,6 +2736,4 @@ function dobeams(loop_)
 			delete(unitid)
 		end
 	end
-
-	print("update code: " .. updatecode)
 end
