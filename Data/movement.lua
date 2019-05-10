@@ -47,14 +47,24 @@ function movecommand(ox,oy,dir_,playerid_)
 	local levelpull = -1
 	local levelmove = findfeature("level","is","you")
 	if (levelmove ~= nil) then
-		local ndrs = ndirs[dir_ + 1]
-		local ox,oy = ndrs[1],ndrs[2]
+		local valid = false
 		
-		addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,dir_})
-		MF_scrollroom(ox * tilesize,oy * tilesize)
-		mapdir = dir_
-		updateundo = true
-		hasmoved[1] = true
+		for i,v in ipairs(levelmove) do
+			if (valid == false) and testcond(v[2],1) then
+				valid = true
+			end
+		end
+		
+		if valid then
+			local ndrs = ndirs[dir_ + 1]
+			local ox,oy = ndrs[1],ndrs[2]
+			
+			addundo({"levelupdate",Xoffset,Yoffset,Xoffset + ox * tilesize,Yoffset + oy * tilesize,mapdir,dir_})
+			MF_scrollroom(ox * tilesize,oy * tilesize)
+			mapdir = dir_
+			updateundo = true
+			hasmoved[1] = true
+		end
 	end
 
 	local turn = findallfeature(nil,"is","turn",true)

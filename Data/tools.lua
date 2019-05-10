@@ -363,7 +363,13 @@ end
 function delete(unitid,x_,y_,total_)
 	local total = total_ or false
 	
-	if (deleted[unitid] == nil) then
+	local check = unitid
+	
+	if (unitid == 2) then
+		check = 200 + x_ + y_ * roomsizex
+	end
+	
+	if (deleted[check] == nil) then
 		local unit = {}
 		local x,y,dir = 0,0,4
 		local unitname = ""
@@ -400,7 +406,7 @@ function delete(unitid,x_,y_,total_)
 			dynamicat(x,y)
 		end
 		
-		deleted[unitid] = 1
+		deleted[check] = 1
 	else
 		print("already deleted")
 	end

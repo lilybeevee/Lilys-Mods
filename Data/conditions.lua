@@ -530,7 +530,7 @@ function testcond(conds,unitid,x_,y_)
 														local unit = mmf.newObject(d)
 														local name_ = getname(unit)
 														
-														if (name_ == b) or (b == "any") then
+														if ((name_ == b) or (b == "any")) and (d ~= unitid) then
 															if testcondstack(iconds,d,(x+g),(y+h)) then
 																result = false
 															end

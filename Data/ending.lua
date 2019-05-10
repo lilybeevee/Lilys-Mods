@@ -311,12 +311,12 @@ function ending(enddataid)
 			
 			let1.x = mx
 			let1.y = my + 4 - tilesize * 0.5
-			let1.layer = 2
+			let1.layer = 3
 			MF_setcolour(letid1,1,2)
 			
 			let2.x = mx
 			let2.y = my - tilesize * 0.5
-			let2.layer = 2
+			let2.layer = 3
 		elseif (timer == 750) then
 			local mx = screenw * 0.5
 			local my = screenh * 0.5
