@@ -28,14 +28,8 @@ function savechange(target,params,updateid_)
 		local activecolour = params[7]
 		local root = params[8]
 		local layer = params[9]
-<<<<<<< HEAD
-		local operatortype = params[10]
-		local argtype = params[11]
-		local argextra = params[12]
-=======
 		local argtype = params[10]
 		local argextra = params[11]
->>>>>>> vanilla
 		
 		if (name ~= nil) then
 			if (string.len(name) > 0) then
@@ -131,81 +125,6 @@ function savechange(target,params,updateid_)
 				end
 			end
 		end
-<<<<<<< HEAD
-
-		if (operatortype ~= nil) then
-			if (string.len(operatortype) > 0) then
-				this.operatortype = operatortype
-
-				if (operatortype == default.operatortype) then
-					this.operatortype = nil
-				end
-			end
-		end
-
-		if (argtype ~= nil) then
-			if (string.len(argtype) > 0) then
-				local function returntable()
-					return load("return " .. argtype)()
-				end
-				local status,result = pcall(returntable)
-				if status then
-					this.argtype = result
-
-					local anychanged = false
-					if this.argtype ~= nil and default.argtype ~= nil then
-						if #this.argtype ~= #default.argtype then
-							anychanged = true
-						else
-							for i,v in ipairs(this.argtype) do
-								if default.argtype[i] ~= v then
-									anychanged = true
-								end
-							end
-						end
-					elseif this.argtype ~= default.argtype then
-						anychanged = true
-					end
-
-					if not anychanged then
-						this.argtype = nil
-					end
-				else
-					print(result)
-				end
-			end
-		end
-
-		if (argextra ~= nil) then
-			if (string.len(argextra) > 0) then
-				local function returntable()
-					return load("return " .. argextra)()
-				end
-				local status,result = pcall(returntable)
-				if status then
-					this.argextra = result
-
-					local anychanged = false
-					if this.argextra ~= nil and default.argextra ~= nil then
-						if #this.argextra ~= #default.argextra then
-							anychanged = true
-						else
-							for i,v in ipairs(this.argextra) do
-								if default.argextra[i] ~= v then
-									anychanged = true
-								end
-							end
-						end
-					elseif this.argextra ~= default.argextra then
-						anychanged = true
-					end
-
-					if not anychanged then
-						this.argextra = nil
-					end
-				else
-					print(result)
-=======
 		
 		if (argtype ~= nil) then
 			if (string.len(argtype) > 0) then
@@ -257,7 +176,6 @@ function savechange(target,params,updateid_)
 				
 				if isdefault then
 					this.argextra = nil
->>>>>>> vanilla
 				end
 			end
 		end
@@ -567,11 +485,7 @@ function addchange(unitid)
 	
 	local default = tileslist[name]
 	
-<<<<<<< HEAD
-	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer","operatortype","argtype","argextra"}
-=======
 	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer","argtype","argextra"}
->>>>>>> vanilla
 	local allchanges = {}
 	
 	for i,v in ipairs(things) do
