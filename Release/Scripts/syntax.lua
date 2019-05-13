@@ -47,6 +47,7 @@ function init(tilemapid,roomsizex_,roomsizey_,tilesize_,Xoffset_,Yoffset_,genera
 	ruledebug = false
 	maprotation = 0
 	mapdir = 3
+	last_key = 0
 	levelconversions = {}
 
 	unittags = {}
@@ -171,6 +172,7 @@ function clearunits()
 	updateundo = true
 	hiddenmap = nil
 	levelconversions = {}
+	last_key = 0
 
 	unittags = {}
 	chosenany = {}
@@ -222,6 +224,7 @@ function clear()
 	levelconversions = {}
 	maprotation = 0
 	mapdir = 3
+	last_key = 0
 
 	autotimer = 0
 	autoturn = false
@@ -266,6 +269,8 @@ function command(key,player_)
 		
 		autoturn = false
 		doingundo = false
+		last_key = keyid
+		
 		movecommand(ox,oy,dir,player)
 		MF_update()
 		if doreset then

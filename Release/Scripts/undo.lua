@@ -13,6 +13,7 @@ function newundo(force)
 	end
 	
 	local thisundo = undobuffer[1]
+	thisundo.key = last_key
 	
 	if (thisundo ~= nil) then
 		if thisundo.wordunits == nil or not autoturn or force then
@@ -66,6 +67,8 @@ function undo()
 
 		local persisted = {}
 		local timelesschanged = false
+		
+		last_key = currentundo.key or 0
 		
 		if (currentundo ~= nil) then
 			local turninfo = currentundo.turninfo

@@ -65,8 +65,10 @@ function testcond(conds,unitid,x_,y_)
 				end
 				
 				if (condtype ~= "never") then
-					local conddata = conditions[isnot]
-					if conddata and (conddata.argextra ~= nil) then
+					local condname = unitreference[isnot]
+					
+					local conddata = conditions[condname] or {}
+					if (conddata.argextra ~= nil) then
 						extras = conddata.argextra
 					end
 				end
@@ -1002,6 +1004,18 @@ function testcond(conds,unitid,x_,y_)
 					end
 					if isnot ~= condtype then
 						result = not result
+					end
+				elseif (condtype == "idle") then
+					valid = true
+					
+					if (last_key ~= 4) then
+						result = false
+					end
+				elseif (condtype == "not idle") then
+					valid = true
+					
+					if (last_key == 4) then
+						result = false
 					end
 				end
 			end

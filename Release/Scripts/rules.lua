@@ -673,7 +673,9 @@ function docode(firstwords)
 										allowedwords_extra = {}
 										
 										local realname = unitreference["text_" .. wname]
-										local verbtype = ""
+										local cargtype = false
+										local cargextra = false
+										
 										local argtype = {0}
 										local argextra = {}
 										
@@ -686,22 +688,39 @@ function docode(firstwords)
 
 										if (changes[realname] ~= nil) then
 											local wchanges = changes[realname]
-											verbtype = wchanges.operatortype or verbtype
-											argtype = wchanges.argtype or argtype
-											argextra = wchanges.argextra or argextra
+											
+											if (wchanges.argtype ~= nil) then
+												argtype = wchanges.argtype
+												cargtype = true
+											end
+											
+											if (wchanges.argextra ~= nil) then
+												argextra = wchanges.argextra
+												cargextra = true
+											end
 										end
 										
-										if (verbtype == "") then
-											--MF_alert("No operatortype found for " .. wname .. "!")
-											return
+										if (cargtype == false) or (cargextra == false) then
+											local wvalues = tileslist[realname] or {}
+											
+											if (cargtype == false) then
+												argtype = wvalues.argtype or {0}
+											end
+											
+											if (cargextra == false) then
+												argextra = wvalues.argextra or {}
+											end
+										end
+										
+										--MF_alert(wname .. ", " .. tostring(realname) .. ", " .. "text_" .. wname)
+										
+										if (realname == nil) then
+											MF_alert("No object found for " .. wname .. "!")
+											valid = false
+											break
 										else
 											if (wtype == 1) then
-												if (verbtype ~= "verb_all") then
-													allowedwords = {0}
-												else
-													allowedwords = {0,2}
-												end
-
+												allowedwords = argtype
 												stage = 1
 												local target = {prefix .. wname, wtype, wid}
 												table.insert(group_targets, {target, {}})
@@ -1533,20 +1552,6 @@ function postrules()
 	end
 	
 	ruleblockeffect()
-end
-
-function iscond(word)
-	local found = false
-	
-	for i,v in pairs(conditions) do
-		if (word == i) or (word == "not " .. i) then
-			found = true
-			local args = v.arguments
-			return true,args
-		end
-	end
-	
-	return false,0
 end
 
 function grouprules()
