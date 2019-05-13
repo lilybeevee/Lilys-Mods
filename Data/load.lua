@@ -19,35 +19,25 @@ function generatetiles()
 		
 		tilereference[id] = i
 		
-		if (tile.type == 1) or (tile.type == 3) or (tile.type == 7) or (tile.type == 6) then
-			local name = string.sub(tile.name, 6)
-			
-			table.insert(operators.all, name)
-			
-			if (tile.operatortype ~= nil) then
-				local optype = tile.operatortype
+		if (tile.type == 3) or (tile.type == 7) then				
+			if (tile.type == 3) or (tile.type == 7) then
+				conditions[i] = {}
 				
-				table.insert(operators[optype], name)
+				local conddata = conditions[i]
 				
-				if (string.sub(optype, 1, 4) == "cond") then
-					conditions[name] = {}
+				if (tile.type == 7) then
+					conddata.arguments = true
+					conddata.argtype = tile.argtype or {0}
 					
-					local conddata = conditions[name]
-					
-					if (optype == "cond_arg") then
-						conddata.arguments = true
-						conddata.argtype = tile.argtype or {0}
+					if (tile.argextra ~= nil) then
+						conddata.argextra = {}
 						
-						if (tile.argextra ~= nil) then
-							conddata.argextra = {}
-							
-							for a,b in ipairs(tile.argextra) do
-								table.insert(conddata.argextra, b)
-							end
+						for a,b in ipairs(tile.argextra) do
+							table.insert(conddata.argextra, b)
 						end
-					else
-						conddata.arguments = false
 					end
+				else
+					conddata.arguments = false
 				end
 			end
 		end
