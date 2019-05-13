@@ -28,6 +28,8 @@ function savechange(target,params,updateid_)
 		local activecolour = params[7]
 		local root = params[8]
 		local layer = params[9]
+		local argtype = params[10]
+		local argextra = params[11]
 		
 		if (name ~= nil) then
 			if (string.len(name) > 0) then
@@ -123,6 +125,60 @@ function savechange(target,params,updateid_)
 				end
 			end
 		end
+		
+		if (argtype ~= nil) then
+			if (string.len(argtype) > 0) then
+				local argtype_ = MF_parsestring(argtype)
+				this.argtype = argtype_
+				
+				local otype = this.type or default.type
+				
+				if (conditions[target] ~= nil) then
+					conditions[target] = {}
+					
+					if (otype == 7) then
+						conddata.arguments = true
+						conddata.argtype = default.argtype or {0}
+						
+						if (default.argextra ~= nil) then
+							conddata.argextra = {}
+							
+							for a,b in ipairs(default.argextra) do
+								table.insert(conddata.argextra, b)
+							end
+						end
+					else
+						conddata.arguments = false
+					end
+				end
+			end
+		end
+		
+		if (argextra ~= nil) then
+			if (string.len(argextra) > 0) then
+				local argextra_ = MF_parsestring(argextra)
+				this.argextra = argextra_
+				
+				local isdefault = true
+				local defeaultargextra = default.argextra or {}
+				
+				if (#argextra_ ~= #defeaultargextra) then
+					isdefault = false
+				else
+					for i,v in ipairs(argextra_) do
+						local compare = defeaultargextra[i] or ""
+						
+						if (compare ~= v) then
+							isdefault = false
+						end
+					end
+				end
+				
+				if isdefault then
+					this.argextra = nil
+				end
+			end
+		end
 	end
 	
 	if (updateid ~= 0) then
@@ -156,6 +212,8 @@ function storechanges()
 end
 
 function restoredefaults()
+	local namesetups = {}
+	
 	for target,this in pairs(changes) do
 		if (target == "Editor_levelnum") then
 			for i,icondata in pairs(this) do
@@ -181,14 +239,49 @@ function restoredefaults()
 				if (unitreference[this.name] ~= nil) then
 					local uid = unitreference[this.name]
 					
-					unitreference[tiledata.name] = uid
+					table.insert(namesetups, {tiledata.name, target})
+					
+					unitreference[tiledata.name] = target
 					unitreference[this.name] = nil
+				end
+			end
+			
+			if (this.argtype ~= nil) then
+				local argtype_ = this.argtype
+				local argtype = tiledata.argtype or {0}
+				local otype = this.type or tiledata.type
+				
+				if (conditions[target] ~= nil) then
+					conditions[target] = {}
+					
+					local conddata = conditions[target]
+					
+					if (otype == 1) or (otype == 3) or (otype == 6) or (otype == 7) then
+						conddata.arguments = true
+						conddata.argtype = tiledata.argtype or {0}
+						
+						if (tiledata.argextra ~= nil) then
+							conddata.argextra = {}
+							
+							for a,b in ipairs(tiledata.argextra) do
+								table.insert(conddata.argextra, b)
+							end
+						end
+					else
+						conddata.arguments = false
+					end
 				end
 			end
 			
 			MF_restoredefaults(thisid,tiledata.sprite,root)
 			MF_cleanremove(thisid)
 		end
+	end
+	
+	for i,v in ipairs(namesetups) do
+		local name = v[1]
+		local uid = v[2]
+		unitreference[name] = uid
 	end
 	
 	changes = {}
@@ -340,6 +433,15 @@ function resetchanges(unitid)
 	end
 	
 	if (changes[name] ~= nil) then
+		local c = changes[name]
+		
+		if (c.name ~= nil) then
+			local cname = c.name
+			local rname = tiledata.name
+			unitreference[cname] = nil
+			unitreference[rname] = name
+		end
+		
 		changes[name] = nil
 	end
 	
@@ -362,7 +464,7 @@ function addchange(unitid)
 	
 	local default = tileslist[name]
 	
-	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer"}
+	local things = {"name","image","colour","tiling","type","unittype","activecolour","root","layer","argtype","argextra"}
 	local allchanges = {}
 	
 	for i,v in ipairs(things) do

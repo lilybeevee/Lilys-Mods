@@ -8,6 +8,7 @@ function newundo()
 	table.insert(undobuffer, 1, {})
 	
 	local thisundo = undobuffer[1]
+	thisundo.key = last_key
 	
 	if (thisundo ~= nil) then
 		thisundo.wordunits = {}
@@ -43,6 +44,8 @@ end
 function undo()
 	if (#undobuffer > 1) then
 		local currentundo = undobuffer[2]
+		
+		last_key = currentundo.key or 0
 		
 		if (currentundo ~= nil) then
 			for i,line in ipairs(currentundo) do
