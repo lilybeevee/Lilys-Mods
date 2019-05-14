@@ -858,8 +858,6 @@ function block(small_)
 			end
 		end
 	end
-
-	dotimelesscolours()
 	
 	local issink = getunitswitheffect("sink",delthese)
 	
@@ -874,7 +872,7 @@ function block(small_)
 			if (#water > 0) then
 				for a,b in ipairs(water) do
 					if floating(b,unit.fixed) then
-						if (issafe(b) == false) and (b ~= unit.fixed) and (timecheck(b) or timecheck(unit.fixed)) then
+						if (issafe(b) == false) and (b ~= unit.fixed) and timecheck(unit.fixed) then
 							local dosink = true
 							
 							for c,d in ipairs(delthese) do
@@ -1345,6 +1343,8 @@ function block(small_)
 	if doremovalsound then
 		setsoundname("removal",removalsound,removalshort)
 	end
+
+	dotimelesscolours()
 end
 
 function handledels(delthese,doremovalsound)

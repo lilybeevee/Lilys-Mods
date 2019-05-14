@@ -2162,7 +2162,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},]]
-	--[[object120 = {
+	object123 = {
 		name = "text_timeless",
 		sprite = "text_timeless",
 		sprite_in_root = true,
@@ -2172,9 +2172,9 @@ tileslist =
 		colour = {2, 1},
 		active = {2, 2},
 		tile = {21, 12},
-		grid = {11, 4},
+		grid = {11, 2},
 		layer = 20,
-	},]]
+	},
 	object121 = {
 		name = "text_beam",
 		sprite = "text_beam",
@@ -2217,7 +2217,7 @@ tileslist =
 		grid = {11, 3},
 		layer = 20,
 	},
-	object123 = 
+	--[[object123 = 
 	{
 		name = "text_cross",
 		sprite = "text_cross",
@@ -2230,7 +2230,7 @@ tileslist =
 		tile = {25, 12},
 		grid = {11, 2},
 		layer = 20,
-	},
+	},]]
 }
 
 -- abcdefghijklmnopqrstuvwxyz0123456789-.?!,':_><()&+@��{}/$�����
