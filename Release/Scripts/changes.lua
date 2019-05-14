@@ -378,7 +378,7 @@ function dochanges(unitid)
 				local c1 = string.sub(c.colour, 1, cutoff-1)
 				local c2 = string.sub(c.colour, cutoff+1)
 				
-				addobjectcolour(realname,"colour",c1,c2)
+				addobjectcolour(realname,"colour",tonumber(c1),tonumber(c2))
 			else
 				print("New object colour formatted wrong!")
 			end
@@ -396,7 +396,7 @@ function dochanges(unitid)
 				local c1 = string.sub(c.activecolour, 1, cutoff-1)
 				local c2 = string.sub(c.activecolour, cutoff+1)
 				
-				addobjectcolour(realname,"active",c1,c2)
+				addobjectcolour(realname,"active",tonumber(c1),tonumber(c2))
 			else
 				print("New object active colour formatted wrong!")
 			end

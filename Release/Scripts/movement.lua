@@ -906,7 +906,6 @@ function updatestill()
 		end
 	end
 	if haschanged then
-		print("yes!")
 		forceupdateundo = true
 	end
 end
